@@ -18,7 +18,11 @@ public class StockDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "stock_code", nullable = false, insertable = false, updatable = false)
+    @ManyToOne
+    @JoinColumn(name = "stock_code")
+    private Stocks stocks;
+
+    @Column(name = "stock_code", insertable = false, updatable = false)
     private String stockCode;
 
     @Column(name = "open_price")
@@ -50,8 +54,4 @@ public class StockDetail {
 
     @Column(name = "price_sign")
     private Byte priceSign;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stock_code", referencedColumnName = "stock_code")
-    private Stocks stocks;
 }
