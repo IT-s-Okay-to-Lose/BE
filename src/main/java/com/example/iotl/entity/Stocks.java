@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "stocks")
-public class StockInfo {
+public class Stocks {
 
     @Id
     @Column(name = "stock_code", length = 10)

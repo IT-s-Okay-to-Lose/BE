@@ -1,24 +1,28 @@
 package com.example.iotl.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "stock_price")
 @Getter
 @Setter
-public class StockPrice {
-
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "stock_detail")
+public class StockDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "stock_code")
+    @ManyToOne
+    @JoinColumn(name = "stock_code")
+    private Stocks stocks;
+
+    @Column(name = "stock_code", insertable = false, updatable = false)
     private String stockCode;
 
     @Column(name = "open_price")
@@ -50,6 +54,4 @@ public class StockPrice {
 
     @Column(name = "price_sign")
     private Byte priceSign;
-
-    public StockPrice() {}
 }

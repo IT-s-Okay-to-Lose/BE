@@ -57,7 +57,7 @@ public class StockScheduler {
 
         for (String code : batch) {
             try {
-                StockPriceDto dto = stockService.saveStockPrice(code);
+                StockPriceDto dto = stockService.saveStockPrice(code); // StockDetail 기반 DTO
                 collected.add(dto);
                 log.info("✅ {} 저장 및 수신 성공", code);
             } catch (Exception e) {
