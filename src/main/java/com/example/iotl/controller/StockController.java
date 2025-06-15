@@ -1,31 +1,40 @@
 package com.example.iotl.controller;
 
+import com.example.iotl.dto.StockDetailDto;
 import com.example.iotl.dto.StockPriceDto;
+import com.example.iotl.entity.StockDetail;
+import com.example.iotl.repository.StockInfoRepository;
+import com.example.iotl.repository.StockRepository;
 import com.example.iotl.service.StockService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/kis/stocks")
+@RequiredArgsConstructor
+@RequestMapping("/api/stocks")
 public class StockController {
 
     private final StockService stockService;
 
-    public StockController(StockService stockService) {
-        this.stockService = stockService;
-    }
+    @Autowired
+    private StockRepository stockRepository;
 
-    @PostMapping("/{code}")
+    // 실시간 가격 조회 및 저장
+    @PostMapping("/kis/{code}")
     public ResponseEntity<String> saveStock(@PathVariable String code) {
         stockService.saveStockPrice(code);
         return ResponseEntity.ok("Stock price saved successfully.");
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/kis/{code}")
     public ResponseEntity<StockPriceDto> getAndSaveStock(@PathVariable String code) {
         Map<String, String> output = (Map<String, String>) stockService.getStockPrice(code).get("output");
 
@@ -33,10 +42,8 @@ public class StockController {
             return ResponseEntity.notFound().build();
         }
 
-        // 저장 로직 수행
         stockService.saveStockPrice(code);
 
-        // 클라이언트 응답용 DTO 구성
         StockPriceDto dto = new StockPriceDto();
         dto.setStockCode(output.get("stck_shrn_iscd"));
         dto.setOpenPrice(new BigDecimal(output.get("stck_oprc")));
@@ -51,5 +58,27 @@ public class StockController {
         dto.setCreatedAt(LocalDateTime.now());
 
         return ResponseEntity.ok(dto);
+    }
+
+    // 종목 전체 조회
+    @GetMapping
+    public List<StockDetailDto> getAllStocks() {
+        return stockRepository.findAll().stream()
+                .map(StockDetailDto::new)
+                .collect(Collectors.toList());
+    }
+
+    // 종목 코드로 조회
+    @GetMapping("/{code}")
+    public List<StockDetail> getStocksByCode(@PathVariable String code) {
+        return stockRepository.findByStockCode(code);
+    }
+
+
+    @GetMapping("/market")
+    public List<StockDetailDto> getMarketStockList() {
+        return stockRepository.findAll().stream()
+                .map(StockDetailDto::new)
+                .collect(Collectors.toList());
     }
 }
