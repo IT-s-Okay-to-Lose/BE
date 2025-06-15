@@ -1,7 +1,7 @@
 package com.example.iotl.service;
 
 import com.example.iotl.dto.StockPriceDto;
-import com.example.iotl.entity.StockInfo;
+import com.example.iotl.entity.Stocks;
 import com.example.iotl.entity.StockPrice;
 import com.example.iotl.repository.StockInfoRepository;
 import com.example.iotl.repository.StockPriceRepository;
@@ -46,7 +46,7 @@ public class StockService {
     public List<String> getAllStockCodes() {
         return stockInfoRepository.findAll()
                 .stream()
-                .map(StockInfo::getStockCode)
+                .map(Stocks::getStockCode)
                 .toList();
     }
 
