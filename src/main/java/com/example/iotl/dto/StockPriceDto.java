@@ -1,10 +1,10 @@
 package com.example.iotl.dto;
 
+import com.example.iotl.entity.StockDetail;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.example.iotl.entity.StockPrice;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,7 +27,8 @@ public class StockPriceDto {
     private Long volume;
     private LocalDateTime createdAt;
 
-    public StockPriceDto(StockPrice stock) {
+    // ✅ StockDetail을 기반으로 생성자 수정
+    public StockPriceDto(StockDetail stock) {
         this.id = stock.getId();
         this.stockCode = stock.getStockCode();
         this.openPrice = stock.getOpenPrice();

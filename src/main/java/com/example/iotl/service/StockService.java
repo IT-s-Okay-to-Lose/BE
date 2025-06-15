@@ -1,11 +1,11 @@
 package com.example.iotl.service;
 
 import com.example.iotl.dto.StockPriceDto;
-import com.example.iotl.entity.StockInfo;
-import com.example.iotl.entity.StockPrice;
+import com.example.iotl.entity.StockDetail;
+import com.example.iotl.entity.Stocks;
 import com.example.iotl.repository.StockInfoRepository;
-import com.example.iotl.repository.StockPriceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.iotl.repository.StockRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -18,12 +18,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 @Service
+@RequiredArgsConstructor
 public class StockService {
 
     private final RestTemplate restTemplate;
-    private final StockPriceRepository stockPriceRepository;
+    private final StockRepository stockRepository;
+    private final StockInfoRepository stockInfoRepository;
 
     @Value("${kis.api.base-url}")
     private String baseUrl;
@@ -36,22 +37,11 @@ public class StockService {
 
     private String accessToken;
 
-    public StockService(RestTemplate restTemplate, StockPriceRepository stockPriceRepository) {
-        this.restTemplate = restTemplate;
-        this.stockPriceRepository = stockPriceRepository;
-    }
-    @Autowired
-    private StockInfoRepository stockInfoRepository;
-
-    public List<String> getAllStockCodes() {
-        return stockInfoRepository.findAll()
-                .stream()
-                .map(StockInfo::getStockCode)
-                .toList();
-    }
-
+    /**
+     * 액세스 토큰 가져오기
+     */
     public String getAccessToken() {
-        String url = baseUrl + "/oauth2/tokenP";
+        if (accessToken != null) return accessToken;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -62,55 +52,73 @@ public class StockService {
         body.put("appsecret", appSecret);
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
-
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                baseUrl + "/oauth2/tokenP", request, Map.class
+        );
         accessToken = (String) response.getBody().get("access_token");
         return accessToken;
     }
 
-    public Map getStockPrice(String code) {
-        if (accessToken == null) {
-            getAccessToken();
-        }
-
-        String url = baseUrl + "/uapi/domestic-stock/v1/quotations/inquire-price";
+    /**
+     * 종목 코드에 대한 실시간 가격 정보 요청
+     */
+    public Map<String, Object> getStockPrice(String code) {
+        getAccessToken(); // 토큰 미리 획득
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("authorization", "Bearer " + accessToken);
         headers.set("appKey", appKey);
         headers.set("appSecret", appSecret);
-        headers.set("tr_id", "FHKST01010100"); // 현재가 조회용
+        headers.set("tr_id", "FHKST01010100");
         headers.set("custtype", "P");
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(baseUrl + "/uapi/domestic-stock/v1/quotations/inquire-price")
                 .queryParam("FID_COND_MRKT_DIV_CODE", "J")
                 .queryParam("FID_INPUT_ISCD", code);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<Map> response = restTemplate.exchange(
-                builder.toUriString(), HttpMethod.GET, entity, Map.class);
+                builder.toUriString(), HttpMethod.GET, entity, Map.class
+        );
 
         return response.getBody();
     }
 
+    /**
+     * 실시간 가격 저장 및 DTO 반환
+     */
     public StockPriceDto saveStockPrice(String code) {
         Map result = getStockPrice(code);
         Map<String, String> output = (Map<String, String>) result.get("output");
 
-        StockPrice stock = new StockPrice();
-        stock.setStockCode(output.get("stck_shrn_iscd"));
-        stock.setOpenPrice(new BigDecimal(output.get("stck_oprc")));
-        stock.setHighPrice(new BigDecimal(output.get("stck_hgpr")));
-        stock.setLowPrice(new BigDecimal(output.get("stck_lwpr")));
-        stock.setClosePrice(new BigDecimal(output.get("stck_prpr")));
-        stock.setPriceDiff(new BigDecimal(output.get("prdy_vrss")));
-        stock.setPriceRate(new BigDecimal(output.get("prdy_ctrt")));
-        stock.setPriceSign(Byte.parseByte(output.get("prdy_vrss_sign")));
-        stock.setVolume(Long.parseLong(output.get("acml_vol")));
-        stock.setPrevClosePrice(stock.getClosePrice().subtract(stock.getPriceDiff()));
-        stock.setCreatedAt(LocalDateTime.now());
+        Stocks stocks = stockInfoRepository.findById(code)
+                .orElseThrow(() -> new IllegalArgumentException("❌ 등록되지 않은 종목 코드: " + code));
 
-        StockPrice saved = stockPriceRepository.save(stock);
+        StockDetail stock = StockDetail.builder()
+                .stockCode(output.get("stck_shrn_iscd"))
+                .stocks(stocks) // Join 설정
+                .openPrice(new BigDecimal(output.get("stck_oprc")))
+                .highPrice(new BigDecimal(output.get("stck_hgpr")))
+                .lowPrice(new BigDecimal(output.get("stck_lwpr")))
+                .closePrice(new BigDecimal(output.get("stck_prpr")))
+                .priceDiff(new BigDecimal(output.get("prdy_vrss")))
+                .priceRate(new BigDecimal(output.get("prdy_ctrt")))
+                .priceSign(Byte.parseByte(output.get("prdy_vrss_sign")))
+                .volume(Long.parseLong(output.get("acml_vol")))
+                .prevClosePrice(new BigDecimal(output.get("stck_prpr"))
+                        .subtract(new BigDecimal(output.get("prdy_vrss"))))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        StockDetail saved = stockRepository.save(stock);
         return new StockPriceDto(saved);
+    }
+
+    /**
+     * 종목 코드 전체 조회
+     */
+    public List<String> getAllStockCodes() {
+        return stockInfoRepository.findAllStockCodes();
     }
 }

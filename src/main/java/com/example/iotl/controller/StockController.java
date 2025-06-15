@@ -1,55 +1,40 @@
 package com.example.iotl.controller;
 
-import com.example.iotl.dto.StockPriceDto;
+import com.example.iotl.entity.StockDetail;
+import com.example.iotl.repository.StockRepository;
 import com.example.iotl.service.StockService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Map;
-
+import java.util.List;
 @RestController
-@RequestMapping("/api/kis/stocks")
+@RequiredArgsConstructor
+@RequestMapping("/api/stocks")
 public class StockController {
 
     private final StockService stockService;
+    private final StockRepository stockRepository;
 
-    public StockController(StockService stockService) {
-        this.stockService = stockService;
-    }
-
-    @PostMapping("/{code}")
+    @PostMapping("/kis/{code}")
     public ResponseEntity<String> saveStock(@PathVariable String code) {
         stockService.saveStockPrice(code);
-        return ResponseEntity.ok("Stock price saved successfully.");
+        return ResponseEntity.ok("Saved.");
+    }
+
+    @GetMapping("/kis/{code}")
+    public ResponseEntity<StockDetail> getStock(@PathVariable String code) {
+        List<StockDetail> list = stockRepository.findByStockCode(code);
+        return list.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(list.get(0));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<StockDetail>> getAll() {
+        return ResponseEntity.ok(stockRepository.findAll());
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<StockPriceDto> getAndSaveStock(@PathVariable String code) {
-        Map<String, String> output = (Map<String, String>) stockService.getStockPrice(code).get("output");
-
-        if (output == null || output.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // 저장 로직 수행
-        stockService.saveStockPrice(code);
-
-        // 클라이언트 응답용 DTO 구성
-        StockPriceDto dto = new StockPriceDto();
-        dto.setStockCode(output.get("stck_shrn_iscd"));
-        dto.setOpenPrice(new BigDecimal(output.get("stck_oprc")));
-        dto.setHighPrice(new BigDecimal(output.get("stck_hgpr")));
-        dto.setLowPrice(new BigDecimal(output.get("stck_lwpr")));
-        dto.setClosePrice(new BigDecimal(output.get("stck_prpr")));
-        dto.setPriceDiff(new BigDecimal(output.get("prdy_vrss")));
-        dto.setPriceRate(new BigDecimal(output.get("prdy_ctrt")));
-        dto.setPriceSign(Byte.parseByte(output.get("prdy_vrss_sign")));
-        dto.setVolume(Long.parseLong(output.get("acml_vol")));
-        dto.setPrevClosePrice(dto.getClosePrice().subtract(dto.getPriceDiff()));
-        dto.setCreatedAt(LocalDateTime.now());
-
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<List<StockDetail>> findByCode(@PathVariable String code) {
+        return ResponseEntity.ok(stockRepository.findByStockCode(code));
     }
 }
