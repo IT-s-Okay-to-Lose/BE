@@ -1,19 +1,28 @@
 package com.example.iotl.dto;
 
 import com.example.iotl.entity.StockDetail;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-// 실시간 갱신용 데이터만 따로
+
 @Getter
 @Setter
 @AllArgsConstructor
 public class DynamicStockDataDto {
+
+    @Schema(description = "주식 상세 정보 ID", example = "1001")
     private Long id;
+
+    @Schema(description = "현재가", example = "59300")
     private BigDecimal currentPrice;
+
+    @Schema(description = "등락률 (%)", example = "-1.25")
     private BigDecimal fluctuationRate;
+
+    @Schema(description = "누적 거래량", example = "2034590")
     private Long accumulatedVolume;
 
     public DynamicStockDataDto(StockDetail stockDetail) {
