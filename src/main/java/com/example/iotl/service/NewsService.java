@@ -44,11 +44,11 @@ public class NewsService {
     );
 
     public NewsSearchResponse getTop3RandomNews() {
-        String encodedKeyword = URLEncoder.encode("뉴스", StandardCharsets.UTF_8);
+        String keyword = "뉴스";
 
         URI uri = UriComponentsBuilder
                 .fromUriString(naverApiConfig.getNewsUrl())
-                .queryParam("query", encodedKeyword)
+                .queryParam("query", keyword)
                 .queryParam("display", 20)
                 .queryParam("start", 1)
                 .queryParam("sort", "date")
