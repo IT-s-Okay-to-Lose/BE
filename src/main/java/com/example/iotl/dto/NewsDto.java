@@ -8,10 +8,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class NewsDto {
-    @Schema(description = "뉴스 제목", example = "국민은행 주가 상승")
+    @Schema(description = "아이디", example = "1")
     private String id;
-    @Schema(description = "뉴스 기사 링크", example = "https://example.com/news/1")
+    @Schema(description = "뉴스 제목", example = "코스피 2,700선 돌파... 외국인 매수세 유입")
     private String title;
-    @Schema(description = "뉴스 발행 날짜", example = "2025-06-16")
+    @Schema(description = "언론사", example = "이데일리")
     private String press;
 }
