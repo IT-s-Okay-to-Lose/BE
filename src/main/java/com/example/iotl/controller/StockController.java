@@ -2,8 +2,14 @@ package com.example.iotl.controller;
 
 import com.example.iotl.dto.*;
 import com.example.iotl.entity.StockDetail;
-import com.example.iotl.repository.StockRepository;
+import com.example.iotl.entity.Stocks;
+import com.example.iotl.repository.StockInfoRepository;
 import com.example.iotl.service.StockService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,92 +20,146 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/stocks")
+@Tag(name = "Stocks", description = "주식 관련 API")
 public class StockController {
 
     private final StockService stockService;
-    private final StockRepository stockRepository;
 
-    // 특정 종목 코드를 기반으로 KIS API에서 실시간 주식 데이터를 조회하고 저장
+    @Operation(summary = "특정 종목 실시간 저장", description = "KIS API를 호출하여 해당 종목 코드를 저장합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "저장 성공"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @PostMapping("/kis/{code}")
-    public ResponseEntity<String> saveStock(@PathVariable String code) {
+    public ResponseEntity<String> saveStock(
+            @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
         stockService.saveStockPrice(code);
         return ResponseEntity.ok("Saved.");
     }
 
-    // 특정 종목 코드에 대한 가장 최근의 주식 상세 정보 반환
+    @Operation(summary = "특정 종목 상세 정보 조회", description = "최근 저장된 StockDetail을 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "종목 정보를 찾을 수 없음")
+    })
     @GetMapping("/kis/{code}")
-    public ResponseEntity<StockDetail> getStock(@PathVariable String code) {
-        List<StockDetail> list = stockRepository.findByStockCode(code);
-        return list.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(list.get(0));
+    public ResponseEntity<StockDetailDto> getStock(
+            @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
+        var stock = stockService.findLatestStockByCode(code);
+        return stock == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(new StockDetailDto(stock));
     }
 
-    // 모든 주식 상세 정보 리스트 조회
+    @Operation(summary = "전체 종목 상세 정보 조회", description = "모든 주식 상세 정보 리스트를 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping
-    public ResponseEntity<List<StockDetail>> getAll() {
-        return ResponseEntity.ok(stockRepository.findAll());
+    public ResponseEntity<List<StockDetailDto>> getAll() {
+        return ResponseEntity.ok(
+                stockService.findAllStocks().stream()
+                        .map(StockDetailDto::new)
+                        .collect(Collectors.toList())
+        );
     }
 
-    // 특정 종목 코드로 조회된 모든 주식 상세 정보 리스트 반환
+    @Operation(summary = "특정 종목코드로 한 종목에 대한 상세 정보 조회", description = "코드 기반으로 상세정보를 리스트로 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/{code}")
-    public ResponseEntity<List<StockDetail>> findByCode(@PathVariable String code) {
-        return ResponseEntity.ok(stockRepository.findByStockCode(code));
+    public ResponseEntity<List<StockDetailDto>> findByCode(
+            @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
+        return ResponseEntity.ok(
+                stockService.findStocksByCode(code).stream()
+                        .map(StockDetailDto::new)
+                        .collect(Collectors.toList())
+        );
     }
 
-    // MarketStockDto 리스트 반환 (메인 페이지 실시간 차트)
+    @Operation(summary = "실시간 동적 주식 정보 조회", description = "DynamicStockDataDto 반환 (현재가, 등락률, 거래량)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 종목 없음")
+    })
+    @GetMapping("/{code}/dynamic")
+    public ResponseEntity<DynamicStockDataDto> getDynamicStockData(
+            @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
+        StockDetail stock = stockService.findLatestStockByCode(code);
+        return stock == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(new DynamicStockDataDto(stock));
+    }
+
+    @Operation(summary = "모든 종목 정적 데이터 조회", description = "StaticStockMetaDto 리스트 반환 (정적 종목 정보)")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @GetMapping("/meta")
+    public ResponseEntity<List<StaticStockMetaDto>> getAllStockMetas() {
+        return ResponseEntity.ok(stockService.getAllStockMetas());
+    }
+
+    @Operation(summary = "메인페이지 실시간 차트 데이터", description = "MarketStockDto 리스트 반환")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/market")
     public ResponseEntity<List<MarketStockDto>> getMarketStocks() {
-        List<StockDetail> stocks = stockRepository.findAll();
-        List<MarketStockDto> result = stocks.stream()
-                .map(MarketStockDto::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(
+                stockService.findAllStocks().stream()
+                        .map(MarketStockDto::new)
+                        .collect(Collectors.toList())
+        );
     }
 
-    // MarketStockInfoDto (디테일 페이지 - 종목 정보)
+    @Operation(summary = "상세 페이지 종목 정보 조회", description = "MarketStockInfoDto 반환")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 종목 없음")
+    })
     @GetMapping("/{code}/info")
-    public ResponseEntity<MarketStockInfoDto> getStockInfo(@PathVariable String code) {
-        List<StockDetail> stocks = stockRepository.findByStockCode(code);
-        return stocks.isEmpty()
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(new MarketStockInfoDto(stocks.get(0)));
+    public ResponseEntity<MarketStockInfoDto> getStockInfo(
+            @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
+        var stock = stockService.findLatestStockByCode(code);
+        return stock == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(new MarketStockInfoDto(stock));
     }
 
-    // MarketStockPriceInfoDto (디테일 페이지 - 가격 정보)
+    @Operation(summary = "상세 페이지 가격 정보 조회", description = "MarketStockPriceInfoDto 반환")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 종목 없음")
+    })
     @GetMapping("/{code}/price")
-    public ResponseEntity<MarketStockPriceInfoDto> getPriceInfo(@PathVariable String code) {
-        List<StockDetail> stocks = stockRepository.findByStockCode(code);
-        return stocks.isEmpty()
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(new MarketStockPriceInfoDto(stocks.get(0)));
+    public ResponseEntity<MarketStockPriceInfoDto> getPriceInfo(
+            @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
+        var stock = stockService.findLatestStockByCode(code);
+        return stock == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(new MarketStockPriceInfoDto(stock));
     }
 
-    // CandleDataDto (디테일 페이지 - 캔들 차트)
+    @Operation(summary = "캔들 차트 데이터 조회", description = "CandleDataDto 리스트 반환")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/{code}/candle")
-    public ResponseEntity<List<CandleDataDto>> getCandleData(@PathVariable String code) {
-        List<StockDetail> stocks = stockRepository.findByStockCode(code);
-        List<CandleDataDto> result = stocks.stream()
-                .map(CandleDataDto::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<CandleDataDto>> getCandleData(
+            @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
+        return ResponseEntity.ok(
+                stockService.findStocksByCode(code).stream()
+                        .map(CandleDataDto::new)
+                        .collect(Collectors.toList())
+        );
     }
 
-    // VolumeDataDto (디테일 페이지 - 거래량 차트)
+    @Operation(summary = "거래량 차트 데이터 조회", description = "VolumeDataDto 리스트 반환")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/{code}/volume")
-    public ResponseEntity<List<VolumeDataDto>> getVolumeData(@PathVariable String code) {
-        List<StockDetail> stocks = stockRepository.findByStockCode(code);
-        List<VolumeDataDto> result = stocks.stream()
-                .map(VolumeDataDto::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<VolumeDataDto>> getVolumeData(
+            @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
+        return ResponseEntity.ok(
+                stockService.findStocksByCode(code).stream()
+                        .map(VolumeDataDto::new)
+                        .collect(Collectors.toList())
+        );
     }
 
-    // StockPortfolioDto (내 모의투자 보유 주식)
+    @Operation(summary = "내 보유 주식 목록 조회", description = "StockPortfolioDto 리스트 반환")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/portfolio")
     public ResponseEntity<List<StockPortfolioDto>> getPortfolio() {
-        List<StockDetail> stocks = stockRepository.findAll(); // 실제는 로그인 유저 기반으로 필터링
-        List<StockPortfolioDto> result = stocks.stream()
-                .map(s -> new StockPortfolioDto(s, 10, s.getClosePrice())) // 예시: 수량 10, 평균가 = 현재가
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(
+                stockService.findAllStocks().stream()
+                        .map(s -> new StockPortfolioDto(s, 10, s.getClosePrice()))
+                        .collect(Collectors.toList())
+        );
     }
 }
