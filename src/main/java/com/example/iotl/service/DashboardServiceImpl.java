@@ -6,14 +6,17 @@ import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
 import com.example.iotl.entity.Holdings;
 import com.example.iotl.entity.Order;
 import com.example.iotl.entity.StockDetail;
+import com.example.iotl.entity.Trade;
 import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.repository.OrderRepository;
 import com.example.iotl.repository.StockDetailRepository;
+import com.example.iotl.repository.TradeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -23,6 +26,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final OrderRepository orderRepository;
     private final HoldingsRepository holdingsRepository;
     private final StockDetailRepository stockDetailRepository;
+    private final TradeRepository tradeRepository;
 
     @Override
     public UserInvestmentSummaryDto getInvestmentSummary(Long userId) {
@@ -108,40 +112,44 @@ public class DashboardServiceImpl implements DashboardService {
         };
     }
 
-    @Override
-    public RealizedProfitSummaryDto getRealizedProfitSummary(Long userId) {
-        List<Order> sellOrders = orderRepository.findByUser_UserIdAndOrderTypeAndStatus(
-                userId,
-                Order.OrderType.SELL,
-                Order.OrderStatus.COMPLETED
-        );
+    public RealizedProfitSummaryDto getRealizedProfitSummary(Long userId, int year, int month) {
+        LocalDateTime start = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime end = start.withDayOfMonth(start.toLocalDate().lengthOfMonth())
+                .withHour(23).withMinute(59).withSecond(59);
+
+        List<Trade> trades = tradeRepository.findTradesByUserAndDateRange(userId, start, end);
 
         BigDecimal totalProfit = BigDecimal.ZERO;
 
-        // 종목당 평균 매입가
-        for (Order order : sellOrders) {
+        for (Trade trade : trades) {
+            Order order = trade.getOrder();
+            if (order.getOrderType() != Order.OrderType.SELL ||
+                    order.getStatus() != Order.OrderStatus.COMPLETED) {
+                continue;
+            }
+
             BigDecimal avgBuyPrice = order.getStock().getHoldings().stream()
                     .filter(h -> h.getUser().getUserId().equals(userId))
                     .map(h -> h.getAverageBuyPrice())
                     .findFirst()
                     .orElse(BigDecimal.ZERO);
 
-            BigDecimal sellPrice = order.getPrice();
-            int quantity = order.getQuantity();
+            BigDecimal executedPrice = trade.getExecutedPrice();
+            int executedQty = trade.getExecutedQuantity();
 
-            BigDecimal profitPerOrder = sellPrice.subtract(avgBuyPrice)
-                    .multiply(BigDecimal.valueOf(quantity));
+            BigDecimal profit = executedPrice.subtract(avgBuyPrice)
+                    .multiply(BigDecimal.valueOf(executedQty));
 
-            totalProfit = totalProfit.add(profitPerOrder);
+            totalProfit = totalProfit.add(profit);
         }
 
         long saleIncome = totalProfit.longValue();
-        long dividendIncome = 0L;  // dividend 기능 아직 없으면 0
+        long dividendIncome = 0L;
 
         return new RealizedProfitSummaryDto(
-                saleIncome + dividendIncome,
+                dividendIncome + saleIncome,  // totalIncome
                 dividendIncome,
-                saleIncome
+                saleIncome                 
         );
     }
 }

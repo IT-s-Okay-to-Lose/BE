@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "Dashboard/Summary API", description = "총 투자 요약 관련 API")
@@ -49,8 +50,16 @@ public class DashboardController {
     }
 
     @GetMapping("/realized-summary")
-    public ResponseEntity<RealizedProfitSummaryDto> getRealizedProfitSummary(@RequestParam Long userId) {
-        RealizedProfitSummaryDto dto = dashboardService.getRealizedProfitSummary(userId);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<RealizedProfitSummaryDto> getRealizedProfitSummary(
+            @RequestParam Long userId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month
+    ) {
+        if (year == null || month == null) {
+            LocalDateTime now = LocalDateTime.now();
+            year = now.getYear();
+            month = now.getMonthValue();
+        }
+        return ResponseEntity.ok(dashboardService.getRealizedProfitSummary(userId, year, month));
     }
 }
