@@ -1,14 +1,13 @@
 package com.example.iotl.service;
 
-import com.example.iotl.dto.OrderRequestDto;
-import com.example.iotl.dto.OrderResponseDto;
+import com.example.iotl.dto.order.OrderRequestDto;
+import com.example.iotl.dto.order.OrderResponseDto;
 import com.example.iotl.entity.Order;
 import com.example.iotl.entity.Order.OrderStatus;
 import com.example.iotl.entity.Stocks;
 import com.example.iotl.entity.User;
 import com.example.iotl.repository.OrderRepository;
 import com.example.iotl.repository.StockInfoRepository;
-import com.example.iotl.repository.StockRepository;
 import com.example.iotl.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
