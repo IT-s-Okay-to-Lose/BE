@@ -1,5 +1,5 @@
 // NewsSearchResponse.java
-package com.example.iotl.dto;
+package com.example.iotl.dto.news;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
