@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order,Long> {
     // 원금 (totalCash) = BUY + COMPLETED 주문의 quantity * price 총합
@@ -19,4 +20,6 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
             @Param("orderType") Order.OrderType orderType,
             @Param("status") Order.OrderStatus status
     );
+
+    List<Order> findByUser_UserIdAndOrderTypeAndStatus(Long userId, Order.OrderType orderType, Order.OrderStatus status);
 }

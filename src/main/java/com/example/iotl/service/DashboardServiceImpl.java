@@ -2,6 +2,7 @@ package com.example.iotl.service;
 
 import com.example.iotl.dto.dashboard.UserInvestmentSummaryDto;
 import com.example.iotl.dto.holding.HoldingRatioDto;
+import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
 import com.example.iotl.entity.Holdings;
 import com.example.iotl.entity.Order;
 import com.example.iotl.entity.StockDetail;
@@ -105,5 +106,42 @@ public class DashboardServiceImpl implements DashboardService {
             case "하이닉스" -> "#FFCE56";
             default -> "#AAAAAA";
         };
+    }
+
+    @Override
+    public RealizedProfitSummaryDto getRealizedProfitSummary(Long userId) {
+        List<Order> sellOrders = orderRepository.findByUser_UserIdAndOrderTypeAndStatus(
+                userId,
+                Order.OrderType.SELL,
+                Order.OrderStatus.COMPLETED
+        );
+
+        BigDecimal totalProfit = BigDecimal.ZERO;
+
+        // 종목당 평균 매입가
+        for (Order order : sellOrders) {
+            BigDecimal avgBuyPrice = order.getStock().getHoldings().stream()
+                    .filter(h -> h.getUser().getUserId().equals(userId))
+                    .map(h -> h.getAverageBuyPrice())
+                    .findFirst()
+                    .orElse(BigDecimal.ZERO);
+
+            BigDecimal sellPrice = order.getPrice();
+            int quantity = order.getQuantity();
+
+            BigDecimal profitPerOrder = sellPrice.subtract(avgBuyPrice)
+                    .multiply(BigDecimal.valueOf(quantity));
+
+            totalProfit = totalProfit.add(profitPerOrder);
+        }
+
+        long saleIncome = totalProfit.longValue();
+        long dividendIncome = 0L;  // dividend 기능 아직 없으면 0
+
+        return new RealizedProfitSummaryDto(
+                saleIncome + dividendIncome,
+                dividendIncome,
+                saleIncome
+        );
     }
 }
