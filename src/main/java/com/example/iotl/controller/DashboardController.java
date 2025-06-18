@@ -2,6 +2,7 @@ package com.example.iotl.controller;
 
 import com.example.iotl.dto.dashboard.UserInvestmentSummaryDto;
 import com.example.iotl.dto.holding.HoldingRatioDto;
+import com.example.iotl.dto.realized.RealizedProfitDetailDateDto;
 import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
 import com.example.iotl.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,5 +72,20 @@ public class DashboardController {
             month = now.getMonthValue();
         }
         return ResponseEntity.ok(dashboardService.getRealizedProfitSummary(userId, year, month));
+    }
+
+    @Operation(summary = "실현 수익 상세 내역 조회", description = "월별 판매수익 상세 리스트를 날짜별로 반환합니다.")
+    @GetMapping("/realized-detail")
+    public ResponseEntity<List<RealizedProfitDetailDateDto>> getRealizedProfitDetail(
+            @RequestParam Long userId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month
+    ) {
+        if (year == null || month == null) {
+            LocalDateTime now = LocalDateTime.now();
+            year = now.getYear();
+            month = now.getMonthValue();
+        }
+        return ResponseEntity.ok(dashboardService.getRealizedProfitDetail(userId, year, month));
     }
 }

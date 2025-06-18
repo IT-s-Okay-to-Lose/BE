@@ -2,6 +2,8 @@ package com.example.iotl.service;
 
 import com.example.iotl.dto.dashboard.UserInvestmentSummaryDto;
 import com.example.iotl.dto.holding.HoldingRatioDto;
+import com.example.iotl.dto.realized.RealizedProfitDetailDateDto;
+import com.example.iotl.dto.realized.RealizedProfitDetailDto;
 import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
 import com.example.iotl.entity.Holdings;
 import com.example.iotl.entity.Order;
@@ -149,7 +151,58 @@ public class DashboardServiceImpl implements DashboardService {
         return new RealizedProfitSummaryDto(
                 dividendIncome + saleIncome,  // totalIncome
                 dividendIncome,
-                saleIncome                 
+                saleIncome
         );
+    }
+
+    @Override
+    public List<RealizedProfitDetailDateDto> getRealizedProfitDetail(Long userId, Integer year, Integer month) {
+        LocalDateTime start = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime end = start.withDayOfMonth(start.toLocalDate().lengthOfMonth())
+                .withHour(23).withMinute(59).withSecond(59);
+
+        List<Trade> trades = tradeRepository.findTradesByUserAndDateRange(userId, start, end);
+
+        Map<String, List<RealizedProfitDetailDto>> groupedByDate = new TreeMap<>();
+
+        for (Trade trade : trades) {
+            Order order = trade.getOrder();
+
+            if (order.getOrderType() != Order.OrderType.SELL ||
+                    order.getStatus() != Order.OrderStatus.COMPLETED ||
+                    trade.getExecutedQuantity() == 0) {
+                continue;
+            }
+
+            BigDecimal avgBuyPrice = order.getStock().getHoldings().stream()
+                    .filter(h -> h.getUser().getUserId().equals(userId))
+                    .map(Holdings::getAverageBuyPrice)
+                    .findFirst()
+                    .orElse(BigDecimal.ZERO);
+
+            BigDecimal executedPrice = trade.getExecutedPrice();
+            int quantity = trade.getExecutedQuantity();
+            BigDecimal profit = executedPrice.subtract(avgBuyPrice).multiply(BigDecimal.valueOf(quantity));
+
+            String date = trade.getExecutedAt().toLocalDate().toString();
+            String stockName = order.getStock().getStockName();
+
+            RealizedProfitDetailDto dto = new RealizedProfitDetailDto(
+                    stockName,
+                    "판매수익",
+                    profit.longValue()
+            );
+
+            groupedByDate.computeIfAbsent(date, k -> new ArrayList<>()).add(dto);
+
+            // 배당금 추가 시 여기에 추가 로직 삽입
+        }
+
+        List<RealizedProfitDetailDateDto> result = new ArrayList<>();
+        for (Map.Entry<String, List<RealizedProfitDetailDto>> entry : groupedByDate.entrySet()) {
+            result.add(new RealizedProfitDetailDateDto(entry.getKey(), entry.getValue()));
+        }
+
+        return result;
     }
 }
