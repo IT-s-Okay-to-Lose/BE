@@ -1,9 +1,13 @@
 package com.example.iotl.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,4 +29,8 @@ public class Stocks {
 
     @Column(name = "logo_url", columnDefinition = "LONGTEXT")
     private String logoUrl;
+
+    @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Holdings> holdings = new ArrayList<>();
+
 }
