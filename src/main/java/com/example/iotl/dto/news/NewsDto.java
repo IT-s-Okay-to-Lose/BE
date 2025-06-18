@@ -1,4 +1,4 @@
-package com.example.iotl.dto;
+package com.example.iotl.dto.news;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
