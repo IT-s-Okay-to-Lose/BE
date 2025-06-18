@@ -52,8 +52,8 @@ public class DashboardController {
 
     @Operation(
             summary = "월별 실현 수익 요약 조회",
-            description = "특정 사용자(userId)의 매도 체결 정보와 평균 매입가를 기반으로 해당 연도/월의 실현 수익을 계산해 반환합니다. " +
-                    "연도(year)와 월(month)을 생략하면 현재 시점을 기준으로 조회됩니다."
+            description = "특정 사용자(userId)의 매도 체결 정보와 평균 매입가를 기반으로 해당 연도/월의 실현 수익을 계산해 반환합니다.<br/>"
+                    + "연도(year)와 월(month)을 생략하면 현재 시점을 기준으로 조회됩니다."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "실현 수익 요약 조회 성공"),
@@ -74,7 +74,14 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.getRealizedProfitSummary(userId, year, month));
     }
 
-    @Operation(summary = "실현 수익 상세 내역 조회", description = "월별 판매수익 상세 리스트를 날짜별로 반환합니다.")
+    @Operation(
+            summary = "실현 수익 상세 내역 조회", description = "월별 판매수익 상세 리스트를 날짜별로 반환합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "실현 수익 요약 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "요청 파라미터 누락 또는 잘못된 형식"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @GetMapping("/realized-detail")
     public ResponseEntity<List<RealizedProfitDetailDateDto>> getRealizedProfitDetail(
             @RequestParam Long userId,
