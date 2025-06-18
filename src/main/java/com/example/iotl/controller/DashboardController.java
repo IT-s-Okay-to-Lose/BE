@@ -37,7 +37,14 @@ public class DashboardController {
         Long fakeUserId = 1L;
         return ResponseEntity.ok(dashboardService.getInvestmentSummary(fakeUserId));
     }
-
+    @Operation(
+            summary = "도넛차트용 보유 종목 도넛 차트로 조회",
+            description = "유저 아이디를 검색하여 유저가 보유한 종목 비율을 도넛 차트로 보여줍니다"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "보유 종목 차트 조회 성공"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
+    })
     @GetMapping("/holding-ratio/{userId}")
     public List<HoldingRatioDto> getHoldingRatio(@PathVariable Long userId) {
         return dashboardService.getHoldingRatio(userId);
