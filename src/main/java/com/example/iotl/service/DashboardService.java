@@ -10,6 +10,6 @@ import java.util.List;
 public interface DashboardService {
     UserInvestmentSummaryDto getInvestmentSummary(Long userId);
     List<HoldingRatioDto> getHoldingRatio(Long userId);
-    RealizedProfitSummaryDto getRealizedProfitSummary(Long userId);
+    RealizedProfitSummaryDto getRealizedProfitSummary(Long userId, int year, int month);
 }
 
