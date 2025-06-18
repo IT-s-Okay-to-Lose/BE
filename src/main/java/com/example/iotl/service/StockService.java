@@ -1,7 +1,7 @@
 package com.example.iotl.service;
 
-import com.example.iotl.dto.StaticStockMetaDto;
-import com.example.iotl.dto.StockPriceDto;
+import com.example.iotl.dto.stocks.StaticStockMetaDto;
+import com.example.iotl.dto.stocks.StockPriceDto;
 import com.example.iotl.entity.StockDetail;
 import com.example.iotl.entity.Stocks;
 import com.example.iotl.repository.StockInfoRepository;
