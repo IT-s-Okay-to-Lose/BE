@@ -10,9 +10,6 @@ public class WebClientConfig {
 
     @Bean
     public WebClient naverWebClient(NaverApiConfig naverApiConfig) {
-        System.out.println("🔍 clientId = " + naverApiConfig.getClientId());
-        System.out.println("🔍 clientSecret = " + naverApiConfig.getClientSecret());
-
         return WebClient.builder()
                 .baseUrl("https://openapi.naver.com")
                 .defaultHeader("X-Naver-Client-Id", naverApiConfig.getClientId())

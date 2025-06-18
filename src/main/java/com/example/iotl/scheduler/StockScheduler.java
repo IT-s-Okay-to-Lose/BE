@@ -37,7 +37,7 @@ public class StockScheduler {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    @Scheduled(fixedRate = 5000)
+//    @Scheduled(fixedRate = 5000)
     public void fetchStockDataBatch() {
         List<String> stockCodes = stockInfoRepository.findAllStockCodes();
         int totalStocks = stockCodes.size();

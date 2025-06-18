@@ -1,37 +1,37 @@
 package com.example.iotl.controller;
 
+import java.util.List;
+import com.example.iotl.dto.NewsDto;
 import com.example.iotl.dto.NewsSearchResponse;
 import com.example.iotl.service.NewsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "News API", description = "뉴스 관련 API (Naver News OpenAPI 기반)")
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/news")
+@RequiredArgsConstructor
 public class NewsController {
 
     private final NewsService newsService;
 
     @Operation(
-            summary = "뉴스 검색",
-            description = "키워드를 입력하면 관련 뉴스 기사들을 반환합니다."
+            summary = "랜덤 뉴스 3개 조회",
+            description = "네이버 뉴스에서 최근 뉴스 중 랜덤으로 3개를 반환합니다."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "성공적으로 뉴스 검색 완료"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(responseCode = "200", description = "뉴스 3건 조회 성공"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
-    @GetMapping("/search")
-    public ResponseEntity<NewsSearchResponse> getNews(
-            @Parameter(description = "검색할 뉴스 키워드", example = "국민은행")
-            @RequestParam("keyword") String keyword
-    ) {
-        NewsSearchResponse response = newsService.getNews2(keyword);
-        return ResponseEntity.ok(response);
+    @GetMapping("/top3")
+    public ResponseEntity<List<NewsDto>> getTop3() {
+        return ResponseEntity.ok(newsService.getTop3RandomNews().getArticles());
     }
 }
