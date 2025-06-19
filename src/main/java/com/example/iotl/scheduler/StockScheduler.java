@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
-import com.example.iotl.dto.StockPriceDto;
+import com.example.iotl.dto.stocks.StockPriceDto;
 import com.example.iotl.handler.StockWebSocketHandler;
 import com.example.iotl.repository.StockInfoRepository;
 import com.example.iotl.service.StockService;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
