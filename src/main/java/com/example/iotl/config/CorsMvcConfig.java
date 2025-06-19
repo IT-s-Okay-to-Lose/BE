@@ -12,7 +12,7 @@ public class CorsMvcConfig implements WebMvcConfigurer {
 
         corsRegistry.addMapping("/**")
                 .exposedHeaders("Set-Cookie")
-                .allowedOrigins("http://localhost:8080") //프론트엔드 도메인으로 바꿔야함
+                .allowedOrigins("https://iotl-fe.vercel.app") //프론트엔드 도메인으로 바꿔야함
                 .allowedMethods("*")                // 모든 HTTP 메서드 허용 (GET, POST 등)
                 .allowCredentials(true);           // 쿠키 포함 요청 허용 (credentials: 'include' 사용 시 필요)
     }
