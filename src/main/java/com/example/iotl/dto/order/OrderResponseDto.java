@@ -1,4 +1,4 @@
-package com.example.iotl.dto;
+package com.example.iotl.dto.order;
 
 import com.example.iotl.entity.Order;
 import lombok.Builder;

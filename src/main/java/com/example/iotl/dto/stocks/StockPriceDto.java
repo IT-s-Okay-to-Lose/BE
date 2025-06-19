@@ -1,4 +1,4 @@
-package com.example.iotl.dto;
+package com.example.iotl.dto.stocks;
 
 import com.example.iotl.entity.StockDetail;
 import io.swagger.v3.oas.annotations.media.Schema;
