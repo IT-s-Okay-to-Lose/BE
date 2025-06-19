@@ -33,9 +33,8 @@ public class DashboardController {
     })
 
     @GetMapping("/summary")
-    public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary() {
-        Long fakeUserId = 1L;
-        return ResponseEntity.ok(dashboardService.getInvestmentSummary(fakeUserId));
+    public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(@RequestParam Long userId) {
+        return ResponseEntity.ok(dashboardService.getInvestmentSummary(userId));
     }
     @Operation(
             summary = "도넛차트용 보유 종목 도넛 차트로 조회",
@@ -45,8 +44,8 @@ public class DashboardController {
             @ApiResponse(responseCode = "200", description = "보유 종목 차트 조회 성공"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
-    @GetMapping("/holding-ratio/{userId}")
-    public List<HoldingRatioDto> getHoldingRatio(@PathVariable Long userId) {
+    @GetMapping("/holding-ratio")
+    public List<HoldingRatioDto> getHoldingRatio(@RequestParam Long userId) {
         return dashboardService.getHoldingRatio(userId);
     }
 
