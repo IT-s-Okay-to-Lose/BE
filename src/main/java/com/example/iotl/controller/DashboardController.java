@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@CrossOrigin(origins = "*") // 또는 허용할 도메인만 지정
 @Tag(name = "Dashboard/Summary API", description = "총 투자 요약 관련 API")
 @RestController
 @RequiredArgsConstructor

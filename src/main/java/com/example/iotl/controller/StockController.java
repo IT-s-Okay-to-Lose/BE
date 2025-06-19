@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "*") // 또는 허용할 도메인만 지정
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/stocks")
