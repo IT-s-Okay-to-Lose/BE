@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
 
 @Schema(description = "월별 실현 수익 상세 항목 DTO (종목별 수익 정보)")
 @Getter @Setter

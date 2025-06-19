@@ -6,6 +6,7 @@ import com.example.iotl.dto.realized.RealizedProfitDetailDateDto;
 import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
 import com.example.iotl.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +34,9 @@ public class DashboardController {
     })
 
     @GetMapping("/summary")
-    public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(@RequestParam Long userId) {
+    public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(
+            @Parameter(description = "사용자 ID", example = "1")
+            @RequestParam Long userId) {
         return ResponseEntity.ok(dashboardService.getInvestmentSummary(userId));
     }
     @Operation(
@@ -45,7 +48,9 @@ public class DashboardController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
     @GetMapping("/holding-ratio")
-    public List<HoldingRatioDto> getHoldingRatio(@RequestParam Long userId) {
+    public List<HoldingRatioDto> getHoldingRatio(
+            @Parameter(description = "사용자 ID", example = "1")
+            @RequestParam Long userId) {
         return dashboardService.getHoldingRatio(userId);
     }
 
@@ -61,8 +66,13 @@ public class DashboardController {
     })
     @GetMapping("/realized-summary")
     public ResponseEntity<RealizedProfitSummaryDto> getRealizedProfitSummary(
+            @Parameter(description = "사용자 ID", example = "1")
             @RequestParam Long userId,
+
+            @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
+
+            @Parameter(description = "월", example = "6")
             @RequestParam(required = false) Integer month
     ) {
         if (year == null || month == null) {
@@ -83,8 +93,13 @@ public class DashboardController {
     })
     @GetMapping("/realized-detail")
     public ResponseEntity<List<RealizedProfitDetailDateDto>> getRealizedProfitDetail(
+            @Parameter(description = "사용자 ID", example = "1")
             @RequestParam Long userId,
+
+            @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
+
+            @Parameter(description = "월", example = "6")
             @RequestParam(required = false) Integer month
     ) {
         if (year == null || month == null) {
