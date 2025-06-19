@@ -43,6 +43,8 @@ public class TokenService {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7일
         cookie.setHttpOnly(true);
+        cookie.setPath("/"); //전체 경로에 쿠키 설정
+        cookie.setSecure(true); //HTTPS 전용 설정
         return cookie;
     }
 
