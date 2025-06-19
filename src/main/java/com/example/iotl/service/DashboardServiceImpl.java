@@ -120,22 +120,24 @@ public class DashboardServiceImpl implements DashboardService {
                 .withHour(23).withMinute(59).withSecond(59);
 
         List<Trade> trades = tradeRepository.findTradesByUserAndDateRange(userId, start, end);
-
         BigDecimal totalProfit = BigDecimal.ZERO;
 
         for (Trade trade : trades) {
             Order order = trade.getOrder();
+
+            // 판매 주문 + 완료 상태만 처리
             if (order.getOrderType() != Order.OrderType.SELL ||
                     order.getStatus() != Order.OrderStatus.COMPLETED) {
                 continue;
             }
+            String stockCode = order.getStock().getStockCode(); // 이 줄 추가
+            // ⭐ 핵심: 유저의 해당 종목 평균 매입가 조회
+            Holdings h = holdingsRepository
+                    .findByUser_UserIdAndStock_StockCode(userId, stockCode)
+                    .orElse(null);
+            BigDecimal avgBuyPrice = (h != null) ? h.getAverageBuyPrice() : BigDecimal.ZERO;
 
-            BigDecimal avgBuyPrice = order.getStock().getHoldings().stream()
-                    .filter(h -> h.getUser().getUserId().equals(userId))
-                    .map(h -> h.getAverageBuyPrice())
-                    .findFirst()
-                    .orElse(BigDecimal.ZERO);
-
+            // 수익 계산 = (판매가 - 평균매입가) * 수량
             BigDecimal executedPrice = trade.getExecutedPrice();
             int executedQty = trade.getExecutedQuantity();
 
@@ -146,10 +148,10 @@ public class DashboardServiceImpl implements DashboardService {
         }
 
         long saleIncome = totalProfit.longValue();
-        long dividendIncome = 0L;
+        long dividendIncome = 0L; // 추후 배당 수익 추가하면 수정
 
         return new RealizedProfitSummaryDto(
-                dividendIncome + saleIncome,  // totalIncome
+                dividendIncome + saleIncome,
                 dividendIncome,
                 saleIncome
         );
@@ -174,11 +176,13 @@ public class DashboardServiceImpl implements DashboardService {
                 continue;
             }
 
-            BigDecimal avgBuyPrice = order.getStock().getHoldings().stream()
-                    .filter(h -> h.getUser().getUserId().equals(userId))
-                    .map(Holdings::getAverageBuyPrice)
-                    .findFirst()
-                    .orElse(BigDecimal.ZERO);
+            // ✅ 사용자 ID + 종목코드로 holdings 직접 조회
+            String stockCode = order.getStock().getStockCode();
+            Holdings h = holdingsRepository
+                    .findByUser_UserIdAndStock_StockCode(userId, stockCode)
+                    .orElse(null);
+
+            BigDecimal avgBuyPrice = (h != null) ? h.getAverageBuyPrice() : BigDecimal.ZERO;
 
             BigDecimal executedPrice = trade.getExecutedPrice();
             int quantity = trade.getExecutedQuantity();
@@ -194,8 +198,6 @@ public class DashboardServiceImpl implements DashboardService {
             );
 
             groupedByDate.computeIfAbsent(date, k -> new ArrayList<>()).add(dto);
-
-            // 배당금 추가 시 여기에 추가 로직 삽입
         }
 
         List<RealizedProfitDetailDateDto> result = new ArrayList<>();
