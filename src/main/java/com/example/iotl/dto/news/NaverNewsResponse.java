@@ -1,4 +1,4 @@
-package com.example.iotl.dto;
+package com.example.iotl.dto.news;
 
 import lombok.Data;
 

@@ -1,9 +1,9 @@
 package com.example.iotl.service;
 
 import com.example.iotl.config.NaverApiConfig;
-import com.example.iotl.dto.NaverNewsResponse;
-import com.example.iotl.dto.NewsDto;
-import com.example.iotl.dto.NewsSearchResponse;
+import com.example.iotl.dto.news.NaverNewsResponse;
+import com.example.iotl.dto.news.NewsDto;
+import com.example.iotl.dto.news.NewsSearchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,8 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
