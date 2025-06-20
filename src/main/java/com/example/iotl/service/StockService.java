@@ -15,9 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +37,7 @@ public class StockService {
 
     private String accessToken;
 
-    // 토큰 발급
+    // ✅ 토큰 발급
     public String getAccessToken() {
         if (accessToken != null) return accessToken;
 
@@ -58,7 +56,7 @@ public class StockService {
         return accessToken;
     }
 
-    //  실시간 주식 데이터 조회
+    // ✅ 실시간 주식 데이터 조회
     public Map<String, Object> getStockPrice(String code) {
         getAccessToken();
 
@@ -79,7 +77,7 @@ public class StockService {
         return response.getBody();
     }
 
-    //  주식 상세 정보 저장
+    // ✅ 주식 상세 정보 저장
     public StockPriceDto saveStockPrice(String code) {
         Map result = getStockPrice(code);
         Map<String, String> output = (Map<String, String>) result.get("output");
@@ -106,31 +104,38 @@ public class StockService {
         return new StockPriceDto(saved);
     }
 
-    //  전체 종목 코드 리스트 조회
-    public List<String> getAllStockCodes() {
-        return stockInfoRepository.findAllStockCodes();
-    }
-
-    //  모든 주식 상세 정보 조회
-    public List<StockDetail> findAllStocks() {
-        return stockRepository.findAll();
-    }
-
-    //  종목 코드로 모든 상세 정보 조회
+    // ✅ 종목 코드 전체 조회 (캔들, 거래량 등)
     public List<StockDetail> findStocksByCode(String code) {
         return stockRepository.findByStockCode(code);
     }
 
-    //  종목 코드로 가장 최신의 StockDetail 조회
+    // ✅ 종목 코드로 가장 최신 1건 조회
     public StockDetail findLatestStockByCode(String code) {
-        List<StockDetail> stocks = stockRepository.findByStockCode(code);
-        return stocks.isEmpty() ? null : stocks.get(0);
+        return stockRepository.findTop1ByStockCodeOrderByCreatedAtDesc(code);
     }
 
-    // 정적으로 저장한 주식 데이터(코드, 이름, 국내, 이미지)
+    // ✅ 전체 종목 코드 리스트 조회
+    public List<String> getAllStockCodes() {
+        return stockInfoRepository.findAllStockCodes();
+    }
+
+    // ✅ 모든 상세 데이터 (사용 주의)
+    public List<StockDetail> findAllStocks() {
+        return stockRepository.findAll();
+    }
+
+    // ✅ 정적 정보 조회
     public List<StaticStockMetaDto> getAllStockMetas() {
         return stockInfoRepository.findAll().stream()
                 .map(StaticStockMetaDto::new)
+                .collect(Collectors.toList());
+    }
+
+    // ✅ 여러 종목 코드 → 최신 데이터 리스트로 변환
+    public List<StockDetail> findLatestStocksByCodes(List<String> codes) {
+        return codes.stream()
+                .map(this::findLatestStockByCode)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 }

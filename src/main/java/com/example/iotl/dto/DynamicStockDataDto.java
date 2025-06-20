@@ -7,14 +7,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class DynamicStockDataDto {
 
-    @Schema(description = "주식 상세 정보 ID", example = "1001")
-    private Long id;
+    @Schema(description = "종목 코드", example = "005930")
+    private String code;
 
     @Schema(description = "현재가", example = "59300")
     private BigDecimal currentPrice;
@@ -26,7 +27,7 @@ public class DynamicStockDataDto {
     private Long accumulatedVolume;
 
     public DynamicStockDataDto(StockDetail stockDetail) {
-        this.id = stockDetail.getId();
+        this.code = stockDetail.getStockCode();
         this.currentPrice = stockDetail.getClosePrice();
         this.fluctuationRate = stockDetail.getPriceRate();
         this.accumulatedVolume = stockDetail.getVolume();
