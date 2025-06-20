@@ -85,6 +85,21 @@ public class StockController {
                 : ResponseEntity.ok(new DynamicStockDataDto(stock));
     }
 
+    @Operation(summary = "다중 종목 실시간 동적 데이터 조회", description = "동적 데이터(DynamicStockDataDto) 리스트 반환")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @GetMapping("/dynamic")
+    public ResponseEntity<List<DynamicStockDataDto>> getDynamicStocksByCodes(
+            @Parameter(description = "조회할 종목 코드 리스트", example = "005930,000660,207940")
+            @RequestParam List<String> codes) {
+
+        List<StockDetail> latestList = stockService.findLatestStocksByCodes(codes);
+        List<DynamicStockDataDto> dtoList = latestList.stream()
+                .map(DynamicStockDataDto::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtoList);
+    }
+
     @Operation(summary = "모든 종목 정적 데이터 조회", description = "StaticStockMetaDto 리스트 반환 (정적 종목 정보)")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/meta")
