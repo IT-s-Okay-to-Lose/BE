@@ -89,6 +89,14 @@ naver:
   client-secret: ${NAVER_NEWS_CLIENT_SECRET}
   news-url: ${NAVER_API_URL}
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    url: https://iotl.store/v3/api-docs
+    try-it-out-enabled: true
+  api-docs:
+    path: /v3/api-docs
+
 server:
   port: 8080
 
