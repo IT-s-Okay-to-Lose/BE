@@ -61,7 +61,11 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers( "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue").permitAll()
+                        .requestMatchers(
+                                "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue",
+                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                                "/swagger-resources/**", "/webjars/**"
+                        ).permitAll()
                         .anyRequest().authenticated());
 
         //세션 설정 : STATELESS
@@ -91,6 +95,7 @@ public class SecurityConfig {
                         return configuration;
                     }
                 }));
+
 
         return http.build();
     }
