@@ -3,10 +3,12 @@ package com.example.iotl.controller;
 
 
 
+
 import com.example.iotl.dto.OrderHistoryDto;
-import com.example.iotl.dto.OrderRequestDto;
-import com.example.iotl.dto.OrderResponseDto;
+import com.example.iotl.dto.order.OrderRequestDto;
+import com.example.iotl.dto.order.OrderResponseDto;
 import com.example.iotl.entity.User;
+
 import com.example.iotl.service.OrderService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

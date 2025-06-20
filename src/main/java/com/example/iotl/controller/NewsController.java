@@ -1,19 +1,17 @@
 package com.example.iotl.controller;
 
 import java.util.List;
-import com.example.iotl.dto.NewsDto;
-import com.example.iotl.dto.NewsSearchResponse;
+import com.example.iotl.dto.news.NewsDto;
 import com.example.iotl.service.NewsService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+@CrossOrigin(origins = "*") // 또는 허용할 도메인만 지정
 @Tag(name = "News API", description = "뉴스 관련 API (Naver News OpenAPI 기반)")
 @RestController
 @RequestMapping("/api/v1/news")
