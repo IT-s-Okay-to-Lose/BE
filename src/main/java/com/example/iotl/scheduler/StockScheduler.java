@@ -1,6 +1,6 @@
 package com.example.iotl.scheduler;
 
-import com.example.iotl.dto.DynamicStockDataDto;
+import com.example.iotl.dto.stocks.DynamicStockDataDto;
 import com.example.iotl.entity.StockDetail;
 import com.example.iotl.handler.StockWebSocketHandler;
 import com.example.iotl.repository.StockInfoRepository;
