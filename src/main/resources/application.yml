@@ -35,7 +35,6 @@ spring:
             scope:
               - name
               - email
-
           google:
             client-name: google
             client-id: ${GOOGLE_CLIENT_ID}
@@ -78,19 +77,11 @@ kis:
     appsecret: ${KIS_CLIENT_SECRET}
     access-token:
 
-
 exchange:
   api:
     base-url: ${EXCHAGE_URL}
     base-currency: USD
 
-naver:
-  client-id: ${NAVER_NEWS_CLIENT_ID}
-  client-secret: ${NAVER_NEWS_CLIENT_SECRET}
-  news-url: ${NAVER_API_URL}
 
 server:
   port: 8080
-
-
-
