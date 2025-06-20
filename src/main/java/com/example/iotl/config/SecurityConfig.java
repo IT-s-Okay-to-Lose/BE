@@ -86,7 +86,7 @@ public class SecurityConfig {
                                 "https://iotl.store"          // Swagger UI 주소
                         ));
 
-                        configuration.setAllowedOrigins(Collections.singletonList("https://iotl-fe.vercel.app"));
+//                        configuration.setAllowedOrigins(Collections.singletonList("https://iotl-fe.vercel.app"));
 //                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:8080")); //배포시에는 프론트엔드 도메인으로 대체
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
