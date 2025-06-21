@@ -66,7 +66,10 @@ public class SecurityConfig {
                                     "/ws/**",                       // WebSocket 허용
                                     "/api/stocks/meta",            // 정적 주식 데이터
                                     "/api/stocks/dynamic",         // 동적 주식 데이터
-                                    "/api/stocks/chart/**"         // 차트 관련 주식 데이터 (있다면)
+                                    "/api/stocks/chart/**",       // 차트 관련 주식 데이터 (있다면)
+                                    "/v3/api-docs/**", // swagger
+                                    "/swagger-ui/**", // swagger
+                                    "/swagger-ui.html" // swagger
                             ).permitAll()
                             .anyRequest().authenticated());
 //                .authorizeHttpRequests((auth) -> auth
