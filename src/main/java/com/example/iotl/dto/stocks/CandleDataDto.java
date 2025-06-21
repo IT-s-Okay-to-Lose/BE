@@ -29,4 +29,12 @@ public class CandleDataDto {
         this.low = stock.getLowPrice().doubleValue();
         this.close = stock.getClosePrice().doubleValue();
     }
+
+    public CandleDataDto(String time, double open, double high, double low, double close) {
+        this.time = time;
+        this.open = open;
+        this.high = high;
+        this.low = low;
+        this.close = close;
+    }
 }
