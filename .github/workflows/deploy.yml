@@ -2,7 +2,7 @@ name: CI/CD Deploy to EC2
 
 on:
   push:
-    branches: [ dev ]  # 또는 배포 전용 브랜치
+    branches: [ dev, 33-feat-cicd ]  # 또는 배포 전용 브랜치
 
 jobs:
   deploy:
