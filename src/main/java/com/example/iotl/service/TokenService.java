@@ -25,7 +25,7 @@ public class TokenService {
      * access + refresh 토큰을 생성하고 refresh 토큰은 DB에 저장
      */
     public Map<String, String> createTokens(String username, String role) {
-        String accessToken = jwtUtil.createJwt("access", username, role, 900000L); //15분
+        String accessToken = jwtUtil.createJwt("access", username, role, 604800000L); //15분(900000L)
         String refreshToken = jwtUtil.createJwt("refresh", username, role, 604800000L); //1주일
 
         addRefreshEntity(username, refreshToken, 604800000L); //refresh토큰 저장
