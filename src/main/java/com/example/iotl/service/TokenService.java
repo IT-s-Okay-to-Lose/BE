@@ -4,6 +4,7 @@ import com.example.iotl.entity.RefreshEntity;
 import com.example.iotl.jwt.JWTUtil;
 import com.example.iotl.repository.RefreshRepository;
 import jakarta.servlet.http.Cookie;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -45,6 +46,7 @@ public class TokenService {
         cookie.setHttpOnly(true);
         cookie.setPath("/"); //전체 경로에 쿠키 설정
         cookie.setSecure(true); //HTTPS 전용 설정
+        cookie.setDomain("iotl.store");
         return cookie;
     }
 
@@ -78,5 +80,16 @@ public class TokenService {
         tokenMap.put("access", newAccessToken);
         tokenMap.put("refresh", newRefreshToken);
         return tokenMap;
+    }
+
+    public ResponseCookie createResponseCookie(String key, String value) {
+        return ResponseCookie.from(key, value)
+                .maxAge(7 * 24 * 60 * 60) // 7일
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .domain("iotl.store")
+                .build();
     }
 }
