@@ -2,7 +2,7 @@ name: CI/CD Deploy to EC2
 
 on:
   push:
-    branches: [ dev, 33-feat-cicd ]  # 또는 배포 전용 브랜치
+    branches: [ dev, 33-feat-cicd ]
 
 jobs:
   deploy:
@@ -22,13 +22,18 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          ENV: ${{ secrets.ENV }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ENV
           script: |
+            rm -f .env
+            echo "$ENV" > .env
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl
             docker stop iotl || true
             docker rm iotl || true
-            docker run -d -p 8080:8080 --name iotl ${{ secrets.DOCKER_USERNAME }}/iotl
+            docker run -d --env-file .env -p 8080:8080 --name iotl ${{ secrets.DOCKER_USERNAME }}/iotl
