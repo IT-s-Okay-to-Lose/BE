@@ -24,6 +24,12 @@ jobs:
       - name: Create .env file
         run: echo "${{ secrets.ENV }}" > .env
 
+      - name: ✅ Check .env file exists and contents
+        run: |
+          echo "✔️ .env 파일 목록 확인:"
+          ls -al
+          echo ""
+
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/iotl .
 
