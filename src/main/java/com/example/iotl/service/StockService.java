@@ -138,4 +138,10 @@ public class StockService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
+
+    public List<StockDetail> findTodayStocksByCode(String code) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
+        return stockRepository.findByStockCodeAndCreatedAtBetween(code, startOfDay, now);
+    }
 }
