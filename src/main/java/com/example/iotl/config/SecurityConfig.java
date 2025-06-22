@@ -61,12 +61,20 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(
-                                "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue",
-                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                                "/swagger-resources/**", "/webjars/**"
-                        ).permitAll()
-                        .anyRequest().authenticated());
+                            .requestMatchers(
+                                    "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue",
+                                    "/ws/**",                       // WebSocket 허용
+                                    "/api/stocks/meta",            // 정적 주식 데이터
+                                    "/api/stocks/dynamic",         // 동적 주식 데이터
+                                    "/api/stocks/chart/**",       // 차트 관련 주식 데이터 (있다면)
+                                    "/v3/api-docs/**", // swagger
+                                    "/swagger-ui/**", // swagger
+                                    "/swagger-ui.html" // swagger
+                            ).permitAll()
+                            .anyRequest().authenticated());
+//                .authorizeHttpRequests((auth) -> auth
+//                        .requestMatchers( "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue").permitAll()
+//                        .anyRequest().authenticated());
 
         //세션 설정 : STATELESS
         http
@@ -75,32 +83,42 @@ public class SecurityConfig {
 
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
-
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-
                         CorsConfiguration configuration = new CorsConfiguration();
 
                         configuration.setAllowedOrigins(List.of(
-                                "https://iotl-fe.vercel.app", // 실제 프론트엔드
-                                "https://iotl.store"          // Swagger UI 주소
+                                "http://127.0.0.1:5500",
+                                "http://localhost:8080",
+                                "https://iotl-fe.vercel.app"
                         ));
-
-//                        configuration.setAllowedOrigins(Collections.singletonList("https://iotl-fe.vercel.app"));
-//                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:8080")); //배포시에는 프론트엔드 도메인으로 대체
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-
-//                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-//                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                        configuration.setAllowedHeaders(List.of("*"));
                         configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
+                        configuration.setAllowCredentials(true);
+                        configuration.setMaxAge(3600L);
 
                         return configuration;
                     }
+//                    @Override
+//                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+//
+//                        CorsConfiguration configuration = new CorsConfiguration();
+//
+//                        configuration.setAllowedOrigins(Collections.singletonList("https://iotl-fe.vercel.app"));
+//                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:8080")); //배포시에는 프론트엔드 도메인으로 대체
+//                        configuration.setAllowedMethods(Collections.singletonList("*"));
+//                        configuration.setAllowCredentials(true);
+//                        configuration.setAllowedHeaders(Collections.singletonList("*"));
+//                        configuration.setMaxAge(3600L);
+//
+////                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+////                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+//                        configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
+//
+//                        return configuration;
+//                    }
                 }));
-
 
         return http.build();
     }

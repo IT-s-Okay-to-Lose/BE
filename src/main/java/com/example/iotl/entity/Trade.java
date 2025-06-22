@@ -1,5 +1,6 @@
 package com.example.iotl.entity;
 
+import com.example.iotl.entity.Order.OrderType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -35,4 +36,9 @@ public class Trade {
     protected void onExecute() {
         this.executedAt = LocalDateTime.now();
     }
+
+    @Column(name = "order_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
+
 }

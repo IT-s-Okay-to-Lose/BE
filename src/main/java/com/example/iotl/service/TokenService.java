@@ -4,6 +4,7 @@ import com.example.iotl.entity.RefreshEntity;
 import com.example.iotl.jwt.JWTUtil;
 import com.example.iotl.repository.RefreshRepository;
 import jakarta.servlet.http.Cookie;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -25,7 +26,7 @@ public class TokenService {
      * access + refresh 토큰을 생성하고 refresh 토큰은 DB에 저장
      */
     public Map<String, String> createTokens(String username, String role) {
-        String accessToken = jwtUtil.createJwt("access", username, role, 900000L); //15분
+        String accessToken = jwtUtil.createJwt("access", username, role, 604800000L); //15분(900000L)
         String refreshToken = jwtUtil.createJwt("refresh", username, role, 604800000L); //1주일
 
         addRefreshEntity(username, refreshToken, 604800000L); //refresh토큰 저장
@@ -45,6 +46,7 @@ public class TokenService {
         cookie.setHttpOnly(true);
         cookie.setPath("/"); //전체 경로에 쿠키 설정
         cookie.setSecure(true); //HTTPS 전용 설정
+        cookie.setDomain("iotl.store");
         return cookie;
     }
 
@@ -78,5 +80,16 @@ public class TokenService {
         tokenMap.put("access", newAccessToken);
         tokenMap.put("refresh", newRefreshToken);
         return tokenMap;
+    }
+
+    public ResponseCookie createResponseCookie(String key, String value) {
+        return ResponseCookie.from(key, value)
+                .maxAge(7 * 24 * 60 * 60) // 7일
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .domain("iotl.store")
+                .build();
     }
 }

@@ -6,6 +6,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,14 +54,16 @@ public class ReissueController {
         String username = jwtUtil.getUsername(refresh);
         String role = jwtUtil.getRole(refresh);
 
-        // 새 토큰 발급 및 저장
         Map<String, String> tokens = tokenService.rotateRefreshToken(username, role, refresh, 600000L, 604800000L);
         String newAccess = tokens.get("access");
         String newRefresh = tokens.get("refresh");
 
-        // 응답 구성
-        response.setHeader("access", newAccess);
-        response.addCookie(tokenService.createCookie("refresh", newRefresh));
+        // Access → 헤더
+        response.setHeader("Authorization", "Bearer " + newAccess);
+
+        // Refresh → ResponseCookie
+        ResponseCookie refreshCookie = tokenService.createResponseCookie("refresh", newRefresh);
+        response.setHeader("Set-Cookie", refreshCookie.toString());
 
         return ResponseEntity.ok().build();
     }
