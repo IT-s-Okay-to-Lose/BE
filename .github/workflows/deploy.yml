@@ -2,7 +2,7 @@ name: CI/CD Deploy to EC2
 
 on:
   push:
-    branches: [ 33-feat-cicd ]
+    branches: [ dev ]
 
 jobs:
   deploy:
