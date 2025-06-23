@@ -69,14 +69,15 @@ public class SecurityConfig {
                                     "/api/stocks/chart/**",       // 차트 관련 주식 데이터 (있다면)
                                     "/api/exchange",               // 환율 데이터
                                     "/api/market-index/**",             // 지수 데이터
+                                    "/api/v1/news/top3", //뉴스
                                     "/v3/api-docs/**", // swagger
                                     "/swagger-ui/**", // swagger
                                     "/swagger-ui.html" // swagger
                             ).permitAll()
                             .anyRequest().authenticated());
+//        http
 //                .authorizeHttpRequests((auth) -> auth
-//                        .requestMatchers( "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue").permitAll()
-//                        .anyRequest().authenticated());
+//                        .anyRequest().permitAll());
 
         //세션 설정 : STATELESS
         http
@@ -92,7 +93,9 @@ public class SecurityConfig {
                         configuration.setAllowedOrigins(List.of(
                                 "http://127.0.0.1:5500",
                                 "http://localhost:8080",
-                                "https://iotl-fe.vercel.app"
+                                "https://iotl-fe.vercel.app",
+                                "https://localhost:5173",
+                                "http://localhost:5173"
                         ));
                         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                         configuration.setAllowedHeaders(List.of("*"));

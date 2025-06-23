@@ -1,7 +1,14 @@
+buildscript { // Sentry
+	repositories {
+		mavenCentral()
+	}
+}
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id "io.sentry.jvm.gradle" version "5.7.0" // sentry
 }
 
 group = 'com.example'
@@ -22,6 +29,15 @@ configurations {
 repositories {
 	mavenCentral()
 }
+
+
+sentry {
+	includeSourceContext = true
+	org = "iotl" // Sentry 조직 이름
+	projectName = "iotl" // Sentry 프로젝트 이름
+	authToken = System.getenv("SENTRY_AUTH_TOKEN")
+}
+
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -53,6 +69,10 @@ dependencies {
 
 	//mac0s 전용
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.107.Final:osx-aarch_64'
+
+	implementation 'org.springframework.boot:spring-boot-starter-validation' // Sentry
+	implementation 'io.sentry:sentry-logback:7.6.0'
+	implementation 'io.sentry:sentry-spring-boot-starter:7.6.0'
 }
 
 tasks.named('test') {
