@@ -73,9 +73,9 @@ public class SecurityConfig {
                                     "/swagger-ui.html" // swagger
                             ).permitAll()
                             .anyRequest().authenticated());
+//        http
 //                .authorizeHttpRequests((auth) -> auth
-//                        .requestMatchers( "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue").permitAll()
-//                        .anyRequest().authenticated());
+//                        .anyRequest().permitAll());
 
         //세션 설정 : STATELESS
         http
