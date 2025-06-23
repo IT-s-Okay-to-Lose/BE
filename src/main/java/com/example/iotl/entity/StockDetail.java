@@ -22,7 +22,7 @@ public class StockDetail {
     @JoinColumn(name = "stock_code")
     private Stocks stocks;
 
-    @Column(name = "stock_code", insertable = false, updatable = false)
+    @Column(name = "stock_code", length = 10, insertable = false, updatable = false)
     private String stockCode;
 
     @Column(name = "open_price")
