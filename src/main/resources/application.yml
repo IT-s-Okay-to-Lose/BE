@@ -88,8 +88,8 @@ naver:
   news-url: ${NAVER_API_URL}
 
 sentry:
-  dsn: https://69c9ab16dfc22141bd3df9e65fb2a74d@o4509545353707520.ingest.us.sentry.io/4509545372057600o
+  dsn: ${SENTRY_DSN}
   send-default-pii: true
 
 server:
-  port: 8081
+  port: 8080
