@@ -84,32 +84,87 @@ public class JWTFilter extends OncePerRequestFilter {
 //        filterChain.doFilter(request, response);
 //    }
 
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+//            throws ServletException, IOException {
+//
+//        String header = request.getHeader("Authorization");
+//
+//        // 헤더가 없거나 Bearer로 시작하지 않으면 다음 필터로 진행
+//        if (header == null || !header.startsWith("Bearer ")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//
+//        // "Bearer " 접두사 제거 후 토큰만 추출
+//        String accessToken = header.substring(7);
+//
+//        try {
+//            jwtUtil.isExpired(accessToken);
+//        } catch (ExpiredJwtException e) {
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.getWriter().print("access token expired");
+//            return;
+//        }
+//
+//        if (!"access".equals(jwtUtil.getCategory(accessToken))) {
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.getWriter().print("invalid access token");
+//            return;
+//        }
+//
+//        String username = jwtUtil.getUsername(accessToken);
+//        String role = jwtUtil.getRole(accessToken);
+//
+//        UserDto userDto = new UserDto();
+//        userDto.setUsername(username);
+//        userDto.setRole(role);
+//
+//        CustomOAuth2User customUserDetails = new CustomOAuth2User(userDto);
+//        Authentication authToken = new UsernamePasswordAuthenticationToken(
+//                customUserDetails, null, customUserDetails.getAuthorities()
+//        );
+//        SecurityContextHolder.getContext().setAuthentication(authToken);
+//
+//        filterChain.doFilter(request, response);
+//    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
+        String uri = request.getRequestURI();
 
-        // 헤더가 없거나 Bearer로 시작하지 않으면 다음 필터로 진행
-        if (header == null || !header.startsWith("Bearer ")) {
+        // Spring Security에서 permitAll로 지정한 경로는 인증 스킵
+        if (isPermitAllPath(uri)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // "Bearer " 접두사 제거 후 토큰만 추출
+        String header = request.getHeader("Authorization");
+
+        if (header == null || !header.startsWith("Bearer ")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Missing or invalid Authorization header\"}");
+            return;
+        }
+
         String accessToken = header.substring(7);
 
         try {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("access token expired");
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Access token expired\"}");
             return;
         }
 
         if (!"access".equals(jwtUtil.getCategory(accessToken))) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("invalid access token");
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Invalid token category\"}");
             return;
         }
 
@@ -127,5 +182,22 @@ public class JWTFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
+    }
+
+    // 🔽 이 함수 추가
+    private boolean isPermitAllPath(String uri) {
+        return uri.equals("/")
+                || uri.equals("/login")
+                || uri.startsWith("/oauth2/")
+                || uri.startsWith("/login/oauth2/")
+                || uri.equals("/reissue")
+                || uri.startsWith("/ws/")
+                || uri.startsWith("/api/stocks/meta")
+                || uri.startsWith("/api/stocks/dynamic")
+                || uri.startsWith("/api/stocks/chart/")
+                || uri.equals("/api/exchange")
+                || uri.startsWith("/v3/api-docs/")
+                || uri.startsWith("/swagger-ui/")
+                || uri.equals("/swagger-ui.html");
     }
 }
