@@ -8,7 +8,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-@Slf4j
+
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
 
@@ -89,10 +88,7 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        log.info("JWTFilter 실행됨");
-
         String header = request.getHeader("Authorization");
-        log.info("Authorization Header: {}", header);
 
         // 헤더가 없거나 Bearer로 시작하지 않으면 다음 필터로 진행
         if (header == null || !header.startsWith("Bearer ")) {
