@@ -136,6 +136,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         ResponseCookie refreshCookie = tokenService.createRefreshCookie(refresh);
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
+        log.info("Redirecting to front - main Page After Successful Login");
         // ✅ 리다이렉트로 프론트 진입
         response.sendRedirect("https://iotl-fe.vercel.app/");
     }

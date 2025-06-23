@@ -98,6 +98,7 @@ public class TokenService {
                 .maxAge(7 * 24 * 60 * 60) // 7일
                 .httpOnly(false) // ✅ JS에서 접근 가능
                 .secure(true)   // 로컬 개발 시 false
+                .sameSite("None")
                 .path("/")
                 .domain("iotl.store")
                 .build();
