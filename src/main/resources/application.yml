@@ -69,6 +69,7 @@ spring:
     level:
       org.springframework.security: DEBUG
       org.springframework.web: DEBUG
+      com.example.iotl.controller: DEBUG
 
 kis:
   api:
@@ -87,6 +88,10 @@ naver:
   client-secret: ${NAVER_NEWS_CLIENT_SECRET}
   news-url: ${NAVER_API_URL}
 
+sentry:
+  dsn: ${SENTRY_DSN}
+  send-default-pii: true
 
 server:
   port: 8080
+  forward-headers-strategy: native

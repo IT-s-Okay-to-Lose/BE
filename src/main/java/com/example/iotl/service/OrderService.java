@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,16 @@ public class OrderService {
             .collect(Collectors.toList());
     }
 
+
+    public List<OrderHistoryDto> getOrderHistoryByUsernameAndStock(String username, String stockCode) {
+        User user = Optional.ofNullable(userRepository.findByUsername(username))
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return orderRepository.findAllByUserAndStockStockCode(user, stockCode)
+            .stream()
+            .map(OrderHistoryDto::from)
+            .toList();
+    }
 
 //
 //    private void handleBuyOrder(User user, Stocks stock, OrderRequestDto dto) {
