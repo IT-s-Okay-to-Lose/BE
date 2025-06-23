@@ -13,7 +13,8 @@ public class CorsMvcConfig implements WebMvcConfigurer {
         corsRegistry.addMapping("/**")
                 .exposedHeaders("Set-Cookie")
                 .allowedOrigins("https://iotl-fe.vercel.app",
-                        "https://localhost:5173")
+                        "https://localhost:5173",
+                        "http://localhost:5173")
                 .allowedMethods("*")
                 .allowedHeaders("*")
 //                .allowedOrigins("https://iotl-fe.vercel.app") //프론트엔드 도메인으로 바꿔야함
