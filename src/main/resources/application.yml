@@ -69,6 +69,7 @@ spring:
     level:
       org.springframework.security: DEBUG
       org.springframework.web: DEBUG
+      com.example.iotl.controller: DEBUG
 
 kis:
   api:
