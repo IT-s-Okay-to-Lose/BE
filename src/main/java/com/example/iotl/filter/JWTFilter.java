@@ -198,6 +198,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 || uri.equals("/api/exchange")
                 || uri.startsWith("/v3/api-docs/")
                 || uri.startsWith("/swagger-ui/")
-                || uri.equals("/swagger-ui.html");
+                || uri.equals("/swagger-ui.html")
+                || uri.equals("/api/v1/news/top3");
+
     }
 }
