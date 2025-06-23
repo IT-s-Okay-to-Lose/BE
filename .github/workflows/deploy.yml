@@ -26,6 +26,8 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew clean build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/iotl .
@@ -50,7 +52,13 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl
             docker stop iotl || true
             docker rm iotl || true
-            docker run -d --env-file .env -p 8080:8080 --name iotl ${{ secrets.DOCKER_USERNAME }}/iotl
+            docker run -d \
+              --env-file .env \
+              -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+              -p 8080:8080 \
+              --name iotl \
+              ${{ secrets.DOCKER_USERNAME }}/iotl \
+              java -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar
 
       - name: Send Slack Notification (Success)
         if: success()
