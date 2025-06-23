@@ -40,15 +40,15 @@ public class TokenService {
     /**
      * HttpOnly 쿠키 생성
      */
-    public Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일
-        cookie.setHttpOnly(true);
-        cookie.setPath("/"); //전체 경로에 쿠키 설정
-        cookie.setSecure(true); //HTTPS 전용 설정
-        cookie.setDomain("iotl.store");
-        return cookie;
-    }
+//    public Cookie createCookie(String key, String value) {
+//        Cookie cookie = new Cookie(key, value);
+//        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+//        cookie.setHttpOnly(true);
+//        cookie.setPath("/"); //전체 경로에 쿠키 설정
+//        cookie.setSecure(true); //HTTPS 전용 설정
+//        cookie.setDomain("iotl.store");
+//        return cookie;
+//    }
 
     //iotl.store
 
@@ -82,14 +82,36 @@ public class TokenService {
         return tokenMap;
     }
 
-    public ResponseCookie createResponseCookie(String key, String value) {
-        return ResponseCookie.from(key, value)
+//    public ResponseCookie createResponseCookie(String key, String value) {
+//        return ResponseCookie.from(key, value)
+//                .maxAge(7 * 24 * 60 * 60) // 7일
+//                .httpOnly(true)
+//                .secure(true)
+//                .sameSite("None")
+//                .path("/")
+//                .domain("iotl.store")
+//                .build();
+//    }
+
+    public ResponseCookie createAccessCookie(String value) {
+        return ResponseCookie.from("access", value)
                 .maxAge(7 * 24 * 60 * 60) // 7일
-                .httpOnly(true)
-                .secure(true)
+                .httpOnly(false) // ✅ JS에서 접근 가능
+                .secure(true)   // 로컬 개발 시 false
+                .path("/")
+                .domain("iotl.store")
+                .build();
+    }
+
+    public ResponseCookie createRefreshCookie(String value) {
+        return ResponseCookie.from("refresh", value)
+                .maxAge(7 * 24 * 60 * 60) // 7일
+                .httpOnly(true)          // ✅ JS에서 접근 불가
+                .secure(true)           // 로컬 개발 시 false
                 .sameSite("None")
                 .path("/")
                 .domain("iotl.store")
                 .build();
     }
 }
+
