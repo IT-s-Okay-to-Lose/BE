@@ -87,6 +87,9 @@ naver:
   client-secret: ${NAVER_NEWS_CLIENT_SECRET}
   news-url: ${NAVER_API_URL}
 
+sentry:
+  dsn: ${SENTRY_DSN}
+  send-default-pii: true
 
 server:
   port: 8080
