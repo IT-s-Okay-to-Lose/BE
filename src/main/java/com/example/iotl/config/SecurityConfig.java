@@ -68,6 +68,7 @@ public class SecurityConfig {
                                     "/api/stocks/dynamic",         // 동적 주식 데이터
                                     "/api/stocks/chart/**",       // 차트 관련 주식 데이터 (있다면)
                                     "/api/exchange",               // 환율 데이터
+                                    "/api/market-index/**",             // 지수 데이터
                                     "/api/v1/news/top3", //뉴스
                                     "/v3/api-docs/**", // swagger
                                     "/swagger-ui/**", // swagger
