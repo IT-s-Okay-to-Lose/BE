@@ -1,3 +1,5 @@
+[![CI/CD Deploy to EC2](https://github.com/IT-s-Okay-to-Lose/BE/actions/workflows/deploy.yml/badge.svg)](https://github.com/IT-s-Okay-to-Lose/BE/actions/workflows/deploy.yml)
+
 # 📈 IOTL Backend
 
 주식 모의투자 시스템의 백엔드 레포지토리입니다.  
