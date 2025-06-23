@@ -87,6 +87,9 @@ naver:
   client-secret: ${NAVER_NEWS_CLIENT_SECRET}
   news-url: ${NAVER_API_URL}
 
+sentry:
+  dsn: https://69c9ab16dfc22141bd3df9e65fb2a74d@o4509545353707520.ingest.us.sentry.io/4509545372057600o
+  send-default-pii: true
 
 server:
-  port: 8080
+  port: 8081
