@@ -15,8 +15,8 @@ public class ExchangeScheduler {
     private final ExchangeService exchangeService;
 
     // 매일 자정에 실행되도록 원래는 cron 사용
-    // @Scheduled(cron = "0 0 0 * * *") // 매일 00시에 불러와서 하루 환율 저장해서 비교하기 위해서 넣음 시간은 정하면 될듯!
-    // @Scheduled(fixedRate = 10000) // 테스트용으로 10초마다 실행
+    // @Scheduled(cron = "0 5 9 * * ?")// 매일 09시 5분에 불러와서 하루 환율 저장해서 비교하기 위해서 넣음 시간은 정하면 될듯!
+    //@Scheduled(fixedRate = 10000) // 테스트용으로 10초마다 실행
     public void saveDailyExchangeRate() {
         LocalDate today = LocalDate.now();
 

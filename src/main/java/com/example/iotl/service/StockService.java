@@ -144,4 +144,21 @@ public class StockService {
         LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
         return stockRepository.findByStockCodeAndCreatedAtBetween(code, startOfDay, now);
     }
+
+    // 여기서 그거 받아온거 MarketIndexServ로 넘기는거임
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public String getAppKey() {
+        return appKey;
+    }
+
+    public String getAppSecret() {
+        return appSecret;
+    }
 }
