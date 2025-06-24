@@ -73,6 +73,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation' // Sentry
 	implementation 'io.sentry:sentry-logback:7.6.0'
 	implementation 'io.sentry:sentry-spring-boot-starter:7.6.0'
+
+	testImplementation 'com.h2database:h2' // 테스트 전용
 }
 
 tasks.named('test') {
