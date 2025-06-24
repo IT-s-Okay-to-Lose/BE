@@ -2,7 +2,7 @@ name: CI/CD Deploy to EC2
 
 on:
   push:
-    branches: [ dev, 59-feat-github-actions-flway-migration-기능-추가  ]
+    branches: [ dev ]
 
 jobs:
   deploy:
