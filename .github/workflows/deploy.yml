@@ -30,13 +30,13 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/iotl .
+        run: docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }} .
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }}
 
 
       - name: Extract DB credentials from .env
@@ -74,7 +74,7 @@ jobs:
           envs: ENV_PROPERTIES_DEV
           script: |
             echo "$ENV_PROPERTIES_DEV" > .env
-            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl
+            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }}
             docker stop iotl || true
             docker rm iotl || true
             docker run -d \
@@ -82,7 +82,7 @@ jobs:
               -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
               -p 8080:8080 \
               --name iotl \
-              ${{ secrets.DOCKER_USERNAME }}/iotl \
+              ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }} \
               java -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar
 
       - name: Send Slack Notification (Success)
