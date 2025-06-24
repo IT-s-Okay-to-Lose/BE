@@ -60,7 +60,8 @@ jobs:
           -locations=filesystem:./src/main/resources/db/migration \
           -url=${{ secrets.DB_URL }} \
           -user=${{ secrets.DB_USERNAME }} \
-          -password=${{ secrets.DB_PASSWORD }}
+          -password=${{ secrets.DB_PASSWORD }} \
+          -baselineOnMigrate=true
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
