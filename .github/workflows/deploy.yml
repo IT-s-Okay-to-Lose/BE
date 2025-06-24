@@ -55,8 +55,9 @@ jobs:
           mv flyway-10.11.1 flyway
 
       - name: Run Flyway Migration
-        run: ./flyway/flyway migrate \
-          -url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/your_database \
+        run: |
+          ./flyway/flyway migrate \
+          -url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/${{ secrets.DB_NAME }} \
           -user=${{ secrets.DB_USER }} \
           -password=${{ secrets.DB_PASSWORD }}
 
