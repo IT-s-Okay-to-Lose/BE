@@ -50,15 +50,11 @@ jobs:
 
       - name: Run Flyway Migration
         run: |
-          curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.14.0/flyway-commandline-10.14.0-linux-x64.tar.gz -o flyway.tar.gz
-          tar -xzf flyway.tar.gz
-          sudo mv flyway-10.14.0 /opt/flyway
-          export PATH=$PATH:/opt/flyway
-          /opt/flyway/flyway \
-            -url=jdbc:mysql://$DB_HOST:3306/$DB_NAME \
-            -user=$DB_USER \
-            -password=$DB_PASSWORD \
-            -locations=filesystem:./src/main/resources/db/migration \
+          ./flyway/flyway \
+            -url=jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }} \
+            -user=${{ secrets.DB_USER }} \
+            -password=${{ secrets.DB_PASSWORD }} \
+            -locations=filesystem:src/main/resources/db/migration \
             migrate
 
       - name: Deploy to EC2
