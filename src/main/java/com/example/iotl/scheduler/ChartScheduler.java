@@ -35,7 +35,7 @@ public class ChartScheduler {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    @Scheduled(fixedRate = 5000)
+    //@Scheduled(fixedRate = 5000)
     public void sendChartDataToSubscribers() {
         Map<String, ChartWebSocketHandler.ChartRequest> sessionMap = chartWebSocketHandler.getSessionRequestMap();
 
