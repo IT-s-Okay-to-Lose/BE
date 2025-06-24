@@ -1,8 +1,12 @@
 spring:
   config:
     import: optional:file:.env[.properties]
+    activate:
+      on-profile: default
+
   application:
     name: IOTL
+
   jpa:
     hibernate:
       ddl-auto: update

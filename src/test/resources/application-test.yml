@@ -8,3 +8,11 @@ spring:
     hibernate:
       ddl-auto: create
     database-platform: org.hibernate.dialect.H2Dialect
+
+sentry:
+  dsn: ""
+
+# 로그 레벨 줄이기
+logging:
+  level:
+    root: WARN
