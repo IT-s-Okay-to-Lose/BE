@@ -57,9 +57,10 @@ jobs:
       - name: Run Flyway Migration
         run: |
           ./flyway/flyway migrate \
-          -url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/${{ secrets.DB_NAME }} \
-          -user=${{ secrets.DB_USER }} \
-          -password=${{ secrets.DB_PASSWORD }}
+          -locations=filesystem:./src/main/resources/db/migration \
+          -url=jdbc:mysql://${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }} \
+          -user=${{ env.DB_USER }} \
+          -password=${{ env.DB_PASSWORD }}
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
