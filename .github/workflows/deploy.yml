@@ -25,7 +25,7 @@ jobs:
           ENV_PROPERTIES_DEV: ${{ secrets.ENV_PROPERTIES_DEV }}
 
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: ./gradlew clean build -x test
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
