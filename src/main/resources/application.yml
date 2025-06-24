@@ -1,9 +1,17 @@
 spring:
   config:
     import: optional:file:.env[.properties]
-
   application:
     name: IOTL
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+management:
+  otlp:
+    tracing:
+      enabled: false
+
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
