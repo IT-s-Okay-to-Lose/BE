@@ -100,7 +100,7 @@ public class TokenService {
                 .secure(true)   // 로컬 개발 시 false
                 .sameSite("None")
                 .path("/")
-                .domain("iotl.store")
+//                .domain("iotl.store")
                 .build();
     }
 
@@ -111,7 +111,7 @@ public class TokenService {
                 .secure(true)           // 로컬 개발 시 false
                 .sameSite("None")
                 .path("/")
-                .domain("iotl.store")
+//                .domain("iotl.store")
                 .build();
     }
 }
