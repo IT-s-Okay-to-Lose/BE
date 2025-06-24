@@ -2,11 +2,12 @@ package com.example.iotl.dto.stocks;
 
 import com.example.iotl.entity.StockDetail;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode(of = {"open", "high", "low", "close"})
 public class CandleDataDto {
-
     @Schema(description = "시간 (ISO_LOCAL_DATE_TIME 포맷)", example = "2025-06-15T14:41:15")
     private final String time;
 

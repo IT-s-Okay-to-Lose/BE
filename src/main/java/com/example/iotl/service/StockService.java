@@ -131,6 +131,13 @@ public class StockService {
                 .collect(Collectors.toList());
     }
 
+    // 1시간전의 데이터부터 가져옴
+    public List<StockDetail> findStocksWithinOneHour(String stockCode) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneHourAgo = now.minusHours(1);
+        return stockRepository.findByStockCodeAndCreatedAtBetween(stockCode, oneHourAgo, now);
+    }
+
     // ✅ 여러 종목 코드 → 최신 데이터 리스트로 변환
     public List<StockDetail> findLatestStocksByCodes(List<String> codes) {
         return codes.stream()

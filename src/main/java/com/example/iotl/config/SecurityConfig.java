@@ -64,6 +64,7 @@ public class SecurityConfig {
                             .requestMatchers(
                                     "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue",
                                     "/ws/**",                       // WebSocket 허용
+                                    "/api/stocks/**",
                                     "/api/stocks/meta",            // 정적 주식 데이터
                                     "/api/stocks/dynamic",         // 동적 주식 데이터
                                     "/api/stocks/chart/**",       // 차트 관련 주식 데이터 (있다면)
