@@ -59,7 +59,7 @@ jobs:
           ./flyway/flyway migrate \
           -locations=filesystem:./src/main/resources/db/migration \
           -url=${{ secrets.DB_URL }} \
-          -user=${{ secrets.DB_USER }} \
+          -user=${{ secrets.DB_USERNAME }} \
           -password=${{ secrets.DB_PASSWORD }}
 
       - name: Deploy to EC2
