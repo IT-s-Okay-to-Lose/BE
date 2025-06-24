@@ -39,6 +39,15 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl
 
 
+      - name: Extract DB credentials from .env
+        id: extract-env
+        run: |
+          export $(grep -v '^#' .env | xargs)
+          echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+          echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
+          echo "DB_USER=$DB_USER" >> $GITHUB_ENV
+          echo "DB_PASSWORD=$DB_PASSWORD" >> $GITHUB_ENV
+
       - name: Run Flyway Migration
         run: |
           curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.14.0/flyway-commandline-10.14.0-linux-x64.tar.gz -o flyway.tar.gz
@@ -46,9 +55,9 @@ jobs:
           sudo mv flyway-10.14.0 /opt/flyway
           export PATH=$PATH:/opt/flyway
           /opt/flyway/flyway \
-            -url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/${{ secrets.DB_NAME }} \
-            -user=${{ secrets.DB_USER }} \
-            -password=${{ secrets.DB_PASSWORD }} \
+            -url=jdbc:mysql://$DB_HOST:3306/$DB_NAME \
+            -user=$DB_USER \
+            -password=$DB_PASSWORD \
             -locations=filesystem:./src/main/resources/db/migration \
             migrate
 
