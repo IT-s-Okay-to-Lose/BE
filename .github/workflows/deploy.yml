@@ -30,13 +30,38 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/iotl .
+        run: docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }} .
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }}
+
+
+      - name: Extract DB credentials from .env
+        id: extract-env
+        run: |
+          export $(grep -v '^#' .env | xargs)
+          echo "DB_HOST=${DB_HOST}" >> $GITHUB_ENV
+          echo "DB_NAME=${DB_NAME}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${DB_USERNAME}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> $GITHUB_ENV
+
+      - name: Download Flyway CLI
+        run: |
+          curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.11.1/flyway-commandline-10.11.1-linux-x64.tar.gz -o flyway.tar.gz
+          tar -xvzf flyway.tar.gz
+          mv flyway-10.11.1 flyway
+
+      - name: Run Flyway Migration
+        run: |
+          ./flyway/flyway migrate \
+          -locations=filesystem:./src/main/resources/db/migration \
+          -url=${{ secrets.DB_URL }} \
+          -user=${{ secrets.DB_USERNAME }} \
+          -password=${{ secrets.DB_PASSWORD }} \
+          -baselineOnMigrate=true
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -49,7 +74,7 @@ jobs:
           envs: ENV_PROPERTIES_DEV
           script: |
             echo "$ENV_PROPERTIES_DEV" > .env
-            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl
+            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }}
             docker stop iotl || true
             docker rm iotl || true
             docker run -d \
@@ -57,7 +82,7 @@ jobs:
               -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
               -p 8080:8080 \
               --name iotl \
-              ${{ secrets.DOCKER_USERNAME }}/iotl \
+              ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }} \
               java -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar
 
       - name: Send Slack Notification (Success)
