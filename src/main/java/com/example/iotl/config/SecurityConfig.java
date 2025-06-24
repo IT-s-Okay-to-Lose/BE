@@ -95,7 +95,9 @@ public class SecurityConfig {
                                 "http://localhost:8080",
                                 "https://iotl-fe.vercel.app",
                                 "https://localhost:5173",
-                                "http://localhost:5173"
+                                "http://localhost:5173",
+                                "https://localhost:5137",
+                                "http://localhost:5137"
                         ));
                         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                         configuration.setAllowedHeaders(List.of("*"));
