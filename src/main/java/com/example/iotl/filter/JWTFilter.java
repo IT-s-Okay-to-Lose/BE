@@ -166,6 +166,8 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
                 || uri.startsWith("/api/stocks/dynamic")
                 || uri.startsWith("/api/stocks/chart/")
                 || uri.equals("/api/exchange")
+                || uri.startsWith("/api/stocks/") // candle 포함
+                || uri.startsWith("/api/market-index/") // candle 포함
                 || uri.startsWith("/v3/api-docs/")
                 || uri.startsWith("/swagger-ui/")
                 || uri.equals("/swagger-ui.html")

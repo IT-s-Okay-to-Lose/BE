@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
 @Component
 @Slf4j
 public class ChartScheduler {
@@ -23,6 +22,9 @@ public class ChartScheduler {
     private final StockService stockService;
     private final ChartWebSocketHandler chartWebSocketHandler;
     private final ObjectMapper objectMapper;
+
+    // ✅ code+interval 기준 마지막 전송된 candle 보관
+    private final Map<String, CandleDataDto> lastSentCandleMap = new HashMap<>();
 
     public ChartScheduler(StockService stockService, ChartWebSocketHandler chartWebSocketHandler) {
         this.stockService = stockService;
@@ -50,16 +52,30 @@ public class ChartScheduler {
                     List<StockDetail> allDetails = stockService.findStocksByCode(code);
                     List<CandleDataDto> candles = filterByInterval(allDetails, request.interval());
 
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("code", code);
-                    result.put("interval", request.interval());
-                    result.put("price", priceInfo);
-                    result.put("candles", candles);
+                    if (candles.isEmpty()) continue;
 
-                    String json = objectMapper.writeValueAsString(result);
-                    chartWebSocketHandler.sendToSession(sessionId, json);
+                    CandleDataDto lastCandle = candles.get(candles.size() - 1);
 
-                    log.info("📈 [{}] {} 데이터 전송 완료 to session {}", code, request.interval(), sessionId);
+                    // ✅ key: code+interval로 구분
+                    String key = code + "_" + request.interval();
+                    CandleDataDto prevCandle = lastSentCandleMap.get(key);
+
+                    // ✅ 시간(time)이 다를 때만 전송
+                    if (prevCandle == null || !lastCandle.getTime().equals(prevCandle.getTime())) {
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("code", code);
+                        result.put("interval", request.interval());
+                        result.put("price", priceInfo);
+                        result.put("candle", lastCandle);
+
+                        String json = objectMapper.writeValueAsString(result);
+                        chartWebSocketHandler.sendToSession(sessionId, json);
+
+                        log.info("📥 [{}] {} 새 time({}) → 전송 to session {}", code, request.interval(), lastCandle.getTime(), sessionId);
+                        lastSentCandleMap.put(key, lastCandle);
+                    } else {
+                        log.info("⏸ [{}] {} 동일 time({}) → 전송 생략", code, request.interval(), lastCandle.getTime());
+                    }
 
                 } catch (Exception e) {
                     log.error("❌ [{}] 전송 실패 to session {}", code, sessionId, e);
@@ -77,12 +93,13 @@ public class ChartScheduler {
             case "5m" -> from = now.minusMinutes(5);
             case "1h" -> from = now.minusHours(1);
             case "1d" -> from = now.minusDays(1);
-            default -> from = now.minusSeconds(30); // "live" 또는 기타
+            default -> from = now.minusSeconds(30);
         }
 
         return details.stream()
                 .filter(d -> !d.getCreatedAt().isBefore(from))
                 .map(CandleDataDto::new)
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(CandleDataDto::getTime))
+                .toList();
     }
 }
