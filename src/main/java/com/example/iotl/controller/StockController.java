@@ -142,13 +142,13 @@ public class StockController {
         return stock == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(new MarketStockPriceInfoDto(stock));
     }
 
-    @Operation(summary = "캔들 차트 데이터 조회", description = "CandleDataDto 리스트 반환")
+    @Operation(summary = "캔들 차트 데이터 조회", description = "요청 시각 기준 1시간 전부터 현재까지의 CandleDataDto 리스트 반환")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/{code}/candle")
     public ResponseEntity<List<CandleDataDto>> getCandleData(
             @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
         return ResponseEntity.ok(
-                stockService.findStocksByCode(code).stream()
+                stockService.findStocksWithinOneHour(code).stream()
                         .map(CandleDataDto::new)
                         .collect(Collectors.toList())
         );
