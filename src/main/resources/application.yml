@@ -3,19 +3,11 @@ spring:
     import: optional:file:.env[.properties]
     activate:
       on-profile: default
+  jmx:
+    enabled: false
 
   application:
     name: IOTL
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-
-management:
-  otlp:
-    tracing:
-      enabled: false
-
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -25,7 +17,7 @@ management:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate.format_sql: true
