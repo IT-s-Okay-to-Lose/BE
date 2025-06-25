@@ -24,6 +24,16 @@ jobs:
         env:
           ENV_PROPERTIES_TEST: ${{ secrets.ENV_PROPERTIES_TEST }}
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Build with Gradle
         run: ./gradlew clean build
         env:
