@@ -35,7 +35,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String username = customUserDetails.getUsername();
         String role = authentication.getAuthorities().iterator().next().getAuthority();
 
-        log.info("<CustomSuccessHandler onAuthenticationSuccess> requestURI={}", request.getRequestURI());
+        log.info("<CustomSuccessHandler - onAuthenticationSuccess> requestURL = {}", request.getRequestURL().toString());
 
         Map<String, String> tokens = tokenService.createTokens(username, role);
         String access = tokens.get("access");
