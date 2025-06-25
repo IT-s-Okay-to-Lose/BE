@@ -1,11 +1,11 @@
-package com.example.iotl.service;
+package com.example.iotl.service.security;
 
 import com.example.iotl.entity.RefreshEntity;
 import com.example.iotl.jwt.JWTUtil;
 import com.example.iotl.repository.RefreshRepository;
-import jakarta.servlet.http.Cookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -37,22 +37,8 @@ public class TokenService {
         return tokenMap;
     }
 
-    /**
-     * HttpOnly 쿠키 생성
-     */
-//    public Cookie createCookie(String key, String value) {
-//        Cookie cookie = new Cookie(key, value);
-//        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일
-//        cookie.setHttpOnly(true);
-//        cookie.setPath("/"); //전체 경로에 쿠키 설정
-//        cookie.setSecure(true); //HTTPS 전용 설정
-//        cookie.setDomain("iotl.store");
-//        return cookie;
-//    }
-
-    //iotl.store
-
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+    @Transactional
+    public  void addRefreshEntity(String username, String refresh, Long expiredMs) {
         Date expiration = new Date(System.currentTimeMillis() + expiredMs);
 
         RefreshEntity refreshEntity = new RefreshEntity();
@@ -66,6 +52,7 @@ public class TokenService {
     /**
      * 기존 refresh 삭제 후 새로운 refresh 저장
      */
+    @Transactional
     public Map<String, String> rotateRefreshToken(String username, String role, String oldRefreshToken, long accessExpiry, long refreshExpiry) {
         // 기존 refresh 삭제
         refreshRepository.deleteByRefresh(oldRefreshToken);
@@ -81,17 +68,6 @@ public class TokenService {
         tokenMap.put("refresh", newRefreshToken);
         return tokenMap;
     }
-
-//    public ResponseCookie createResponseCookie(String key, String value) {
-//        return ResponseCookie.from(key, value)
-//                .maxAge(7 * 24 * 60 * 60) // 7일
-//                .httpOnly(true)
-//                .secure(true)
-//                .sameSite("None")
-//                .path("/")
-//                .domain("iotl.store")
-//                .build();
-//    }
 
     public ResponseCookie createAccessCookie(String value) {
         return ResponseCookie.from("access", value)
