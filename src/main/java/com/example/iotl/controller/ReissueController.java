@@ -1,7 +1,7 @@
 package com.example.iotl.controller;
 
 import com.example.iotl.jwt.JWTUtil;
-import com.example.iotl.service.TokenService;
+import com.example.iotl.service.security.TokenService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

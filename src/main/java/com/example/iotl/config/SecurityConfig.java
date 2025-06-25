@@ -3,7 +3,7 @@ package com.example.iotl.config;
 import com.example.iotl.filter.JWTFilter;
 import com.example.iotl.handler.CustomSuccessHandler;
 import com.example.iotl.jwt.JWTUtil;
-import com.example.iotl.service.CustomOAuth2UserService;
+import com.example.iotl.service.security.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -108,24 +107,6 @@ public class SecurityConfig {
 
                         return configuration;
                     }
-//                    @Override
-//                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-//
-//                        CorsConfiguration configuration = new CorsConfiguration();
-//
-//                        configuration.setAllowedOrigins(Collections.singletonList("https://iotl-fe.vercel.app"));
-//                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:8080")); //배포시에는 프론트엔드 도메인으로 대체
-//                        configuration.setAllowedMethods(Collections.singletonList("*"));
-//                        configuration.setAllowCredentials(true);
-//                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-//                        configuration.setMaxAge(3600L);
-//
-////                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-////                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-//                        configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
-//
-//                        return configuration;
-//                    }
                 }));
 
         return http.build();

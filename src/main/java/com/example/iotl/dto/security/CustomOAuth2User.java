@@ -1,5 +1,6 @@
-package com.example.iotl.dto;
+package com.example.iotl.dto.security;
 
+import com.example.iotl.dto.UserDto;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
