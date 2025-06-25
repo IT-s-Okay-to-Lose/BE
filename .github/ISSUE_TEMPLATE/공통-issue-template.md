@@ -1,5 +1,5 @@
 ---
-name: Custom issue template
+name: 공통 issue template
 about: Describe this issue template's purpose here.
 title: ''
 labels: ''
