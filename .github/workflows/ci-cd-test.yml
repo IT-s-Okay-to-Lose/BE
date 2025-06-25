@@ -1,0 +1,100 @@
+name: (TEST) CI/CD Deploy to EC2
+
+on:
+  push:
+    branches: [ test ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Make env file for TEST
+        run: |
+          echo "$ENV_PROPERTIES_TEST" | base64 --decode > .env
+        env:
+          ENV_PROPERTIES_TEST: ${{ secrets.ENV_PROPERTIES_TEST }}
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Build Docker image
+        run: docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} .
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
+
+
+      - name: Extract DB credentials from .env
+        id: extract-env
+        run: |
+          export $(grep -v '^#' .env | xargs)
+          echo "DB_HOST=${DB_HOST}" >> $GITHUB_ENV
+          echo "DB_NAME=${DB_NAME}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${DB_USERNAME}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> $GITHUB_ENV
+
+      - name: Download Flyway CLI
+        run: |
+          curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.11.1/flyway-commandline-10.11.1-linux-x64.tar.gz -o flyway.tar.gz
+          tar -xvzf flyway.tar.gz
+          mv flyway-10.11.1 flyway
+
+      - name: Run Flyway Migration
+        run: |
+          ./flyway/flyway migrate \
+          -locations=filesystem:./src/main/resources/db/migration \
+          -url=${{ secrets.DB_URL }} \
+          -user=${{ secrets.DB_USERNAME }} \
+          -password=${{ secrets.DB_PASSWORD }} \
+          -baselineOnMigrate=true
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          ENV_PROPERTIES_TEST: ${{ secrets.ENV_PROPERTIES_TEST }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ENV_PROPERTIES_TEST
+          script: |
+            echo "$ENV_PROPERTIES_TEST" > .env
+            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
+            docker stop iotl-test || true
+            docker rm iotl-test || true
+            docker run -d \
+              --env-file .env \
+              -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+              -p 8081:8080 \ 
+              --name iotl-test \
+              ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
+              java -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar
+
+      - name: Send Slack Notification (Success)
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"✅ [테스트 배포 성공] GitHub Actions에서 test 브랜치가 성공적으로 배포되었습니다."}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Send Slack Notification (Failure)
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ [테스트 배포 실패] GitHub Actions에서 문제가 발생했습니다. 로그를 확인해주세요."}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
