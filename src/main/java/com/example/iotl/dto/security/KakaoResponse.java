@@ -1,4 +1,4 @@
-package com.example.iotl.dto;
+package com.example.iotl.dto.security;
 
 import java.util.Map;
 

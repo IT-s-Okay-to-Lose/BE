@@ -1,4 +1,4 @@
-package com.example.iotl.dto;
+package com.example.iotl.dto.security;
 
 public interface OAuth2Response {
     String getProvider();

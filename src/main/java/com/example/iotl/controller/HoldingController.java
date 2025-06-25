@@ -1,6 +1,6 @@
 package com.example.iotl.controller;
 
-import com.example.iotl.dto.CustomOAuth2User;
+import com.example.iotl.dto.security.CustomOAuth2User;
 import com.example.iotl.dto.holding.MyStockSummaryDto;
 import com.example.iotl.service.HoldingService;
 import io.swagger.v3.oas.annotations.Operation;

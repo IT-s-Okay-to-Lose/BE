@@ -1,6 +1,6 @@
 package com.example.iotl.service;
 
-import com.example.iotl.dto.OAuth2Response;
+import com.example.iotl.dto.security.OAuth2Response;
 import com.example.iotl.dto.UserDto;
 import com.example.iotl.entity.User;
 import com.example.iotl.repository.UserRepository;

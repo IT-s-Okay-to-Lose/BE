@@ -1,6 +1,6 @@
 package com.example.iotl.filter;
 
-import com.example.iotl.dto.CustomOAuth2User;
+import com.example.iotl.dto.security.CustomOAuth2User;
 import com.example.iotl.dto.UserDto;
 import com.example.iotl.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -16,7 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
@@ -91,16 +90,17 @@ public class JWTFilter extends OncePerRequestFilter {
 //    }
 
 
-@Override
-protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-    String uri = request.getRequestURI();
+        String uri = request.getRequestURI();
+        log.info("jWTFilter - doFilterInternal => uri:{}", uri);
 
-    if (isPermitAllPath(uri)) {
-        filterChain.doFilter(request, response);
-        return;
-    }
+        if (isPermitAllPath(uri)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // ✅ access 쿠키에서 JWT 토큰 꺼내기
         String accessToken = null;
