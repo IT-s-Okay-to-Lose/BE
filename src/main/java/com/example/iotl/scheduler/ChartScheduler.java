@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ChartScheduler {
-
     private final StockService stockService;
     private final ChartWebSocketHandler chartWebSocketHandler;
     private final ObjectMapper objectMapper;
@@ -64,8 +63,8 @@ public class ChartScheduler {
                     if (prevCandle == null || !lastCandle.getTime().equals(prevCandle.getTime())) {
                         Map<String, Object> result = new HashMap<>();
                         result.put("code", code);
-                        result.put("interval", request.interval());
-                        result.put("price", priceInfo);
+                        //result.put("interval", request.interval());
+                        //result.put("price", priceInfo);
                         result.put("candle", lastCandle);
 
                         String json = objectMapper.writeValueAsString(result);
