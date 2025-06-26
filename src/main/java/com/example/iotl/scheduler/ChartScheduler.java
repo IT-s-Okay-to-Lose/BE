@@ -59,13 +59,15 @@ public class ChartScheduler {
                     String key = code + "_" + request.interval();
                     CandleDataDto prevCandle = lastSentCandleMap.get(key);
 
-                    // ✅ 시간(time)이 다를 때만 전송
                     if (prevCandle == null || !lastCandle.getTime().equals(prevCandle.getTime())) {
                         Map<String, Object> result = new HashMap<>();
-                        result.put("code", code);
-                        //result.put("interval", request.interval());
-                        //result.put("price", priceInfo);
-                        result.put("candle", lastCandle);
+                        result.put("candle", List.of(
+                                lastCandle.getTime().toString(),
+                                lastCandle.getOpen(),
+                                lastCandle.getHigh(),
+                                lastCandle.getLow(),
+                                lastCandle.getClose()
+                        ));
 
                         String json = objectMapper.writeValueAsString(result);
                         chartWebSocketHandler.sendToSession(sessionId, json);

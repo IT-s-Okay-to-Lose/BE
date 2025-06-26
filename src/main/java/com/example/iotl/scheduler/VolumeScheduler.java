@@ -32,7 +32,7 @@ public class VolumeScheduler {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    //@Scheduled(fixedRate = 5000)
+   //@Scheduled(fixedRate = 5000)
     public void sendVolumeData() {
         Map<String, VolumeWebSocketHandler.VolumeRequest> sessionMap = volumeWebSocketHandler.getSessionRequestMap();
 
@@ -50,8 +50,10 @@ public class VolumeScheduler {
 
                     if (prevVolume == null || !volumeData.getTime().equals(prevVolume.getTime())) {
                         Map<String, Object> result = new HashMap<>();
-                        //result.put("code", code);
-                        result.put("volume", volumeData);
+                        result.put("volume", List.of(
+                                volumeData.getTime().toString(),
+                                volumeData.getVolume()
+                        ));
 
                         String json = objectMapper.writeValueAsString(result);
                         volumeWebSocketHandler.sendToSession(sessionId, json);

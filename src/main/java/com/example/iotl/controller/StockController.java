@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -142,28 +143,45 @@ public class StockController {
         return stock == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(new MarketStockPriceInfoDto(stock));
     }
 
-    @Operation(summary = "캔들 차트 데이터 조회", description = "요청 시각 기준 1시간 전부터 현재까지의 CandleDataDto 리스트 반환")
+    @Operation(summary = "캔들 차트 데이터 조회", description = "요청 시각 기준 1시간 전부터 현재까지의 [시간, 시가, 고가, 저가, 종가] 배열 리스트 반환")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/{code}/candle")
-    public ResponseEntity<List<CandleDataDto>> getCandleData(
+    public ResponseEntity<List<List<Object>>> getCandleData(
             @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
-        return ResponseEntity.ok(
-                stockService.findStocksWithinOneHour(code).stream()
-                        .map(CandleDataDto::new)
-                        .collect(Collectors.toList())
-        );
+
+        List<List<Object>> response = stockService.findStocksWithinOneHour(code).stream()
+                .map(CandleDataDto::new)
+                .map(c -> {
+                    List<Object> row = new ArrayList<>();
+                    row.add(c.getTime() != null ? c.getTime().toString() : null);
+                    row.add(c.getOpen());
+                    row.add(c.getHigh());
+                    row.add(c.getLow());
+                    row.add(c.getClose());
+                    return row;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "거래량 차트 데이터 조회", description = "VolumeDataDto 리스트 반환")
+    @Operation(summary = "거래량 차트 데이터 조회", description = "시간 + 거래량 배열 리스트 반환")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/{code}/volume")
-    public ResponseEntity<List<VolumeDataDto>> getVolumeData(
+    public ResponseEntity<List<List<Object>>> getVolumeData(
             @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
-        return ResponseEntity.ok(
-                stockService.findStocksByCode(code).stream()
-                        .map(VolumeDataDto::new)
-                        .collect(Collectors.toList())
-        );
+
+        List<List<Object>> response = stockService.findStocksByCode(code).stream()
+                .map(VolumeDataDto::new)
+                .map(v -> {
+                    List<Object> row = new ArrayList<>();
+                    row.add(v.getTime().toString()); // 또는 포맷터 사용
+                    row.add(v.getVolume());
+                    return row;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "내 보유 주식 목록 조회", description = "StockPortfolioDto 리스트 반환")
