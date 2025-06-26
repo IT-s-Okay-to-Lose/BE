@@ -105,5 +105,5 @@ sentry:
   send-default-pii: true
 
 server:
-  port: 8081
+  port: 8080
   forward-headers-strategy: native
