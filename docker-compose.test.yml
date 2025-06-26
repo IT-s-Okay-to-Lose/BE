@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mysql-test:
+    image: mysql:8.0
+    container_name: mysql-test
+    restart: always
+    ports:
+      - "3307:3306"  # 로컬 3307 → 컨테이너 3306
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: 1234
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+
+  iotl-test:
+    build:
+      context: .
+    container_name: iotl-test
+    depends_on:
+      - mysql-test
+    ports:
+      - "8081:8080"
+    env_file:
+      - .env
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=test"]
+
+volumes:
+  mysql_test_data:
