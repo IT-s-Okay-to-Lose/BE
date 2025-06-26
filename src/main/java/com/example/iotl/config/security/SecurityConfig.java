@@ -1,10 +1,11 @@
-package com.example.iotl.config;
+package com.example.iotl.config.security;
 
 import com.example.iotl.filter.JWTFilter;
 import com.example.iotl.handler.CustomSuccessHandler;
 import com.example.iotl.jwt.JWTUtil;
 import com.example.iotl.service.security.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,14 +22,21 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final PermitAllPathProperties permitAllPathProperties;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
     private final JWTUtil jwtUtil;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler, JWTUtil jwtUtil) {
+    public SecurityConfig(PermitAllPathProperties permitAllPathProperties, CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler, JWTUtil jwtUtil) {
+        this.permitAllPathProperties = permitAllPathProperties;
         this.customOAuth2UserService = customOAuth2UserService;
         this.customSuccessHandler = customSuccessHandler;
         this.jwtUtil = jwtUtil;
+    }
+
+    @Bean
+    public JWTFilter jwtFilter() {
+        return new JWTFilter(jwtUtil, permitAllPathProperties.getPermitAllPaths());
     }
 
     @Bean
@@ -48,7 +56,7 @@ public class SecurityConfig {
 
         //JWTFilter 추가
         http
-                .addFilterAfter(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAfter(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
         //oauth2
         http
@@ -60,24 +68,10 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                            .requestMatchers(
-                                    "/", "/login", "/oauth2/**", "/login/oauth2/**", "/reissue",
-                                    "/ws/**",                       // WebSocket 허용
-                                    "/api/stocks/**",
-                                    "/api/stocks/meta",            // 정적 주식 데이터
-                                    "/api/stocks/dynamic",         // 동적 주식 데이터
-                                    "/api/stocks/chart/**",       // 차트 관련 주식 데이터 (있다면)
-                                    "/api/exchange",               // 환율 데이터
-                                    "/api/market-index/**",             // 지수 데이터
-                                    "/api/v1/news/top3", //뉴스
-                                    "/v3/api-docs/**", // swagger
-                                    "/swagger-ui/**", // swagger
-                                    "/swagger-ui.html" // swagger
-                            ).permitAll()
-                            .anyRequest().authenticated());
-//        http
-//                .authorizeHttpRequests((auth) -> auth
-//                        .anyRequest().permitAll());
+                        .requestMatchers(
+                                    permitAllPathProperties.getPermitAllPaths().toArray(new String[0]))
+                        .permitAll()
+                        .anyRequest().authenticated());
 
         //세션 설정 : STATELESS
         http
