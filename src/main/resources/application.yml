@@ -76,6 +76,25 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+
+    permit-all-paths:
+      - /
+      - /login
+      - /oauth2
+      - /login/oauth2
+      - /reissue
+      - /ws/
+      - /api/stocks/
+      - /api/stocks/meta
+      - /api/stocks/dynamic
+      - /api/stocks/chart/
+      - /api/exchange
+      - /api/market-index/
+      - /api/v1/news/top3
+      - /v3/api-docs/
+      - /swagger-ui/
+      - /swagger-ui.html
+
   logging:
     level:
       org.springframework.security: DEBUG
