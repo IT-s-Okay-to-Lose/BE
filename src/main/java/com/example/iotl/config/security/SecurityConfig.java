@@ -4,7 +4,9 @@ import com.example.iotl.filter.JWTFilter;
 import com.example.iotl.handler.CustomSuccessHandler;
 import com.example.iotl.jwt.JWTUtil;
 import com.example.iotl.service.security.CustomOAuth2UserService;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +20,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties(PermitAllPathProperties.class)
 public class SecurityConfig {
 
     private final PermitAllPathProperties permitAllPathProperties;
@@ -36,7 +40,7 @@ public class SecurityConfig {
 
     @Bean
     public JWTFilter jwtFilter() {
-        return new JWTFilter(jwtUtil, permitAllPathProperties.getPermitAllPaths());
+        return new JWTFilter(jwtUtil, permitAllPathProperties.getPaths());
     }
 
     @Bean
@@ -69,7 +73,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
-                                    permitAllPathProperties.getPermitAllPaths().toArray(new String[0]))
+                                permitAllPathProperties.getPaths().toArray(new String[0]))
                         .permitAll()
                         .anyRequest().authenticated());
 
@@ -104,5 +108,10 @@ public class SecurityConfig {
                 }));
 
         return http.build();
+    }
+
+    @PostConstruct
+    public void testPermitPathsLoaded() {
+        System.out.println("🔍 permitAllPaths in SecurityConfig: " + permitAllPathProperties.getPaths());
     }
 }
