@@ -83,18 +83,26 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: ENV_PROPERTIES_TEST
           script: |
+            set -e # 에러 발생 시 즉시 종료
             echo "$ENV_PROPERTIES_TEST" > .env
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
             docker stop iotl-test || true
             docker rm iotl-test || true
+                      
+            echo "✅ Starting new container..."
             docker run -d \
               --env-file .env \
               -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
               -p 8081:8080 \
               --name iotl-test \
               ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
-              java -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar
-            docker image prune -af  # 도커 안쓰는 이미지 정리
+              java -javaagent:/app/sentry-agent.jar -jar app.jar
+          
+            echo "✅ Running containers:"
+            docker ps | grep iotl-test
+          
+            echo "🧹 Cleaning up unused images..."
+            docker image prune -af --filter "until=24h"
 
       - name: Send Slack Notification (Success)
         if: success()
