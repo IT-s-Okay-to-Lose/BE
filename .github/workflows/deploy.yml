@@ -42,29 +42,28 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            echo "📂 이동 및 git pull"
+             echo "📂 이동 및 깃 동기화"
             cd ~/BE
-            git reset --hard
-            git pull origin dev
-
-            echo "🔐 환경파일 복원"
-            echo "${{ secrets.ENV_PROPERTIES_DEV }}" | base64 --decode > .env
+            git fetch origin test
+            git reset --hard origin/test
 
             echo "🐳 Docker 이미지 Pull 및 재시작"
-            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }}
-            docker stop iotl || true
-            docker rm iotl || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
+            docker stop iotl-test || true
+            docker rm iotl-test || true
 
             echo "✅ Starting new container..."
             docker run -d \
-              --env-file .env \
-              -p 8080:8080 \
-              --name iotl \
-              ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }} \
+              --env SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL" \
+              --env SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
+              --env SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
+              -p 8081:8080 \
+              --name iotl-test \
+              ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
               java -jar app.jar
 
             echo "✅ Running containers:"
-            docker ps | grep iotl
+            docker ps | grep iotl-test
 
             echo "🧹 Cleaning up unused images..."
             docker image prune -af --filter "until=24h"
