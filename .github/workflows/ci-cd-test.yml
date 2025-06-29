@@ -94,6 +94,7 @@ jobs:
               --name iotl-test \
               ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
               java -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar
+            docker image prune -af  # 도커 안쓰는 이미지 정리
 
       - name: Send Slack Notification (Success)
         if: success()
