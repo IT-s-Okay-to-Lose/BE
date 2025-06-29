@@ -49,10 +49,10 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
 
 
-      - name: Extract DB credentials from .env
+      - name: Extract DB credentials from .env.test
         id: extract-env
         run: |
-          export $(grep -v '^#' .env | xargs)
+          export $(grep -v '^#' .env.test | xargs)
           echo "DB_HOST=${DB_HOST}" >> $GITHUB_ENV
           echo "DB_NAME=${DB_NAME}" >> $GITHUB_ENV
           echo "DB_USERNAME=${DB_USERNAME}" >> $GITHUB_ENV
