@@ -47,9 +47,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          # 동일한 SHA 태그와 .env 를 현장에 전달
-          envs: |
-            GITHUB_SHA=${{ github.sha }}
           script: |
             set -e
 
@@ -63,7 +60,7 @@ jobs:
             echo "${{ secrets.ENV_PROPERTIES_DEV }}" | base64 --decode > .env
 
             echo "🐳 Docker 이미지 Pull"
-            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl:${GITHUB_SHA}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }}
 
             echo "🛑 기존 컨테이너 중지·제거"
             docker stop iotl || true
@@ -74,7 +71,7 @@ jobs:
               --env-file .env \
               -p 8080:8080 \
               --name iotl \
-              ${{ secrets.DOCKER_USERNAME }}/iotl:${GITHUB_SHA} \
+              ${{ secrets.DOCKER_USERNAME }}/iotl:${{ github.sha }} \
               java -jar app.jar
 
             echo "✅ 컨테이너 상태"
