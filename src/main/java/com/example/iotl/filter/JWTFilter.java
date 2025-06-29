@@ -171,7 +171,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 || uri.startsWith("/v3/api-docs/")
                 || uri.startsWith("/swagger-ui/")
                 || uri.equals("/swagger-ui.html")
-                || uri.equals("/api/v1/news/top3");
+                || uri.equals("/api/v1/news/top3")
+                || uri.startsWith("/test/api/v1/news/top3");
 
     }
 }
