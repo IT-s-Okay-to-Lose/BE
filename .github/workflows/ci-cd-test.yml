@@ -64,16 +64,11 @@ jobs:
             git reset --hard
             git pull origin test
 
-            echo "$ENV_PROPERTIES_TEST" > .env.test
-            export $(grep -v '^#' .env.test | xargs) # env.test export
+            echo "$ENV_PROPERTIES_TEST" > .env
+            export $(grep -v '^#' .env | xargs) # env export
             
-            while IFS='=' read -r key value; do
-              if [[ ! "$key" =~ ^# && -n "$key" ]]; then
-              export "$key=$value"
-              fi
-              done < .env.test
             echo "📦 Flyway Migration 실행"
-            export $(grep -v '^#' .env.test | xargs)
+            export $(grep -v '^#' .env | xargs)
             
             flyway migrate \
             -locations=filesystem:./src/main/resources/db/migration \
@@ -89,7 +84,7 @@ jobs:
 
             echo "✅ Starting new container..."
             docker run -d \
-              --env-file .env.test \
+              --env-file .env \
               -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
               -e SENTRY_DSN=${{ secrets.SENTRY_DSN }} \
               -p 8081:8080 \
