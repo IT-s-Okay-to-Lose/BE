@@ -91,7 +91,7 @@ jobs:
                       
             echo "✅ Starting new container..."
             docker run -d \
-              --env-file .env \
+              --env-file .env.test \
               -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
               -p 8081:8080 \
               --name iotl-test \
