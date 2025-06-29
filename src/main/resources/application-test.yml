@@ -1,6 +1,6 @@
 spring:
   config:
-    import: optional:file:.env.test.properties
+    import: optional:file:.env.test
     activate:
       on-profile: test
   jmx:
