@@ -67,8 +67,11 @@ jobs:
       - name: Run Flyway Migration
         run: |
           ./flyway/flyway migrate \
-          -locations=filesystem:./src/main/resources/db/migration \
-          -url=${{ secrets.DB_URL }} \
+            -locations=filesystem:./src/main/resources/db/migration \
+            -url=$DB_URL \
+            -user=$DB_USERNAME \
+            -password=$DB_PASSWORD \
+            -baselineOnMigrate=true
         env:
           DB_URL: ${{ env.DB_URL }}
           DB_USERNAME: ${{ env.DB_USERNAME }}
