@@ -91,9 +91,9 @@ jobs:
 
             ./flyway/flyway migrate \
               -locations=filesystem:./src/main/resources/db/migration \
-              -url=$DB_URL \
-              -user=$DB_USERNAME \
-              -password=$DB_PASSWORD \
+              -url=$SPRING_DATASOURCE_URL \
+              -user=$SPRING_DATASOURCE_USERNAME \
+              -password=$SPRING_DATASOURCE_PASSWORD \
               -baselineOnMigrate=true
             
             echo "🐳 Docker 이미지 Pull 및 재시작"
