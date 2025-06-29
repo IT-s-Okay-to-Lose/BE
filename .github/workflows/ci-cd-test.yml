@@ -35,8 +35,6 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew clean build
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Build Docker image
         run: docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} .
@@ -85,12 +83,10 @@ jobs:
             echo "✅ Starting new container..."
             docker run -d \
               --env-file .env \
-              -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-              -e SENTRY_DSN=${{ secrets.SENTRY_DSN }} \
               -p 8081:8080 \
               --name iotl-test \
               ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
-              java -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar     
+              java -jar app.jar  
 
             echo "✅ Running containers:"
             docker ps | grep iotl-test
