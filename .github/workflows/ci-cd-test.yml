@@ -74,6 +74,7 @@ jobs:
   
             echo "🚀 새 컨테이너 시작"
             docker run -d \
+              --network iotl-net \
               --env-file ~/BE/.env.test \
               -p 8081:8080 \
               --name iotl-test \
