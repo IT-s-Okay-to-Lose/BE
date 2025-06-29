@@ -48,23 +48,6 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
 
-
-      - name: Extract DB credentials from .env.test
-        id: extract-env
-        run: |
-          export $(grep -v '^#' .env.test | xargs)
-          echo "DB_HOST=${DB_HOST}" >> $GITHUB_ENV
-          echo "DB_NAME=${DB_NAME}" >> $GITHUB_ENV
-          echo "DB_URL=$SPRING_DATASOURCE_URL" >> $GITHUB_ENV
-          echo "DB_USERNAME=$SPRING_DATASOURCE_USERNAME" >> $GITHUB_ENV
-          echo "DB_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> $GITHUB_ENV
-
-      - name: Download Flyway CLI
-        run: |
-          curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.11.1/flyway-commandline-10.11.1-linux-x64.tar.gz -o flyway.tar.gz
-          tar -xvzf flyway.tar.gz
-          mv flyway-10.11.1 flyway
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         env:
@@ -84,17 +67,16 @@ jobs:
 
             echo "$ENV_PROPERTIES_TEST" > .env.test
             export $(grep -v '^#' .env.test | xargs) # env.test export
+            
             echo "📦 Flyway Migration 실행"
-            curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.11.1/flyway-commandline-10.11.1-linux-x64.tar.gz -o flyway.tar.gz
-            tar -xvzf flyway.tar.gz
-            mv flyway-10.11.1 flyway
-
-            ./flyway/flyway migrate \
-              -locations=filesystem:./src/main/resources/db/migration \
-              -url=$SPRING_DATASOURCE_URL \
-              -user=$SPRING_DATASOURCE_USERNAME \
-              -password=$SPRING_DATASOURCE_PASSWORD \
-              -baselineOnMigrate=true
+            export $(grep -v '^#' .env.test | xargs)
+            
+            flyway migrate \
+            -locations=filesystem:./src/main/resources/db/migration \
+            -url=$SPRING_DATASOURCE_URL \
+            -user=$SPRING_DATASOURCE_USERNAME \
+            -password=$SPRING_DATASOURCE_PASSWORD \
+            -baselineOnMigrate=true
             
             echo "🐳 Docker 이미지 Pull 및 재시작"
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
