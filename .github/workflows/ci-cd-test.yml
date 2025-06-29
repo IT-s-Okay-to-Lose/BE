@@ -84,7 +84,7 @@ jobs:
           envs: ENV_PROPERTIES_TEST
           script: |
             set -e # 에러 발생 시 즉시 종료
-            echo "$ENV_PROPERTIES_TEST" > .env
+            echo "$ENV_PROPERTIES_TEST" > .env.test
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
             docker stop iotl-test || true
             docker rm iotl-test || true
@@ -97,7 +97,7 @@ jobs:
               -p 8081:8080 \
               --name iotl-test \
               ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
-              java  -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar     
+              java -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar     
             
             echo "✅ Running containers:"
             docker ps | grep iotl-test
