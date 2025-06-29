@@ -14,7 +14,9 @@ services:
       - mysql_test_data:/var/lib/mysql
 
   iotl-test:
-    image: hyeni/iotl-test:latest
+    build:
+      context: .                # 현재 디렉토리 기준으로 Dockerfile 사용
+      dockerfile: Dockerfile   # 명시적으로 Dockerfile 지정 (생략 가능)
     container_name: iotl-test
     depends_on:
       - mysql-test
