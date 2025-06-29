@@ -14,8 +14,7 @@ services:
       - mysql_test_data:/var/lib/mysql
 
   iotl-test:
-    build:
-      context: .
+    image: hyeni/iotl-test:latest
     container_name: iotl-test
     depends_on:
       - mysql-test
@@ -23,7 +22,7 @@ services:
       - "8081:8080"
     env_file:
       - .env.test
-    command: ["java", "-jar", "app.jar", "--spring.profiles.active=test"]
+    command: ["java", "-javaagent:/app/sentry-agent.jar", "-jar", "app.jar", "--spring.profiles.active=test"]
 
 volumes:
   mysql_test_data:
