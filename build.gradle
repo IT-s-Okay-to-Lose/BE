@@ -73,6 +73,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation' // Sentry
 	implementation 'io.sentry:sentry-logback:8.12.0'
 	implementation 'io.sentry:sentry-spring-boot-starter:8.12.0'
+	implementation 'mysql:mysql-connector-java:8.0.33'
 }
 
 tasks.named('test') {
