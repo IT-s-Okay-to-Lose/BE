@@ -73,12 +73,7 @@ public class SecurityConfig {
                                     "/v3/api-docs/**", // swagger
                                     "/swagger-ui/**", // swagger
                                     "/swagger-ui.html", // swagger
-                                    // test 경로 추가
-                                    "/test/api/v1/news/top3", //뉴스
-                                    "/test/v3/api-docs/**", // swagger
-                                    "/test/swagger-ui/**", // swagger
-                                    "/test/swagger-ui.html" // swagger
-
+                                    "/test/**" // test 경로 추가
                             ).permitAll()
                             .anyRequest().authenticated());
 //        http
