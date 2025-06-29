@@ -96,8 +96,8 @@ jobs:
               -p 8081:8080 \
               --name iotl-test \
               ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
-              java -javaagent:/app/sentry-agent.jar -jar app.jar
-          
+              java  -javaagent:sentry-opentelemetry-agent-8.14.0.jar -jar app.jar     
+            
             echo "✅ Running containers:"
             docker ps | grep iotl-test
           
