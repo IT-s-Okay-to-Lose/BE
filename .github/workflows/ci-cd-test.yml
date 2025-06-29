@@ -18,9 +18,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Make env file for TEST
+      - name: Make env.test file for TEST
         run: |
-          echo "$ENV_PROPERTIES_TEST" | base64 --decode > .env
+          echo "$ENV_PROPERTIES_TEST" | base64 --decode > .env.test
         env:
           ENV_PROPERTIES_TEST: ${{ secrets.ENV_PROPERTIES_TEST }}
 
