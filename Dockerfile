@@ -5,4 +5,4 @@ COPY .env.test .env.test
 ADD https://repo1.maven.org/maven2/io/sentry/sentry-opentelemetry-agent/8.14.0/sentry-opentelemetry-agent-8.14.0.jar /app/sentry-agent.jar
 
 # ENTRYPOINT 수정: Sentry Agent 적용
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=test"]
