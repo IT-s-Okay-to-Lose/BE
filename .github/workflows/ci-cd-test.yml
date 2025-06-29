@@ -21,9 +21,6 @@ jobs:
       - name: Make env.test file for TEST
         run: |
           echo "$ENV_PROPERTIES_TEST" > .env.test
-          echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}"     >> .env.test
-          echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env.test
-          echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env.test
         env:
           ENV_PROPERTIES_TEST: ${{ secrets.ENV_PROPERTIES_TEST }}
 
@@ -61,23 +58,20 @@ jobs:
             ENV_PROPERTIES_TEST
           script: |
             set -e
-
+  
             echo "📂 ~/BE 로 이동 및 test 브랜치 동기화"
             cd ~/BE
             git fetch origin test
             git reset --hard origin/test
-
+  
             echo "🔐 .env.test 덮어쓰기"
             echo "$ENV_PROPERTIES_TEST" > ~/BE/.env.test
-            echo "SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL"     >> ~/BE/.env.test
-            echo "SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME" >> ~/BE/.env.test
-            echo "SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> ~/BE/.env.test
-
+  
             echo "🐳 Docker 이미지 Pull 및 재시작"
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
             docker stop iotl-test || true
             docker rm iotl-test   || true
-
+  
             echo "🚀 새 컨테이너 시작"
             docker run -d \
               --env-file ~/BE/.env.test \
@@ -85,9 +79,18 @@ jobs:
               --name iotl-test \
               ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
               java -jar app.jar
-
+  
             echo "✅ 컨테이너 상태:"
             docker ps | grep iotl-test
+  
+            # 컨테이너가 살아 있는지 체크
+            if ! docker ps --filter "name=iotl-test" --filter "status=running" | grep -q iotl-test; then
+              echo "❌ 컨테이너가 실행 중이지 않습니다. 배포 실패" >&2
+              exit 1
+            fi
+  
+            echo "🧹 오래된 이미지 정리"
+            docker image prune -af --filter "until=24h"
 
       - name: ✅ 컨테이너 기동 확인
         if: always()
