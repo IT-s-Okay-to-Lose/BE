@@ -65,10 +65,10 @@ jobs:
             git pull origin test
 
             echo "$ENV_PROPERTIES_TEST" > .env
-            export $(grep -v '^#' .env | xargs) # env export
+            cat .env
             
             echo "📦 Flyway Migration 실행"
-            export $(grep -v '^#' .env | xargs)
+            source .env
             
             flyway migrate \
               -locations=filesystem:./src/main/resources/db/migration \
