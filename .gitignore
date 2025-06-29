@@ -39,3 +39,8 @@ out/
 ### 환경 설정
 .env
 .env.test
+flyway.tar.gz
+application-test.properties
+env
+.env
+application-test.properties
