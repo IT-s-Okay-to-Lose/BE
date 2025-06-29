@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Make env.test file for TEST
-        run: echo "$ENV_PROPERTIES_TEST" > .env
+        run: echo "$ENV_PROPERTIES_TEST" > .env.test
         env:
           ENV_PROPERTIES_TEST: ${{ secrets.ENV_PROPERTIES_TEST }}
 
@@ -55,9 +55,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: |
             ENV_PROPERTIES_TEST
-            SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
-            SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
-            SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
           script: |
             set -e
 
@@ -66,6 +63,9 @@ jobs:
             git fetch origin test
             git reset --hard origin/test
             
+            echo "🔐 .env.test 복원"
+            echo "${ENV_PROPERTIES_TEST}" > .env.test
+            
             echo "🐳 Docker 이미지 Pull 및 재시작"
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
             docker stop iotl-test || true
@@ -73,13 +73,11 @@ jobs:
 
             echo "✅ Starting new container..."
             docker run -d \
-              --env SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL" \
-              --env SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
-              --env SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
-              -p 8081:8080 \
-              --name iotl-test \
-              ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
-              java -jar app.jar  
+            --env-file .env.test \
+            -p 8081:8080 \
+            --name iotl-test \
+            ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
+            java -jar app.jar
 
             echo "✅ Running containers:"
             docker ps | grep iotl-test
