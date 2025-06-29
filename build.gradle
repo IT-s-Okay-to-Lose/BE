@@ -8,7 +8,6 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.0'
 	id 'io.spring.dependency-management' version '1.1.7'
-	id "io.sentry.jvm.gradle" version "5.7.0" // sentry
 }
 
 group = 'com.example'
@@ -28,14 +27,6 @@ configurations {
 
 repositories {
 	mavenCentral()
-}
-
-
-sentry {
-	includeSourceContext = true
-	org = "iotl" // Sentry 조직 이름
-	projectName = "iotl" // Sentry 프로젝트 이름
-	authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
 
 
