@@ -63,8 +63,8 @@ jobs:
 
             echo "📂 이동 및 git pull"
             cd ~/BE
-            git reset --hard
-            git pull origin test
+            git fetch origin test
+            git reset --hard origin/test
             
             echo "🐳 Docker 이미지 Pull 및 재시작"
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
