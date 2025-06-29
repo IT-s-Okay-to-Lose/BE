@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Make env.test file for TEST
-        run: echo "$ENV_PROPERTIES_TEST" | base64 --decode > .env
+        run: echo "$ENV_PROPERTIES_TEST" > .env
         env:
           ENV_PROPERTIES_TEST: ${{ secrets.ENV_PROPERTIES_TEST }}
 
