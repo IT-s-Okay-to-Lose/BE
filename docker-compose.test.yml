@@ -23,7 +23,7 @@ services:
     ports:
       - "8081:8080"
     env_file:
-      - .env.test
+      - .env.test.properties
     environment:
       - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
       - SENTRY_DSN=${SENTRY_DSN}
