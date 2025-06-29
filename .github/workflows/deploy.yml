@@ -2,7 +2,7 @@ name: CI/CD Deploy to EC2
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -89,7 +89,7 @@ jobs:
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text":"✅ [배포 성공] GitHub Actions에서 dev 브랜치가 성공적으로 배포되었습니다."}' \
+          --data '{"text":"✅ [배포 성공] GitHub Actions에서 main 브랜치가 성공적으로 배포되었습니다."}' \
           ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Send Slack Notification (Failure)
