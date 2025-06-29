@@ -69,10 +69,6 @@ dependencies {
 
 	//mac0s 전용
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.107.Final:osx-aarch_64'
-
-	implementation 'org.springframework.boot:spring-boot-starter-validation' // Sentry
-	implementation 'io.sentry:sentry-logback:8.12.0'
-	implementation 'io.sentry:sentry-spring-boot-starter:8.12.0'
 	implementation 'mysql:mysql-connector-java:8.0.33'
 }
 
