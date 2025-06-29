@@ -22,7 +22,7 @@ services:
     ports:
       - "8081:8080"
     env_file:
-      - .env
+      - .env.test
     command: ["java", "-jar", "app.jar", "--spring.profiles.active=test"]
 
 volumes:
