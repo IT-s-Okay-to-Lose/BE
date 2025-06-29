@@ -89,15 +89,15 @@ jobs:
             echo "✅ 컨테이너 상태:"
             docker ps | grep iotl-test
 
-            - name: ✅ 컨테이너 기동 확인
-              if: always()
-              run: |
-                if ! docker ps --filter "name=iotl-test" --filter "status=running" | grep -q iotl-test; then
-                  echo "❌ 컨테이너가 실행 중이지 않습니다. 배포 실패" >&2
-                  exit 1
-                fi
-
-            echo "🧹 오래된 이미지 정리"
+      - name: ✅ 컨테이너 기동 확인
+        if: always()
+        run: |
+          if ! docker ps --filter "name=iotl-test" --filter "status=running" | grep -q iotl-test; then
+            echo "❌ 컨테이너가 실행 중이지 않습니다. 배포 실패" >&2
+            exit 1
+          fi
+          
+          echo "🧹 오래된 이미지 정리"
             docker image prune -af --filter "until=24h"
 
       - name: Send Slack Notification (Success)
