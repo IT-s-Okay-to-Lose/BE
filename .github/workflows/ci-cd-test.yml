@@ -65,19 +65,6 @@ jobs:
           tar -xvzf flyway.tar.gz
           mv flyway-10.11.1 flyway
 
-      - name: Run Flyway Migration
-        run: |
-          ./flyway/flyway migrate \
-            -locations=filesystem:./src/main/resources/db/migration \
-            -url=$DB_URL \
-            -user=$DB_USERNAME \
-            -password=$DB_PASSWORD \
-            -baselineOnMigrate=true
-        env:
-          DB_URL: ${{ env.DB_URL }}
-          DB_USERNAME: ${{ env.DB_USERNAME }}
-          DB_PASSWORD: ${{ env.DB_PASSWORD }}
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         env:
@@ -96,7 +83,19 @@ jobs:
             git pull origin test
 
             echo "$ENV_PROPERTIES_TEST" > .env.test
+            export $(grep -v '^#' .env.test | xargs) # env.test export
+            echo "📦 Flyway Migration 실행"
+            curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.11.1/flyway-commandline-10.11.1-linux-x64.tar.gz -o flyway.tar.gz
+            tar -xvzf flyway.tar.gz
+            mv flyway-10.11.1 flyway
 
+            ./flyway/flyway migrate \
+              -locations=filesystem:./src/main/resources/db/migration \
+              -url=$DB_URL \
+              -user=$DB_USERNAME \
+              -password=$DB_PASSWORD \
+              -baselineOnMigrate=true
+            
             echo "🐳 Docker 이미지 Pull 및 재시작"
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
             docker stop iotl-test || true
