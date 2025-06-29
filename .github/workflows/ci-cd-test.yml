@@ -71,11 +71,11 @@ jobs:
             export $(grep -v '^#' .env | xargs)
             
             flyway migrate \
-            -locations=filesystem:./src/main/resources/db/migration \
-            -url=$SPRING_DATASOURCE_URL \
-            -user=$SPRING_DATASOURCE_USERNAME \
-            -password=$SPRING_DATASOURCE_PASSWORD \
-            -baselineOnMigrate=true
+              -locations=filesystem:./src/main/resources/db/migration \
+              -url="$SPRING_DATASOURCE_URL" \
+              -user="$SPRING_DATASOURCE_USERNAME" \
+              -password="$SPRING_DATASOURCE_PASSWORD" \
+              -baselineOnMigrate=true
             
             echo "🐳 Docker 이미지 Pull 및 재시작"
             docker pull ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }}
