@@ -70,8 +70,6 @@ jobs:
             cat .env
             
             echo "📦 Flyway Migration 실행"
-            source .env
-            
             flyway migrate \
               -locations=filesystem:./src/main/resources/db/migration \
               -url="$SPRING_DATASOURCE_URL" \
@@ -86,7 +84,9 @@ jobs:
 
             echo "✅ Starting new container..."
             docker run -d \
-              --env-file .env \
+              --env SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL" \
+              --env SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
+              --env SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
               -p 8081:8080 \
               --name iotl-test \
               ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
