@@ -24,6 +24,9 @@ services:
       - "8081:8080"
     env_file:
       - .env.test
+    environment:
+      - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+      - SENTRY_DSN=${SENTRY_DSN}
     command: ["java", "-javaagent:/app/sentry-agent.jar", "-jar", "app.jar", "--spring.profiles.active=test"]
 
 volumes:
