@@ -42,3 +42,5 @@ out/
 flyway.tar.gz
 application-test.properties
 env
+.env
+application-test.properties
