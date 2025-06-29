@@ -93,6 +93,7 @@ jobs:
             docker run -d \
               --env-file .env.test \
               -e SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+              -e SENTRY_DSN=$(grep SENTRY_DSN .env.test | cut -d '=' -f2-) \
               -p 8081:8080 \
               --name iotl-test \
               ${{ secrets.DOCKER_USERNAME }}/iotl-test:${{ github.sha }} \
