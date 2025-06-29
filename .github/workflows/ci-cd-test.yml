@@ -55,8 +55,9 @@ jobs:
           export $(grep -v '^#' .env.test | xargs)
           echo "DB_HOST=${DB_HOST}" >> $GITHUB_ENV
           echo "DB_NAME=${DB_NAME}" >> $GITHUB_ENV
-          echo "DB_USERNAME=${DB_USERNAME}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${DB_PASSWORD}" >> $GITHUB_ENV
+          echo "DB_URL=$SPRING_DATASOURCE_URL" >> $GITHUB_ENV
+          echo "DB_USERNAME=$SPRING_DATASOURCE_USERNAME" >> $GITHUB_ENV
+          echo "DB_PASSWORD=$SPRING_DATASOURCE_PASSWORD" >> $GITHUB_ENV
 
       - name: Download Flyway CLI
         run: |
