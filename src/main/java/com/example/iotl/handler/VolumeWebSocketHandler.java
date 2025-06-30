@@ -72,7 +72,6 @@ public class VolumeWebSocketHandler extends TextWebSocketHandler {
 
                     String json = objectMapper.writeValueAsString(result);
                     session.sendMessage(new TextMessage(json));
-                    log.info("📦 최초 거래량 전송: {} - {}", code, volumeData.getTime());
                 }
             }
 

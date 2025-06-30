@@ -17,10 +17,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     public WebSocketConfig(StockWebSocketHandler stockWebSocketHandler,
                            ChartWebSocketHandler chartWebSocketHandler,
-                           VolumeWebSocketHandler volumeWebSocketHandler) { // ✅ 추가
+                           VolumeWebSocketHandler volumeWebSocketHandler) {
         this.stockWebSocketHandler = stockWebSocketHandler;
         this.chartWebSocketHandler = chartWebSocketHandler;
-        this.volumeWebSocketHandler = volumeWebSocketHandler; // ✅ 추가
+        this.volumeWebSocketHandler = volumeWebSocketHandler;
     }
 
 

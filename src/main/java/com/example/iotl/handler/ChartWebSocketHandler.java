@@ -23,7 +23,6 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         sessions.put(session.getId(), session);
         sessionRequestMap.put(session.getId(), new ChartRequest(List.of(), "live"));
-        log.info("📶 차트 WebSocket 연결됨: {}", session.getId());
     }
 
     @Override
@@ -31,9 +30,8 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
         try {
             ChartRequest request = objectMapper.readValue(message.getPayload(), ChartRequest.class);
             sessionRequestMap.put(session.getId(), request);
-            log.info("📨 [{}] 종목 요청: {} / interval: {}", session.getId(), request.codes(), request.interval());
         } catch (Exception e) {
-            log.error("❌ [{}] 요청 파싱 실패: {}", session.getId(), e.getMessage());
+
         }
     }
 
@@ -41,7 +39,6 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessions.remove(session.getId());
         sessionRequestMap.remove(session.getId());
-        log.info("❎ 차트 WebSocket 연결 종료: {}", session.getId());
     }
 
     public void sendToSession(String sessionId, String message) {
@@ -58,7 +55,6 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
     public Map<String, ChartRequest> getSessionRequestMap() {
         return sessionRequestMap;
     }
-
     // ✅ 내부 DTO 형태 정의
     public record ChartRequest(List<String> codes, String interval) {}
 }

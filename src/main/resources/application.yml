@@ -17,10 +17,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate.format_sql: true
       dialect: org.hibernate.dialect.MySQL8Dialect
+
 
   flyway:
     enabled: true
@@ -81,6 +82,8 @@ spring:
       org.springframework.security: DEBUG
       org.springframework.web: DEBUG
       com.example.iotl.controller: DEBUG
+      org.hibernate.SQL: off
+      org.hibernate.type.descriptor.sql: off
 
 server:
   port: 8080

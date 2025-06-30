@@ -3,12 +3,14 @@ package com.example.iotl.dto.stocks;
 import com.example.iotl.entity.StockDetail;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor

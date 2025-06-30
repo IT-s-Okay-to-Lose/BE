@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Component
@@ -41,26 +42,15 @@ public class StockScheduler {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-
     // 변경 여부 판단 (하나라도 다르면 true)
     private boolean isChanged(DynamicStockDataDto newDto, DynamicStockDataDto oldDto) {
         if (oldDto == null) {
-            log.info("🆕 [{}] 신규 데이터 감지 (기존 데이터 없음)", newDto.getCode());
             return true;
         }
 
         boolean priceChanged = newDto.getCurrentPrice().compareTo(oldDto.getCurrentPrice()) != 0;
         boolean rateChanged = newDto.getFluctuationRate().compareTo(oldDto.getFluctuationRate()) != 0;
         boolean volumeChanged = !Objects.equals(newDto.getAccumulatedVolume(), oldDto.getAccumulatedVolume());
-
-        log.info("🔍 [{}] 비교 결과 → priceChanged={}, rateChanged={}, volumeChanged={}",
-                newDto.getCode(), priceChanged, rateChanged, volumeChanged);
-
-        log.info("📊 [{}] 이전: price={}, rate={}, volume={}",
-                newDto.getCode(), oldDto.getCurrentPrice(), oldDto.getFluctuationRate(), oldDto.getAccumulatedVolume());
-        log.info("📊 [{}] 현재: price={}, rate={}, volume={}",
-                newDto.getCode(), newDto.getCurrentPrice(), newDto.getFluctuationRate(), newDto.getAccumulatedVolume());
-
         return priceChanged || rateChanged || volumeChanged;
     }
 
@@ -70,7 +60,7 @@ public class StockScheduler {
         int totalStocks = stockCodes.size();
 
         if (totalStocks == 0) {
-            log.warn("⚠️ 종목 코드가 존재하지 않습니다.");
+            //log.warn("⚠️ 종목 코드가 존재하지 않습니다.");
             return;
         }
 
@@ -80,43 +70,74 @@ public class StockScheduler {
             batch.add(stockCodes.get(idx));
         }
 
-        List<DynamicStockDataDto> updatedList = new ArrayList<>();
 
+        List<DynamicStockDataDto> updatedList = new ArrayList<>();
+        //  DB 저장 없이 websocket 하는 법
         for (String code : batch) {
             try {
-                // stockService.saveStockPrice(code); // DB 저장
+                Map<String, Object> result = stockService.getStockPrice(code);
+                Map<String, String> output = (Map<String, String>) result.get("output");
 
-                StockDetail latest = stockService.findLatestStockByCode(code);
-                if (latest == null) continue;
+                if (output == null) continue;
 
-                DynamicStockDataDto newDto = new DynamicStockDataDto(latest);
-                DynamicStockDataDto prev = lastSentMap.get(code);
+                DynamicStockDataDto dto = DynamicStockDataDto.builder()
+                        .code(code)
+                        .currentPrice(new BigDecimal(output.get("stck_prpr")))
+                        .fluctuationRate(new BigDecimal(output.get("prdy_ctrt")))
+                        .accumulatedVolume(Long.parseLong(output.get("acml_vol")))
+                        .build();
 
-                if (isChanged(newDto, prev)) {
-                    updatedList.add(newDto);
-                    lastSentMap.put(code, newDto);
-                    log.info("✅ [{}] 변경 감지됨 → currentPrice={}, fluctuationRate={}, volume={}",
-                            code, newDto.getCurrentPrice(), newDto.getFluctuationRate(), newDto.getAccumulatedVolume());
-                } else {
-                    log.info("🔁 [{}] 변화 없음 → currentPrice={}, fluctuationRate={}, volume={}",
-                            code, newDto.getCurrentPrice(), newDto.getFluctuationRate(), newDto.getAccumulatedVolume());
-                }
-
+                updatedList.add(dto);
             } catch (Exception e) {
-                log.error("❌ [{}] 처리 실패: {}", code, e.getMessage());
+//                log.error("❌ 실시간 주식 데이터 조회 실패: {}", e.getMessage());
             }
         }
-
         if (!updatedList.isEmpty()) {
             try {
                 String json = objectMapper.writeValueAsString(updatedList);
                 stockWebSocketHandler.broadcast(json);
-                log.info("📡 실시간 데이터 {}건 전송", updatedList.size());
+//                log.info("📡 실시간 데이터 {}건 전송", updatedList.size());
             } catch (Exception e) {
-                log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
+//                log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
             }
         }
-
         currentIndex = (currentIndex + BATCH_SIZE) % totalStocks;
+//        DB 저장하는 로직
+//        for (String code : batch) {
+//            try {
+//                stockService.saveStockPrice(code); // DB 저장
+//
+//                StockDetail latest = stockService.findLatestStockByCode(code);
+//                if (latest == null) continue;
+//
+//                DynamicStockDataDto newDto = new DynamicStockDataDto(latest);
+//                DynamicStockDataDto prev = lastSentMap.get(code);
+//
+//                // 변경 감지시 데이터 보내기
+//                if (isChanged(newDto, prev)) {
+//                    updatedList.add(newDto);
+//                    lastSentMap.put(code, newDto);
+//                  log.info("✅ [{}] 변경 감지됨 → currentPrice={}, fluctuationRate={}, volume={}",
+//                            code, newDto.getCurrentPrice(), newDto.getFluctuationRate(), newDto.getAccumulatedVolume());
+//                } else {
+//                    log.info("🔁 [{}] 변화 없음 → currentPrice={}, fluctuationRate={}, volume={}",
+//                            code, newDto.getCurrentPrice(), newDto.getFluctuationRate(), newDto.getAccumulatedVolume());
+//                }
+//            } catch (Exception e) {
+//                log.error("❌ [{}] 처리 실패: {}", code, e.getMessage());
+//            }
+//        }
+//            if (!updatedList.isEmpty()) {
+//                try {
+//                    String json = objectMapper.writeValueAsString(updatedList);
+//                    stockWebSocketHandler.broadcast(json);
+//                    log.info("📡 실시간 데이터 {}건 전송", updatedList.size());
+//                } catch (Exception e) {
+//                    log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
+//                }
+//            }
+//
+//            currentIndex = (currentIndex + BATCH_SIZE) % totalStocks;
+//        }
     }
 }

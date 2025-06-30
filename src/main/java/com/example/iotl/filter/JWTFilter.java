@@ -37,6 +37,12 @@ public class JWTFilter extends OncePerRequestFilter {
         log.info("Requested URI: {}", uri);
         log.info("Permit all paths: {}", permitAllPaths);
 
+        // ✅ WebSocket 요청은 무조건 허용
+        if (uri.startsWith("/ws/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (isPermitAllPath(uri)) {
             filterChain.doFilter(request, response);
             return;
