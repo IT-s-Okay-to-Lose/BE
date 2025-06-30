@@ -44,6 +44,16 @@ public class OrderService {
         Stocks stocks = stockInfoRepository.findById(requestDto.getStockCode())
             .orElseThrow(() -> new IllegalArgumentException("해당 주식이 존재하지 않습니다."));
 
+
+        // ======== 매도 주문일 때 보유 수량 체크 =========
+        if (requestDto.getOrderType() == Order.OrderType.SELL) {
+            Holdings holdings = holdingsRepository.findByUserAndStock(user, stocks)
+                .orElseThrow(() -> new IllegalStateException("해당 종목을 보유하고 있지 않습니다."));
+            if (holdings.getQuantity() < requestDto.getQuantity()) {
+                throw new IllegalStateException("보유 수량보다 많은 매도 주문은 불가합니다.");
+            }
+        }
+
         // (3) Order 객체 생성
         Order order = Order.builder()
             .user(user)
