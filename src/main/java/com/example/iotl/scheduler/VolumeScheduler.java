@@ -32,7 +32,7 @@ public class VolumeScheduler {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-   //@Scheduled(fixedRate = 5000)
+   @Scheduled(fixedRate = 5000)
     public void sendVolumeData() {
         Map<String, VolumeWebSocketHandler.VolumeRequest> sessionMap = volumeWebSocketHandler.getSessionRequestMap();
 

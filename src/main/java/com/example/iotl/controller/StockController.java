@@ -33,7 +33,7 @@ public class StockController {
     @PostMapping("/kis/{code}")
     public ResponseEntity<String> saveStock(
             @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
-        stockService.saveStockPrice(code);
+        // stockService.saveStockPrice(code);
         return ResponseEntity.ok("Saved.");
     }
 

@@ -5,6 +5,7 @@ import com.example.iotl.handler.CustomSuccessHandler;
 import com.example.iotl.jwt.JWTUtil;
 import com.example.iotl.service.security.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
 
+@EnableConfigurationProperties(PermitAllPathProperties.class)
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -27,6 +29,7 @@ public class SecurityConfig {
     private final CustomSuccessHandler customSuccessHandler;
     private final JWTUtil jwtUtil;
 
+    @Autowired
     public SecurityConfig(PermitAllPathProperties permitAllPathProperties, CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler, JWTUtil jwtUtil) {
         this.permitAllPathProperties = permitAllPathProperties;
         this.customOAuth2UserService = customOAuth2UserService;

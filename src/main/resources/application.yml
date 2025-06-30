@@ -89,6 +89,7 @@ spring:
       - /api/stocks/dynamic
       - /api/stocks/chart/
       - /api/exchange
+      - /api/exchange/
       - /api/market-index/
       - /api/v1/news/top3
       - /v3/api-docs/

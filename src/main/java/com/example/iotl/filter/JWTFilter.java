@@ -34,6 +34,10 @@ public class JWTFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String uri = request.getRequestURI();
+        if (permitAllPaths.stream().anyMatch(uri::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         log.info("jWTFilter - doFilterInternal => uri:{}", uri);
 
         if (isPermitAllPath(uri)) {
@@ -95,6 +99,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
     // 설정한 api 경로 허용
     private boolean isPermitAllPath(String uri) {
-        return permitAllPaths.stream().anyMatch(path -> uri.startsWith(path));
+        return permitAllPaths.stream().anyMatch(path -> uri.startsWith(path) || uri.startsWith(path.endsWith("/") ?  path : path + "/"));
     }
 }
