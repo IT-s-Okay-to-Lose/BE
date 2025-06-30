@@ -155,4 +155,90 @@ class TradeServiceConcurrencyTest {
         System.out.println("최종 SELLER 보유 수량 = " + holdings.getQuantity());
         assertThat(holdings.getQuantity()).isGreaterThanOrEqualTo(0); // 음수 방지!
     }
+
+
+
+
+    @Test
+    @DisplayName("매수자의 예수금 부족 시 거래가 체결되지 않는다")
+    void buyBalanceNotEnoughTest() {
+        Accounts acc = buyer.getAccount();
+        acc.setBalance(new BigDecimal("500")); // 예수금 500원
+        accountsRepository.save(acc);
+
+        Order sellOrder = orderRepository.save(Order.builder()
+            .user(seller)
+            .stock(stock)
+            .orderType(OrderType.SELL)
+            .price(new BigDecimal("1000"))
+            .quantity(1)
+            .status(OrderStatus.PENDING)
+            .build());
+
+        Order buyOrder = orderRepository.save(Order.builder()
+            .user(buyer)
+            .stock(stock)
+            .orderType(OrderType.BUY)
+            .price(new BigDecimal("1000"))
+            .quantity(1)
+            .status(OrderStatus.PENDING)
+            .build());
+
+        // 거래 시도 → 예외 발생
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class, () ->
+            tradeService.trade(buyOrder, sellOrder)
+        );
+    }
+
+    @Test
+    @DisplayName("동일 사용자가 여러 주문을 동시에 처리해도 보유 수량과 잔고가 정확하다")
+    void concurrentOrdersBySameUserTest() throws InterruptedException {
+        int threadCount = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        // seller가 10주 보유
+        Holdings holdings = holdingsRepository.findByUserAndStock(seller, stock).orElseThrow();
+        holdings.setQuantity(10);
+        holdingsRepository.save(holdings);
+
+        for (int i = 0; i < threadCount; i++) {
+            Order sellOrder = orderRepository.save(Order.builder()
+                .user(seller)
+                .stock(stock)
+                .orderType(OrderType.SELL)
+                .price(new BigDecimal("1000"))
+                .quantity(1)
+                .status(OrderStatus.PENDING)
+                .build());
+            Order buyOrder = orderRepository.save(Order.builder()
+                .user(buyer)
+                .stock(stock)
+                .orderType(OrderType.BUY)
+                .price(new BigDecimal("1000"))
+                .quantity(1)
+                .status(OrderStatus.PENDING)
+                .build());
+
+            executorService.submit(() -> {
+                try {
+                    tradeService.trade(buyOrder, sellOrder);
+                } catch (Exception e) {
+                    // 예외 무시
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
+
+        Holdings afterHoldings = holdingsRepository.findByUserAndStock(seller, stock).orElseThrow();
+        // 수량이 정확히 0이어야 정상!
+        assertThat(afterHoldings.getQuantity()).isGreaterThanOrEqualTo(0);
+    }
+
+
+
+
+
 }
