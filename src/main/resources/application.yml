@@ -129,3 +129,4 @@ permit-all-paths:
     - /v3/api-docs/
     - /swagger-ui/
     - /swagger-ui.html
+    - /test
