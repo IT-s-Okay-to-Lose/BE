@@ -31,7 +31,6 @@ public class StockWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessions.remove(session);
-        log.info("❎ 클라이언트 연결 종료: {}", session.getId());
     }
 
     // 외부에서 메시지를 보내기 위한 메서드 (예: StockScheduler에서 호출)
