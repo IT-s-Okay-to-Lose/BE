@@ -1,25 +1,22 @@
 package com.example.iotl.config.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-
-@Configuration
-@ConfigurationProperties(prefix = "security")
+@Slf4j
+@Component
+@ConfigurationProperties(prefix = "permit-all-paths")
 public class PermitAllPathProperties {
-    private List<String> permitAllPaths = List.of();
+    private List<String> paths = List.of();
 
-    public List<String> getPermitAllPaths() {
-        for(String str : permitAllPaths) {
-            System.out.println("@@@@@@" + str);
-        }
-        return permitAllPaths;
+    public List<String> getPaths() {
+        return paths;
     }
 
-    public void setPermitAllPaths(List<String> permitAllPaths) {
-        this.permitAllPaths = permitAllPaths;
+    public void setPaths(List<String> paths) {
+        this.paths = paths;
     }
 }

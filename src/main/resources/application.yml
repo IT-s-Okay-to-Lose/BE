@@ -1,8 +1,7 @@
 spring:
   config:
     import: optional:file:.env[.properties]
-    activate:
-      on-profile: default
+
   jmx:
     enabled: false
 
@@ -41,7 +40,7 @@ spring:
             client-name: naver
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-            redirect-uri: https://iotl.store/login/oauth2/code/naver #http://iotl:8080/login/oauth2/code/naver
+            redirect-uri: https://iotl.store/login/oauth2/code/naver
             authorization-grant-type: authorization_code
             scope:
               - name
@@ -58,7 +57,7 @@ spring:
           kakao:
             client-name: kakao
             client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}   # REST API 방식이면 생략 가능
+            client-secret: ${KAKAO_CLIENT_SECRET}
             redirect-uri: https://iotl.store/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
@@ -77,30 +76,15 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
-    permit-all-paths:
-      - /
-      - /login
-      - /oauth2
-      - /login/oauth2
-      - /reissue
-      - /ws/
-      - /api/stocks/
-      - /api/stocks/meta
-      - /api/stocks/dynamic
-      - /api/stocks/chart/
-      - /api/exchange
-      - /api/exchange/
-      - /api/market-index/
-      - /api/v1/news/top3
-      - /v3/api-docs/
-      - /swagger-ui/
-      - /swagger-ui.html
-
   logging:
     level:
       org.springframework.security: DEBUG
       org.springframework.web: DEBUG
       com.example.iotl.controller: DEBUG
+
+server:
+  port: 8080
+  forward-headers-strategy: native
 
 kis:
   api:
@@ -108,7 +92,6 @@ kis:
     appkey: ${KIS_CLIENT_ID}
     appsecret: ${KIS_CLIENT_SECRET}
     access-token:
-
 
 exchange:
   api:
@@ -124,6 +107,22 @@ sentry:
   dsn: ${SENTRY_DSN}
   send-default-pii: true
 
-server:
-  port: 8080
-  forward-headers-strategy: native
+permit-all-paths:
+  paths:
+    - /
+    - /login
+    - /login/oauth2
+    - /oauth2
+    - /reissue
+    - /ws/
+    - /api/stocks/
+    - /api/stocks/meta
+    - /api/stocks/dynamic
+    - /api/stocks/chart/
+    - /api/exchange
+    - /api/exchange/
+    - /api/market-index/
+    - /api/v1/news/top3
+    - /v3/api-docs/
+    - /swagger-ui/
+    - /swagger-ui.html
