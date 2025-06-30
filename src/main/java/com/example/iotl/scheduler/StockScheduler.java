@@ -64,7 +64,7 @@ public class StockScheduler {
         return priceChanged || rateChanged || volumeChanged;
     }
 
-    //@Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 5000)
     public void fetchStockDataBatch() {
         List<String> stockCodes = stockInfoRepository.findAllStockCodes();
         int totalStocks = stockCodes.size();
@@ -84,7 +84,7 @@ public class StockScheduler {
 
         for (String code : batch) {
             try {
-                stockService.saveStockPrice(code); // DB 저장
+                // stockService.saveStockPrice(code); // DB 저장
 
                 StockDetail latest = stockService.findLatestStockByCode(code);
                 if (latest == null) continue;
