@@ -75,7 +75,6 @@ public class VolumeWebSocketHandler extends TextWebSocketHandler {
                     log.info("📦 최초 거래량 전송: {} - {}", code, volumeData.getTime());
                 }
             }
-
         } catch (Exception e) {
             log.error("❌ Volume 요청 파싱 또는 전송 실패", e);
         }

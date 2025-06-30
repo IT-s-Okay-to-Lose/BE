@@ -48,7 +48,8 @@ public class VolumeScheduler {
                     VolumeDataDto volumeData = new VolumeDataDto(latest);
                     VolumeDataDto prevVolume = lastSentVolumeMap.get(code);
 
-                    if (prevVolume == null || !volumeData.getTime().equals(prevVolume.getTime())) {
+                    // 변경 감지
+                    // if (prevVolume == null || !volumeData.getTime().equals(prevVolume.getTime())) {
                         Map<String, Object> result = new HashMap<>();
                         result.put("volume", List.of(
                                 volumeData.getTime().toString(),
@@ -60,9 +61,9 @@ public class VolumeScheduler {
 
                         log.info("📦 거래량 전송: {} - {} to {}", code, volumeData.getTime(), sessionId);
                         lastSentVolumeMap.put(code, volumeData);
-                    } else {
-                        log.info("⏸ 동일 거래량 time({}) for {}", volumeData.getTime(), code);
-                    }
+//                    } else {
+//                        log.info("⏸ 동일 거래량 time({}) for {}", volumeData.getTime(), code);
+//                    }
 
                 } catch (Exception e) {
                     log.error("❌ 거래량 전송 실패 for {} to {}", code, sessionId, e);

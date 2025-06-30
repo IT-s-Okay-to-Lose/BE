@@ -58,7 +58,6 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
     public Map<String, ChartRequest> getSessionRequestMap() {
         return sessionRequestMap;
     }
-
     // ✅ 내부 DTO 형태 정의
     public record ChartRequest(List<String> codes, String interval) {}
 }
