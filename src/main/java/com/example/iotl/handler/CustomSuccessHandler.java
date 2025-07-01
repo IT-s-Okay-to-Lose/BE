@@ -51,7 +51,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         log.info("Redirecting to front - main Page After Successful Login");
         // ✅ 리다이렉트로 프론트 진입
-        response.sendRedirect("https://iotl-fe.vercel.app/");
-//        response.sendRedirect("https://localhost:5137/");
+        // response.sendRedirect("https://iotl-fe.vercel.app/");
+       response.sendRedirect("https://localhost:5173/");
     }
 }
