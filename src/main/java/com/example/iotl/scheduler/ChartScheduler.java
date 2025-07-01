@@ -82,64 +82,7 @@ public class ChartScheduler {
                 } catch (Exception e) {
                     log.error("❌ [{}] 전송 실패 to session {}", code, sessionId, e);
                 }
-                // DB에 있는 데이터와 비교하는 로직
-//                try {
-//                    StockDetail latest = stockService.findLatestStockByCode(code);
-//                    if (latest == null) continue;
-//
-//                    MarketStockPriceInfoDto priceInfo = new MarketStockPriceInfoDto(latest);
-//                    List<StockDetail> allDetails = stockService.findStocksByCode(code);
-//                    List<CandleDataDto> candles = filterByInterval(allDetails, request.interval());
-//
-//                    if (candles.isEmpty()) continue;
-//
-//                    CandleDataDto lastCandle = candles.get(candles.size() - 1);
-//
-//                    // ✅ key: code+interval로 구분
-//                    String key = code + "_" + request.interval();
-//                    CandleDataDto prevCandle = lastSentCandleMap.get(key);
-//
-//                    if (prevCandle == null || !lastCandle.getTime().equals(prevCandle.getTime())) {
-//                        Map<String, Object> result = new HashMap<>();
-//                        result.put("candle", List.of(
-//                                lastCandle.getTime().toString(),
-//                                lastCandle.getOpen(),
-//                                lastCandle.getHigh(),
-//                                lastCandle.getLow(),
-//                                lastCandle.getClose()
-//                        ));
-//
-//                        String json = objectMapper.writeValueAsString(result);
-//                        chartWebSocketHandler.sendToSession(sessionId, json);
-//
-//                        log.info("📥 [{}] {} 새 time({}) → 전송 to session {}", code, request.interval(), lastCandle.getTime(), sessionId);
-//                        lastSentCandleMap.put(key, lastCandle);
-//                    } else {
-//                        log.info("⏸ [{}] {} 동일 time({}) → 전송 생략", code, request.interval(), lastCandle.getTime());
-//                    }
-//                } catch (Exception e) {
-//                    log.error("❌ [{}] 전송 실패 to session {}", code, sessionId, e);
-//                }
             }
         }
     }
-
-//    private List<CandleDataDto> filterByInterval(List<StockDetail> details, String interval) {
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime from;
-//
-//        switch (interval) {
-//            case "1m" -> from = now.minusMinutes(1);
-//            case "5m" -> from = now.minusMinutes(5);
-//            case "1h" -> from = now.minusHours(1);
-//            case "1d" -> from = now.minusDays(1);
-//            default -> from = now.minusSeconds(30);
-//        }
-//
-//        return details.stream()
-//                .filter(d -> !d.getCreatedAt().isBefore(from))
-//                .map(CandleDataDto::new)
-//                .sorted(Comparator.comparing(CandleDataDto::getTime))
-//                .toList();
-//    }
 }

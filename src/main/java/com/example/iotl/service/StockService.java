@@ -78,31 +78,31 @@ public class StockService {
     }
 
     // ✅ 주식 상세 정보 저장
-//    public StockPriceDto saveStockPrice(String code) {
-//        Map result = getStockPrice(code);
-//        Map<String, String> output = (Map<String, String>) result.get("output");
-//
-//        Stocks stocks = stockInfoRepository.findById(code).orElse(null);
-//        if (stocks == null) return null;
-//
-//        StockDetail stock = StockDetail.builder()
-//                .stocks(stocks)
-//                .stockCode(output.get("stck_shrn_iscd"))
-//                .openPrice(new BigDecimal(output.get("stck_oprc")))
-//                .highPrice(new BigDecimal(output.get("stck_hgpr")))
-//                .lowPrice(new BigDecimal(output.get("stck_lwpr")))
-//                .closePrice(new BigDecimal(output.get("stck_prpr")))
-//                .priceDiff(new BigDecimal(output.get("prdy_vrss")))
-//                .priceRate(new BigDecimal(output.get("prdy_ctrt")))
-//                .priceSign(Byte.parseByte(output.get("prdy_vrss_sign")))
-//                .volume(Long.parseLong(output.get("acml_vol")))
-//                .prevClosePrice(new BigDecimal(output.get("stck_prpr")).subtract(new BigDecimal(output.get("prdy_vrss"))))
-//                .createdAt(LocalDateTime.now())
-//                .build();
-//
-//        StockDetail saved = stockRepository.save(stock);
-//        return new StockPriceDto(saved);
-//    }
+    public StockPriceDto saveStockPrice(String code) {
+        Map result = getStockPrice(code);
+        Map<String, String> output = (Map<String, String>) result.get("output");
+
+        Stocks stocks = stockInfoRepository.findById(code).orElse(null);
+        if (stocks == null) return null;
+
+        StockDetail stock = StockDetail.builder()
+                .stocks(stocks)
+                .stockCode(output.get("stck_shrn_iscd"))
+                .openPrice(new BigDecimal(output.get("stck_oprc")))
+                .highPrice(new BigDecimal(output.get("stck_hgpr")))
+                .lowPrice(new BigDecimal(output.get("stck_lwpr")))
+                .closePrice(new BigDecimal(output.get("stck_prpr")))
+                .priceDiff(new BigDecimal(output.get("prdy_vrss")))
+                .priceRate(new BigDecimal(output.get("prdy_ctrt")))
+                .priceSign(Byte.parseByte(output.get("prdy_vrss_sign")))
+                .volume(Long.parseLong(output.get("acml_vol")))
+                .prevClosePrice(new BigDecimal(output.get("stck_prpr")).subtract(new BigDecimal(output.get("prdy_vrss"))))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        StockDetail saved = stockRepository.save(stock);
+        return new StockPriceDto(saved);
+    }
 
     // ✅ 종목 코드 전체 조회 (캔들, 거래량 등)
     public List<StockDetail> findStocksByCode(String code) {

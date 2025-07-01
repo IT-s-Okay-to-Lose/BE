@@ -149,7 +149,7 @@ public class StockController {
     public ResponseEntity<List<List<Object>>> getCandleData(
             @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
 
-        List<List<Object>> response = stockService.findStocksWithinOneHour(code).stream()
+        List<List<Object>> response = stockService.findStocksByCode(code).stream()
                 .map(CandleDataDto::new)
                 .map(c -> {
                     List<Object> row = new ArrayList<>();
@@ -170,7 +170,6 @@ public class StockController {
     @GetMapping("/{code}/volume")
     public ResponseEntity<List<List<Object>>> getVolumeData(
             @Parameter(description = "종목 코드", example = "005930") @PathVariable String code) {
-
         List<List<Object>> response = stockService.findStocksByCode(code).stream()
                 .map(VolumeDataDto::new)
                 .map(v -> {

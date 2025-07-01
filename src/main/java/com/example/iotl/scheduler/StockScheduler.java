@@ -42,18 +42,6 @@ public class StockScheduler {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    // 변경 여부 판단 (하나라도 다르면 true)
-    private boolean isChanged(DynamicStockDataDto newDto, DynamicStockDataDto oldDto) {
-        if (oldDto == null) {
-            return true;
-        }
-
-        boolean priceChanged = newDto.getCurrentPrice().compareTo(oldDto.getCurrentPrice()) != 0;
-        boolean rateChanged = newDto.getFluctuationRate().compareTo(oldDto.getFluctuationRate()) != 0;
-        boolean volumeChanged = !Objects.equals(newDto.getAccumulatedVolume(), oldDto.getAccumulatedVolume());
-        return priceChanged || rateChanged || volumeChanged;
-    }
-
     @Scheduled(fixedRate = 5000)
     public void fetchStockDataBatch() {
         List<String> stockCodes = stockInfoRepository.findAllStockCodes();
@@ -69,8 +57,6 @@ public class StockScheduler {
             int idx = (currentIndex + i) % totalStocks;
             batch.add(stockCodes.get(idx));
         }
-
-
         List<DynamicStockDataDto> updatedList = new ArrayList<>();
         //  DB 저장 없이 websocket 하는 법
         for (String code : batch) {
@@ -102,42 +88,19 @@ public class StockScheduler {
             }
         }
         currentIndex = (currentIndex + BATCH_SIZE) % totalStocks;
-//        DB 저장하는 로직
-//        for (String code : batch) {
-//            try {
-//                stockService.saveStockPrice(code); // DB 저장
-//
-//                StockDetail latest = stockService.findLatestStockByCode(code);
-//                if (latest == null) continue;
-//
-//                DynamicStockDataDto newDto = new DynamicStockDataDto(latest);
-//                DynamicStockDataDto prev = lastSentMap.get(code);
-//
-//                // 변경 감지시 데이터 보내기
-//                if (isChanged(newDto, prev)) {
-//                    updatedList.add(newDto);
-//                    lastSentMap.put(code, newDto);
-//                  log.info("✅ [{}] 변경 감지됨 → currentPrice={}, fluctuationRate={}, volume={}",
-//                            code, newDto.getCurrentPrice(), newDto.getFluctuationRate(), newDto.getAccumulatedVolume());
-//                } else {
-//                    log.info("🔁 [{}] 변화 없음 → currentPrice={}, fluctuationRate={}, volume={}",
-//                            code, newDto.getCurrentPrice(), newDto.getFluctuationRate(), newDto.getAccumulatedVolume());
-//                }
-//            } catch (Exception e) {
-//                log.error("❌ [{}] 처리 실패: {}", code, e.getMessage());
-//            }
-//        }
-//            if (!updatedList.isEmpty()) {
-//                try {
-//                    String json = objectMapper.writeValueAsString(updatedList);
-//                    stockWebSocketHandler.broadcast(json);
-//                    log.info("📡 실시간 데이터 {}건 전송", updatedList.size());
-//                } catch (Exception e) {
-//                    log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
-//                }
-//            }
-//
-//            currentIndex = (currentIndex + BATCH_SIZE) % totalStocks;
-//        }
+    }
+
+    @Scheduled(cron = "0 31 15 * * MON-FRI") // 매주 월~금 15:31
+    public void saveStockPriceAtMarketClose() {
+        List<String> stockCodes = stockInfoRepository.findAllStockCodes();
+
+        for (String code : stockCodes) {
+            try {
+                stockService.saveStockPrice(code); // 이 시점에만 DB 저장
+                log.info("✅ [{}] 종가 저장 완료", code);
+            } catch (Exception e) {
+                log.error("❌ [{}] 종가 저장 실패: {}", code, e.getMessage());
+            }
+        }
     }
 }
