@@ -1,4 +1,4 @@
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
                          `user_id` bigint NOT NULL AUTO_INCREMENT,
                          `created_at` datetime(6) DEFAULT NULL,
                          `email` varchar(255) DEFAULT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE `users` (
                          UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`)
 );
 
-CREATE TABLE `stocks` (
+CREATE TABLE IF NOT EXISTS `stocks` (
                           `stock_code` varchar(10) NOT NULL,
                           `logo_url` text,
                           `market_type` varchar(255) DEFAULT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE `stocks` (
                           PRIMARY KEY (`stock_code`)
 );
 
-CREATE TABLE `accounts` (
+CREATE TABLE IF NOT EXISTS `accounts` (
                             `user_id` bigint NOT NULL,
                             `balance` decimal(20,2) DEFAULT '0.00',
                             `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -29,7 +29,7 @@ CREATE TABLE `accounts` (
                             CONSTRAINT `FKnjuop33mo69pd79ctplkck40n` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 );
 
-CREATE TABLE `exchange` (
+CREATE TABLE IF NOT EXISTS `exchange` (
                             `id` bigint NOT NULL AUTO_INCREMENT,
                             `base_code` varchar(255) NOT NULL,
                             `date` date NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE `exchange` (
                             UNIQUE KEY `UKcl5fj0iub9cmxmgxqx83uov07` (`base_code`,`target_code`,`date`)
 );
 
-CREATE TABLE `market_index` (
+CREATE TABLE IF NOT EXISTS `market_index` (
                                 `id` bigint NOT NULL AUTO_INCREMENT,
                                 `change_amount` double DEFAULT NULL,
                                 `change_direction` varchar(255) DEFAULT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE `market_index` (
                                 PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `orders` (
+CREATE TABLE IF NOT EXISTS `orders` (
                           `order_id` bigint NOT NULL AUTO_INCREMENT,
                           `order_type` varchar(10) DEFAULT NULL,
                           `order_price` decimal(20,2) DEFAULT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE `orders` (
                           CONSTRAINT `FKh4x4bjhsmjrk2jqereojpnroc` FOREIGN KEY (`stock_code`) REFERENCES `stocks` (`stock_code`)
 );
 
-CREATE TABLE `holdings` (
+CREATE TABLE IF NOT EXISTS `holdings` (
                             `holdings_id` bigint NOT NULL AUTO_INCREMENT,
                             `quantity` int DEFAULT NULL,
                             `avg_buy_price` decimal(20,2) DEFAULT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE `holdings` (
                             CONSTRAINT `FKo0m56qvi5yyl5ikolvm7ih20o` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 );
 
-CREATE TABLE `refresh_entity` (
+CREATE TABLE IF NOT EXISTS `refresh_entity` (
                                   `id` bigint NOT NULL AUTO_INCREMENT,
                                   `expiration` varchar(255) DEFAULT NULL,
                                   `refresh` varchar(255) DEFAULT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE `refresh_entity` (
                                   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `stock_detail` (
+CREATE TABLE IF NOT EXISTS `stock_detail` (
                                 `id` bigint NOT NULL AUTO_INCREMENT,
                                 `close_price` decimal(38,2) DEFAULT NULL,
                                 `created_at` datetime(6) DEFAULT NULL,
@@ -108,13 +108,13 @@ CREATE TABLE `stock_detail` (
                                 KEY `FK9bqvlrs8vmf8ug9cwa3a7r1dp` (`stock_code`)
 );
 
-CREATE TABLE `test_entity` (
+CREATE TABLE IF NOT EXISTS `test_entity` (
                                `id` bigint NOT NULL AUTO_INCREMENT,
                                `name` varchar(255) DEFAULT NULL,
                                PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `trade` (
+CREATE TABLE IF NOT EXISTS `trade` (
                          `trade_id` bigint NOT NULL AUTO_INCREMENT,
                          `trade_type` varchar(10) DEFAULT NULL,
                          `trade_price` decimal(20,2) DEFAULT NULL,
