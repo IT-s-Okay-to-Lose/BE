@@ -1,5 +1,6 @@
 package com.example.iotl.service;
 
+import com.example.iotl.dto.stocks.DynamicStockDataDto;
 import com.example.iotl.dto.stocks.StaticStockMetaDto;
 import com.example.iotl.dto.stocks.StockPriceDto;
 import com.example.iotl.entity.StockDetail;
@@ -7,6 +8,7 @@ import com.example.iotl.entity.Stocks;
 import com.example.iotl.repository.StockInfoRepository;
 import com.example.iotl.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StockService {
@@ -114,11 +117,6 @@ public class StockService {
         return stockRepository.findTop1ByStockCodeOrderByCreatedAtDesc(code);
     }
 
-    // ✅ 전체 종목 코드 리스트 조회
-    public List<String> getAllStockCodes() {
-        return stockInfoRepository.findAllStockCodes();
-    }
-
     // ✅ 모든 상세 데이터 (사용 주의)
     public List<StockDetail> findAllStocks() {
         return stockRepository.findAll();
@@ -131,30 +129,21 @@ public class StockService {
                 .collect(Collectors.toList());
     }
 
-    // 1시간전의 데이터부터 가져옴
-    public List<StockDetail> findStocksWithinOneHour(String stockCode) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime oneHourAgo = now.minusHours(1);
-        return stockRepository.findByStockCodeAndCreatedAtBetween(stockCode, oneHourAgo, now);
-    }
+    // ✅종목 30개 코드 다 가져오기
+    public List<DynamicStockDataDto> getAllDynamicStocks() {
+        List<String> codes = stockInfoRepository.findAllStockCodes();
+        List<StockDetail> latestList = findLatestStocksByCodes(codes);
 
+        return latestList.stream()
+                .map(DynamicStockDataDto::new)
+                .collect(Collectors.toList());
+    }
     // ✅ 여러 종목 코드 → 최신 데이터 리스트로 변환
     public List<StockDetail> findLatestStocksByCodes(List<String> codes) {
         return codes.stream()
                 .map(this::findLatestStockByCode)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-    }
-
-    public List<StockDetail> findTodayStocksByCode(String code) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
-        return stockRepository.findByStockCodeAndCreatedAtBetween(code, startOfDay, now);
-    }
-
-    // 여기서 그거 받아온거 MarketIndexServ로 넘기는거임
-    public RestTemplate getRestTemplate() {
-        return restTemplate;
     }
 
     public String getBaseUrl() {

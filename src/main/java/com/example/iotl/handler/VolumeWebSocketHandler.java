@@ -12,12 +12,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
 public class VolumeWebSocketHandler extends TextWebSocketHandler {
+
+    private boolean marketOpen = false;
+
+    public void setMarketOpen(boolean open) {
+        this.marketOpen = open;
+    }
 
     @Getter
     public static class VolumeRequest {
@@ -74,27 +81,44 @@ public class VolumeWebSocketHandler extends TextWebSocketHandler {
                     session.sendMessage(new TextMessage(json));
                 }
             }
-
         } catch (Exception e) {
             log.error("❌ Volume 요청 파싱 또는 전송 실패", e);
         }
     }
 
     public void sendToSession(String sessionId, String message) {
+        if (!marketOpen) {
+            //log.info("⏸️ 장외 시간 - 차트 메시지 전송 생략");
+            return;
+        }
+
         WebSocketSession session = sessions.get(sessionId);
         if (session != null && session.isOpen()) {
             try {
                 session.sendMessage(new TextMessage(message));
-            } catch (Exception e) {
-                log.error("❌ 전송 실패 to session {}", sessionId, e);
+            } catch (IOException e) {
+                log.error("❌ 세션 {} 메시지 전송 실패: {}", sessionId, e.getMessage());
             }
         }
     }
 
+    // 연결 종료 시 세션 아이디 없애기
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        log.info("🛑 Volume 연결 종료: {}", session.getId());
         sessionRequestMap.remove(session.getId());
         sessions.remove(session.getId());
+    }
+
+    // 세션 닫기
+    public void closeAllSessions() {
+        for (WebSocketSession session : sessions.values()) {
+            try {
+                if (session.isOpen()) session.close();
+            } catch (IOException e) {
+                log.error("❌ 세션 닫기 실패: {}", e.getMessage());
+            }
+        }
+        sessions.clear();
+        sessionRequestMap.clear(); // chart에서는 필요
     }
 }

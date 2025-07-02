@@ -12,9 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class MarketStockInfoDto {
 
-    @Schema(description = "주식 상세 정보 ID", example = "1001")
-    private Long id;
-
     @Schema(description = "종목 로고 이미지 URL", example = "https://logo.clearbit.com/samsung.com")
     private String imageUrl;
 
@@ -25,7 +22,6 @@ public class MarketStockInfoDto {
     private String code;
 
     public MarketStockInfoDto(StockDetail stockDetail) {
-        this.id = stockDetail.getId();
         this.imageUrl = stockDetail.getStocks().getLogoUrl();
         this.name = stockDetail.getStocks().getStockName();
         this.code = stockDetail.getStockCode();

@@ -58,7 +58,7 @@ public class StockScheduler {
             batch.add(stockCodes.get(idx));
         }
         List<DynamicStockDataDto> updatedList = new ArrayList<>();
-        //  DB 저장 없이 websocket 하는 법
+
         for (String code : batch) {
             try {
                 Map<String, Object> result = stockService.getStockPrice(code);

@@ -17,6 +17,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @RequiredArgsConstructor
 public class StockWebSocketHandler extends TextWebSocketHandler {
 
+    private boolean marketOpen = false;
+
+    public void setMarketOpen(boolean open) {
+        this.marketOpen = open;
+    }
     // 접속 중인 WebSocket 세션 목록
     private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
@@ -24,7 +29,6 @@ public class StockWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         sessions.add(session);
-        log.info("📶 클라이언트 접속: {}", session.getId());
     }
 
     // 클라이언트가 연결 종료했을 때
@@ -35,6 +39,11 @@ public class StockWebSocketHandler extends TextWebSocketHandler {
 
     // 외부에서 메시지를 보내기 위한 메서드 (예: StockScheduler에서 호출)
     public void broadcast(String message) {
+        if (!marketOpen) {
+            log.info("⏸️ 장외 시간 - 메시지 전송 생략");
+            return;
+        }
+
         for (WebSocketSession session : sessions) {
             try {
                 session.sendMessage(new TextMessage(message));
@@ -43,4 +52,17 @@ public class StockWebSocketHandler extends TextWebSocketHandler {
             }
         }
     }
+    public void closeAllSessions() {
+        for (WebSocketSession session : sessions) {
+            try {
+                if (session.isOpen()) {
+                    session.close();  // 정상적으로 닫기
+                }
+            } catch (IOException e) {
+                log.error("❌ 세션 닫기 실패: {}", e.getMessage());
+            }
+        }
+        sessions.clear(); // 목록 비우기
+    }
+
 }
