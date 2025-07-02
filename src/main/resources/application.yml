@@ -120,14 +120,10 @@ permit-all-paths:
     - /login/oauth2
     - /oauth2
     - /reissue
-    - /ws/
-    - /api/stocks/
-    - /api/stocks/meta
-    - /api/stocks/dynamic
-    - /api/stocks/chart/
+    - /ws/**
+    - /api/stocks/**
     - /api/exchange
-    - /api/market-index/KOSPI
-    - /api/market-index/KOSDAQ
+    - /api/market-index/**
     - /api/v1/news/top3
     - /v3/api-docs/
     - /swagger-ui/
