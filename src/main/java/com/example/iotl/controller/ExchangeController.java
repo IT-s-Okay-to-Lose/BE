@@ -17,6 +17,11 @@ public class ExchangeController {
 
     @GetMapping
     public ResponseEntity<ExchangeSummaryDto> getExchangeSummary() {
-        return ResponseEntity.ok(exchangeService.getTodayExchangeSummary());
+        try {
+            ExchangeSummaryDto dto = exchangeService.getTodayExchangeSummary();
+            return ResponseEntity.ok(dto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(null);  // or custom message
+        }
     }
 }

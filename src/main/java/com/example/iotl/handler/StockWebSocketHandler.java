@@ -40,7 +40,7 @@ public class StockWebSocketHandler extends TextWebSocketHandler {
     // 외부에서 메시지를 보내기 위한 메서드 (예: StockScheduler에서 호출)
     public void broadcast(String message) {
         if (!marketOpen) {
-            log.info("⏸️ 장외 시간 - 메시지 전송 생략");
+            //log.info("⏸️ 장외 시간 - 메시지 전송 생략");
             return;
         }
 

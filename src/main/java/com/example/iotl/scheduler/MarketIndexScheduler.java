@@ -13,8 +13,8 @@ public class MarketIndexScheduler {
 
     private final MarketIndexService marketIndexService;
 
-    // 매일 아침 8시 50분마다 저장
-    @Scheduled(cron = "0 50 8 * * ?")// 매일 08시 50분에 불러와서 하루 환율 저장해서 비교하기 위해서 넣음 시간은 정하면 될듯!
+    // 매일 아침 9시마다 저장
+    @Scheduled(cron = "0 0 9 * * ?")// 매일 08시 50분에 불러와서 하루 환율 저장해서 비교하기 위해서 넣음 시간은 정하면 될듯!
     public void fetchMarketIndices() {
         try {
             marketIndexService.saveMarketIndex("KOSPI");
