@@ -19,7 +19,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: false
     properties:
       hibernate.format_sql: true
@@ -129,3 +129,4 @@ permit-all-paths:
     - /swagger-ui/
     - /swagger-ui.html
     - /test
+    - /api/**
