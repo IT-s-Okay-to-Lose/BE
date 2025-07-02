@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface MarketIndexRepository extends JpaRepository<MarketIndex, Long> {
     Optional<MarketIndex> findByIndexNameAndDate(String indexName, LocalDate date);
+    
 }

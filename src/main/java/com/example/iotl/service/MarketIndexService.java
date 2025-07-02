@@ -73,6 +73,20 @@ public class MarketIndexService {
         return marketIndexRepository.save(entity);
     }
 
+    public MarketIndexDto getTodayMarketIndexFromDb(String marketType) {
+        String name = marketType.equalsIgnoreCase("KOSPI") ? "코스피" : "코스닥";
+        return marketIndexRepository.findByIndexNameAndDate(name, LocalDate.now())
+                .map(index -> {
+                    MarketIndexDto dto = new MarketIndexDto();
+                    dto.setIndexName(index.getIndexName());
+                    dto.setCurrentValue(index.getCurrentValue());
+                    dto.setChangeAmount(index.getChangeAmount());
+                    dto.setChangeRate(index.getChangeRate());
+                    dto.setChangeDirection(index.getChangeDirection());
+                    return dto;
+                }).orElse(null);
+    }
+
     // 외부 API에서 받아서 저장까지 처리하는 메서드
     public void saveMarketIndex(String marketType) {
         getMarketIndex(marketType)

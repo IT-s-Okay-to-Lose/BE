@@ -5,11 +5,13 @@ import com.example.iotl.entity.MarketIndex;
 import com.example.iotl.scheduler.MarketIndexScheduler;
 import com.example.iotl.service.MarketIndexService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/market-index")
 @RequiredArgsConstructor
@@ -20,6 +22,8 @@ public class MarketIndexController {
     // 오늘자 지수 조회 (프론트 요청용)
     @GetMapping("/{marketType}")
     public ResponseEntity<MarketIndexDto> getMarketIndex(@PathVariable String marketType) {
+        log.info("📥 지수 요청 들어옴: {}", marketType);  // 요청 로그
+
         try {
             MarketIndexDto dto = marketIndexService.getMarketIndex(marketType)
                     .map(responseDto -> {
@@ -30,13 +34,16 @@ public class MarketIndexController {
                         result.setChangeAmount(output.getBstp_nmix_prdy_vrss());
                         result.setChangeRate(output.getBstp_nmix_prdy_ctrt());
                         result.setChangeDirection("1".equals(output.getPrdy_vrss_sign()) ? "▲" : "▼");
+
+                        log.info("✅ 지수 응답 생성됨: {}", result);  // 응답 직전 로그
                         return result;
                     })
-                    .block(); // Mono → 동기 처리
+                    .block();
 
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
-            return ResponseEntity.status(500).build(); // 혹은 404로 설정해도 됨
+            log.error("❌ 지수 요청 실패: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).build();
         }
     }
 
