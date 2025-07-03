@@ -11,6 +11,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +45,10 @@ public class NewsService {
 
     public NewsSearchResponse getTop3RandomNews() {
         String keyword = "뉴스";
-
+        String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
         URI uri = UriComponentsBuilder
                 .fromUriString(naverApiConfig.getNewsUrl())
-                .queryParam("query", keyword)
+                .queryParam("query", encodedKeyword)
                 .queryParam("display", 20)
                 .queryParam("start", 1)
                 .queryParam("sort", "date")
@@ -80,6 +82,10 @@ public class NewsService {
 
         Collections.shuffle(articles);
         List<NewsDto> random3 = articles.stream().limit(3).toList();
+
+        log.info("🟢 clientId: {}", naverApiConfig.getClientId());
+        log.info("🟢 clientSecret: {}", naverApiConfig.getClientSecret());
+        log.info("🟢 newsUrl: {}", naverApiConfig.getNewsUrl());
 
         return new NewsSearchResponse(random3.size(), random3);
     }
