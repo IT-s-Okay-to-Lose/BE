@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "naver")
 @Getter
 @Setter
-@EnableConfigurationProperties(NaverApiConfig.class)
 public class NaverApiConfig {
     private String clientId;
     private String clientSecret;
