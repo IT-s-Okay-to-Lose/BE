@@ -2,7 +2,7 @@ name: (dev) CI/CD Deploy to EC2
 
 on:
   push:
-    branches: [ 86-fix-news-api-401-오류-해결 ]
+    branches: [ dev ]
 
 jobs:
   deploy:

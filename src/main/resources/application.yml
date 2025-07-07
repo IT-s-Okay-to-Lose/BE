@@ -105,9 +105,10 @@ exchange:
     base-currency: USD
 
 naver:
-  client-id: ${NAVER_NEWS_CLIENT_ID}
-  client-secret: ${NAVER_NEWS_CLIENT_SECRET}
-  news-url: /v1/search/news.json
+  news:
+    client-id: ${NAVER_NEWS_CLIENT_ID}
+    client-secret: ${NAVER_NEWS_CLIENT_SECRET}
+    news-url: /v1/search/news.json
 
 sentry:
   dsn: ${SENTRY_DSN}
