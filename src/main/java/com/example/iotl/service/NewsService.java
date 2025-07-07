@@ -57,9 +57,14 @@ public class NewsService {
                 .toUri();
 
         NaverNewsResponse response = naverWebClient.get()
-                .uri(uri)
-                .header("X-Naver-Client-Id", naverApiConfig.getClientId())
-                .header("X-Naver-Client-Secret", naverApiConfig.getClientSecret())
+                .uri(uriBuilder -> uriBuilder
+                        .path(naverApiConfig.getNewsUrl())
+                        .queryParam("query", keyword)
+                        .queryParam("display", 20)
+                        .queryParam("start", 1)
+                        .queryParam("sort", "date")
+                        .build()
+                )
                 .retrieve()
                 .bodyToMono(NaverNewsResponse.class)
                 .block();
@@ -82,10 +87,6 @@ public class NewsService {
 
         Collections.shuffle(articles);
         List<NewsDto> random3 = articles.stream().limit(3).toList();
-
-        log.info("🟢 clientId: {}", naverApiConfig.getClientId());
-        log.info("🟢 clientSecret: {}", naverApiConfig.getClientSecret());
-        log.info("🟢 newsUrl: {}", naverApiConfig.getNewsUrl());
 
         return new NewsSearchResponse(random3.size(), random3);
     }
