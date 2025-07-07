@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "naver.news")
+@ConfigurationProperties(prefix = "naver")
 @Getter
 @Setter
 public class NaverApiConfig {
