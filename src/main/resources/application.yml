@@ -107,7 +107,7 @@ exchange:
 naver:
   client-id: ${NAVER_NEWS_CLIENT_ID}
   client-secret: ${NAVER_NEWS_CLIENT_SECRET}
-  news-url: ${NAVER_API_URL}
+  news-url: /v1/search/news.json
 
 sentry:
   dsn: ${SENTRY_DSN}
