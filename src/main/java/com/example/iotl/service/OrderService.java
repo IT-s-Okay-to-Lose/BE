@@ -36,6 +36,11 @@ public class OrderService {
 
     @Transactional
     public OrderResponseDto placeOrder(OrderRequestDto requestDto) {
+
+        System.out.println("🟢 orderType: " + requestDto.getOrderType());
+        System.out.println("🟢 userId: " + requestDto.getUserId());
+        System.out.println("🟢 stockCode: " + requestDto.getStockCode());
+
         // (1) 유저 찾기
         User user = userRepository.findById(requestDto.getUserId())
             .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
@@ -53,6 +58,8 @@ public class OrderService {
                 throw new IllegalStateException("보유 수량보다 많은 매도 주문은 불가합니다.");
             }
         }
+
+
 
         // (3) Order 객체 생성
         Order order = Order.builder()

@@ -10,7 +10,7 @@ import lombok.Setter;
 public class OrderRequestDto {
 
     private Long userId;
-    private String StockCode;
+    private String stockCode;
     private int quantity;
     private OrderType orderType;
     private BigDecimal price;
