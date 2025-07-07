@@ -10,6 +10,7 @@ import com.example.iotl.entity.Stocks;
 import com.example.iotl.entity.User;
 import com.example.iotl.repository.AccountsRepository;
 import com.example.iotl.repository.HoldingsRepository;
+import com.example.iotl.repository.OrderRepository;
 import com.example.iotl.repository.StockInfoRepository;
 import com.example.iotl.repository.UserRepository;
 import java.math.BigDecimal;
@@ -19,8 +20,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class OrderServiceTest {
 
     @Autowired
@@ -33,6 +36,8 @@ class OrderServiceTest {
     HoldingsRepository holdingsRepository;
     @Autowired
     AccountsRepository accountsRepository;
+    @Autowired
+    OrderRepository orderRepository;
 
     User seller;
     Stocks stock;
@@ -68,6 +73,7 @@ class OrderServiceTest {
 
     @AfterEach
     void tearDown() {
+        orderRepository.deleteAll();
         holdingsRepository.deleteAll();
         stockInfoRepository.deleteAll();
         accountsRepository.deleteAll();

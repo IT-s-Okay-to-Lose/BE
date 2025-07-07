@@ -34,6 +34,7 @@ public class UserService {
 
         userRepository.save(user);
 
+
         UserDto dto = new UserDto();
         dto.setUsername(user.getUsername());
         dto.setName(user.getName());

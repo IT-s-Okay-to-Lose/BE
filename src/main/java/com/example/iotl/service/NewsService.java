@@ -11,6 +11,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,20 +46,15 @@ public class NewsService {
     public NewsSearchResponse getTop3RandomNews() {
         String keyword = "뉴스";
 
-        URI uri = UriComponentsBuilder
-                .fromUriString(naverApiConfig.getNewsUrl())
-                .queryParam("query", keyword)
-                .queryParam("display", 20)
-                .queryParam("start", 1)
-                .queryParam("sort", "date")
-                .build(false)
-                .encode()
-                .toUri();
-
         NaverNewsResponse response = naverWebClient.get()
-                .uri(uri)
-                .header("X-Naver-Client-Id", naverApiConfig.getClientId())
-                .header("X-Naver-Client-Secret", naverApiConfig.getClientSecret())
+                .uri(uriBuilder -> uriBuilder
+                        .path(naverApiConfig.getNewsUrl())
+                        .queryParam("query", keyword)
+                        .queryParam("display", 20)
+                        .queryParam("start", 1)
+                        .queryParam("sort", "date")
+                        .build()
+                )
                 .retrieve()
                 .bodyToMono(NaverNewsResponse.class)
                 .block();
