@@ -51,12 +51,33 @@ public class ExchangeService {
 
         Exchange todayRate = exchangeRepository.findByBaseCodeAndTargetCodeAndDate("USD", "KRW", today)
                 .orElseThrow(() -> new RuntimeException("오늘 환율 없음"));
-        Exchange yesterdayRate = exchangeRepository.findByBaseCodeAndTargetCodeAndDate("USD", "KRW", yesterday)
-                .orElseThrow(() -> new RuntimeException("어제 환율 없음"));
 
-        double diff = Math.round((todayRate.getRate() - yesterdayRate.getRate()) * 10.0) / 10.0;
-        double percent = Math.round((diff / yesterdayRate.getRate()) * 10000.0) / 100.0;
+        Exchange yesterdayRate = exchangeRepository.findByBaseCodeAndTargetCodeAndDate("USD", "KRW", yesterday)
+                .orElse(null); // ❗ 어제 데이터 없을 수도 있음
+
+        double diff = 0;
+        double percent = 0;
+
+        if (yesterdayRate != null) {
+            diff = Math.round((todayRate.getRate() - yesterdayRate.getRate()) * 10.0) / 10.0;
+            percent = Math.round((diff / yesterdayRate.getRate()) * 10000.0) / 100.0;
+        }
 
         return new ExchangeSummaryDto(todayRate.getRate(), diff, percent);
+    }
+
+    // 오늘 데이터 없을 때 외부 API에서 받아와서 DB에 저장
+    public void saveTodayExchangeIfAbsent() {
+        LocalDate today = LocalDate.now();
+
+        if (existsByDate(today)) return; // 이미 있으면 스킵
+
+        ExchangeRateResponse response = fetchFromApi();
+        if (response == null || response.getConversion_rates() == null) return;
+
+        Double krwRate = response.getConversion_rates().get("KRW");
+        if (krwRate != null) {
+            saveRate(krwRate, today);
+        }
     }
 }

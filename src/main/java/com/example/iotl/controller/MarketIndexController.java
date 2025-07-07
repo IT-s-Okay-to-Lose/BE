@@ -22,24 +22,20 @@ public class MarketIndexController {
     // 오늘자 지수 조회 (프론트 요청용)
     @GetMapping("/{marketType}")
     public ResponseEntity<MarketIndexDto> getMarketIndex(@PathVariable String marketType) {
-        log.info("📥 지수 요청 들어옴: {}", marketType);  // 요청 로그
+        log.info("📥 지수 요청 들어옴: {}", marketType);
 
         try {
-            MarketIndexDto dto = marketIndexService.getMarketIndex(marketType)
-                    .map(responseDto -> {
-                        var output = responseDto.getOutput();
-                        MarketIndexDto result = new MarketIndexDto();
-                        result.setIndexName(marketType.equalsIgnoreCase("KOSPI") ? "코스피" : "코스닥");
-                        result.setCurrentValue(output.getBstp_nmix_prpr());
-                        result.setChangeAmount(output.getBstp_nmix_prdy_vrss());
-                        result.setChangeRate(output.getBstp_nmix_prdy_ctrt());
-                        result.setChangeDirection("1".equals(output.getPrdy_vrss_sign()) ? "▲" : "▼");
+            MarketIndexDto dto = marketIndexService.getTodayMarketIndexFromDb(marketType);
 
-                        log.info("✅ 지수 응답 생성됨: {}", result);  // 응답 직전 로그
-                        return result;
-                    })
-                    .block();
-
+            if (dto == null) {
+                // 외부 API 호출 후 저장 시도 (비동기 → 동기화 필요)
+                marketIndexService.saveMarketIndexBlocking(marketType); // ← 여기에 동기 저장 메서드 필요
+                // 다시 DB 조회
+                dto = marketIndexService.getTodayMarketIndexFromDb(marketType);
+                if (dto == null) {
+                    return ResponseEntity.noContent().build();
+                }
+            }
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
             log.error("❌ 지수 요청 실패: {}", e.getMessage(), e);
@@ -48,7 +44,7 @@ public class MarketIndexController {
     }
 
     // 테스트: 강제로 외부 API 호출해서 저장
-    @PostMapping("/test/trigger")
+    @PostMapping("/save")
     public ResponseEntity<String> triggerMarketIndexScheduler() {
         marketIndexService.saveMarketIndex("KOSPI");
         marketIndexService.saveMarketIndex("KOSDAQ");

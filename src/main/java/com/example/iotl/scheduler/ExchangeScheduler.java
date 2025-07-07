@@ -15,12 +15,13 @@ public class ExchangeScheduler {
     private final ExchangeService exchangeService;
 
     // 매일 아침 9시마다 저장
-    @Scheduled(cron = "0 0 9 * * ?")// 하루 환율 저장해서 비교하기 위해서 넣음 시간은 정하면 될듯!
+    @Scheduled(cron = "0 0 9 * * ?")
     public void saveDailyExchangeRate() {
         LocalDate today = LocalDate.now();
+        System.out.println("🕘 [Scheduler] 환율 저장 시도: " + today);
 
-        // 이미 저장되어 있다면 중복 저장 방지
         if (exchangeService.existsByDate(today)) {
+            System.out.println("✅ 이미 저장되어 있음. 스킵");
             return;
         }
 
@@ -29,6 +30,9 @@ public class ExchangeScheduler {
 
         if (krwRate != null) {
             exchangeService.saveRate(krwRate, today);
+            System.out.println("💾 KRW 환율 저장 완료: " + krwRate);
+        } else {
+            System.out.println("❌ KRW 환율 없음!");
         }
     }
 }
