@@ -45,12 +45,11 @@ public class NewsService {
 
     public NewsSearchResponse getTop3RandomNews() {
         String keyword = "뉴스";
-        String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 
         NaverNewsResponse response = naverWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(naverApiConfig.getNewsUrl())
-                        .queryParam("query", encodedKeyword)
+                        .queryParam("query", keyword)
                         .queryParam("display", 20)
                         .queryParam("start", 1)
                         .queryParam("sort", "date")
