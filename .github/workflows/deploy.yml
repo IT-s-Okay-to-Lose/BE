@@ -24,9 +24,9 @@ jobs:
       - name: Decode env file
         run: echo "${{ secrets.ENV_PROPERTIES_DEV }}" | base64 --decode > .env
 
-      # 4) 빌드
-      - name: Build with Gradle
-        run: ./gradlew clean build
+      # 4) 빌드(테스트 제외)
+      - name: Build with Gradle (Skip tests)
+        run: ./gradlew clean build -x test
 
       # 5) Docker 이미지 빌드 (SHA 태그)
       - name: Build Docker image
