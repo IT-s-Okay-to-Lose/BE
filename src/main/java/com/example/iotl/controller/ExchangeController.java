@@ -21,7 +21,16 @@ public class ExchangeController {
             ExchangeSummaryDto dto = exchangeService.getTodayExchangeSummary();
             return ResponseEntity.ok(dto);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(null);  // or custom message
+            // 오늘 데이터가 없으면 → 저장 시도
+            exchangeService.saveTodayExchangeIfAbsent();
+
+            try {
+                // 다시 조회
+                ExchangeSummaryDto dto = exchangeService.getTodayExchangeSummary();
+                return ResponseEntity.ok(dto);
+            } catch (RuntimeException ex) {
+                return ResponseEntity.status(404).body(null);
+            }
         }
     }
 }
