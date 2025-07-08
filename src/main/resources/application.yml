@@ -125,7 +125,7 @@ permit-all-paths:
     - /api/stocks/**
     - /api/exchange
     - /api/market-index/**
-    - /api/v1/news/top3
+    - /auth/api/v1/news/top3
     - /v3/api-docs/
     - /swagger-ui/
     - /swagger-ui.html
