@@ -1,6 +1,7 @@
 package com.example.iotl.repository;
 
 import com.example.iotl.entity.Holdings;
+import com.example.iotl.entity.StockDetail;
 import com.example.iotl.entity.Stocks;
 import com.example.iotl.entity.User;
 import jakarta.persistence.LockModeType;
@@ -16,8 +17,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface HoldingsRepository extends JpaRepository<Holdings,Long> {
     List<Holdings> findByUserName(String username);
-    Optional<Holdings> findByUser_UserIdAndStock_StockCode(String username, String stockCode);
+    Optional<Holdings> findByUser_UserNameAndStock_StockCode(String username, String stockCode);
     Optional<Holdings> findByUserAndStock(User user, Stocks stock);
+    Optional<StockDetail> findTopByStocks_StockCodeOrderByCreatedAtDesc(String stockCode);
+
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select h from Holdings h where h.user = :user and h.stock = :stock")
