@@ -1,6 +1,5 @@
 package com.example.iotl.service.stock;
 
-import com.example.iotl.service.stock.StockApiService;
 import com.example.iotl.dto.stocks.DynamicStockDataDto;
 import com.example.iotl.dto.stocks.StaticStockMetaDto;
 import com.example.iotl.dto.stocks.StockDetailDto;
@@ -11,7 +10,6 @@ import com.example.iotl.repository.StockInfoRepository;
 import com.example.iotl.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

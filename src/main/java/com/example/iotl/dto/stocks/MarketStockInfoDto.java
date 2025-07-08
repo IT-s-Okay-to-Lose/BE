@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 // 디테일 페이지 종목 기본 정보 DTO
 @Getter
 @Builder

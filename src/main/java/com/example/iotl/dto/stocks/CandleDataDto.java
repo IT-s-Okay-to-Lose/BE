@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Builder
 @Getter
@@ -34,6 +35,16 @@ public class CandleDataDto {
                 .high(stock.getHighPrice())
                 .low(stock.getLowPrice())
                 .close(stock.getClosePrice())
+                .build();
+    }
+
+    public static CandleDataDto from(Map<String, String> output) {
+        return CandleDataDto.builder()
+                .time(java.time.LocalDateTime.now().toString()) // 실시간 전송용
+                .open(new BigDecimal(output.get("stck_oprc")))
+                .high(new BigDecimal(output.get("stck_hgpr")))
+                .low(new BigDecimal(output.get("stck_lwpr")))
+                .close(new BigDecimal(output.get("stck_prpr")))
                 .build();
     }
 }

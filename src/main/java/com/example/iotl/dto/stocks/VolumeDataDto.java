@@ -5,6 +5,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+
 @Getter
 @Builder
 public class VolumeDataDto {
@@ -19,6 +23,13 @@ public class VolumeDataDto {
         return VolumeDataDto.builder()
                 .time(stock.getCreatedAt().toString())
                 .volume(stock.getVolume())
+                .build();
+    }
+
+    public static VolumeDataDto from(Map<String, String> output) {
+        return VolumeDataDto.builder()
+                .time(LocalDateTime.now().toString())
+                .volume(Long.parseLong(output.get("acml_vol")))
                 .build();
     }
 }

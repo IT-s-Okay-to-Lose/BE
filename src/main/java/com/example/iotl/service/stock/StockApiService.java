@@ -9,9 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 import java.util.HashMap;
 import java.util.Map;
+
 
 @Slf4j
 @Component
@@ -66,5 +69,17 @@ public class StockApiService {
         ResponseEntity<Map> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
 
         return response.getBody();
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public String getAppKey() {
+        return appKey;
+    }
+
+    public String getAppSecret() {
+        return appSecret;
     }
 }

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Getter
 @Builder
@@ -30,6 +31,16 @@ public class DynamicStockDataDto {
                 .currentPrice(stockDetail.getClosePrice())
                 .fluctuationRate(stockDetail.getPriceRate())
                 .accumulatedVolume(stockDetail.getVolume())
+                .build();
+    }
+
+    // DynamicStockDataDto.java
+    public static DynamicStockDataDto from(Map<String, String> output, String code) {
+        return DynamicStockDataDto.builder()
+                .code(code)
+                .currentPrice(new BigDecimal(output.get("stck_prpr")))
+                .fluctuationRate(new BigDecimal(output.get("prdy_ctrt")))
+                .accumulatedVolume(Long.parseLong(output.get("acml_vol")))
                 .build();
     }
 }

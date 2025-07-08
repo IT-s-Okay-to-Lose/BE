@@ -2,7 +2,6 @@ package com.example.iotl.repository;
 
 import com.example.iotl.entity.StockDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

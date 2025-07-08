@@ -68,18 +68,24 @@ public class VolumeWebSocketHandler extends TextWebSocketHandler {
             log.info("📨 Volume 구독 요청: {}", codes);
 
             // 즉시 응답 보내기 - 최근 거래량
+            List<Map<String, Object>> results = new ArrayList<>();
+
             for (String code : codes) {
                 StockDetail latest = stockService.findLatestStockByCode(code);
                 if (latest != null) {
-                    VolumeDataDto volumeData = new VolumeDataDto(latest);
+                    VolumeDataDto volumeData = VolumeDataDto.from(latest); // ✅ from() 활용
 
                     Map<String, Object> result = new HashMap<>();
                     result.put("code", code);
-                    result.put("volume", volumeData);
+                    result.put("volume", List.of(volumeData.getTime(), volumeData.getVolume())); // ✅ 통일된 포맷
 
-                    String json = objectMapper.writeValueAsString(result);
-                    session.sendMessage(new TextMessage(json));
+                    results.add(result);
                 }
+            }
+
+            if (!results.isEmpty()) {
+                String json = objectMapper.writeValueAsString(results);
+                session.sendMessage(new TextMessage(json));
             }
         } catch (Exception e) {
             log.error("❌ Volume 요청 파싱 또는 전송 실패", e);

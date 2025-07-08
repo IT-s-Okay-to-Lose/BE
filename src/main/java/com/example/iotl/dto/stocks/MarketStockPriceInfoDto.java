@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Getter
 @Builder
@@ -25,6 +26,14 @@ public class MarketStockPriceInfoDto {
                 .currentPrice(stockDetail.getClosePrice())
                 .priceChange(stockDetail.getPriceDiff())
                 .fluctuationRate(stockDetail.getPriceRate())
+                .build();
+    }
+
+    public static MarketStockPriceInfoDto from(Map<String, String> output) {
+        return MarketStockPriceInfoDto.builder()
+                .currentPrice(new BigDecimal(output.get("stck_prpr")))
+                .priceChange(new BigDecimal(output.get("prdy_vrss")))
+                .fluctuationRate(new BigDecimal(output.get("prdy_ctrt")))
                 .build();
     }
 }
