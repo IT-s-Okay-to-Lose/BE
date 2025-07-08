@@ -28,9 +28,9 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderResponseDto> placeOrder(
         @RequestBody OrderRequestDto requestDto,
-        @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails
+        @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        String username = userDetails.getUsername();  // 로그인된 사용자 이름
+        String username = principal.getUsername();
         OrderResponseDto response = orderService.placeOrder(username, requestDto);
         return ResponseEntity.ok(response);
     }
