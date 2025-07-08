@@ -35,14 +35,14 @@ public class OrderService {
     private final OrderMatchingService orderMatchingService;
 
     @Transactional
-    public OrderResponseDto placeOrder(OrderRequestDto requestDto) {
+    public OrderResponseDto placeOrder(String username, OrderRequestDto requestDto) {
 
         System.out.println("🟢 orderType: " + requestDto.getOrderType());
-        System.out.println("🟢 userId: " + requestDto.getUserId());
         System.out.println("🟢 stockCode: " + requestDto.getStockCode());
 
         // (1) 유저 찾기
-        User user = userRepository.findById(requestDto.getUserId())
+
+        User user = Optional.ofNullable(userRepository.findByUsername(username))
             .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
         // (2) 종목 찾기

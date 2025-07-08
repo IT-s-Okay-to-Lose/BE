@@ -26,10 +26,12 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponseDto> placeOrder(@RequestBody OrderRequestDto requestDto) {
-
-        log.info("💡 /orders 호출됨");
-        OrderResponseDto response = orderService.placeOrder(requestDto);
+    public ResponseEntity<OrderResponseDto> placeOrder(
+        @RequestBody OrderRequestDto requestDto,
+        @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails
+    ) {
+        String username = userDetails.getUsername();  // 로그인된 사용자 이름
+        OrderResponseDto response = orderService.placeOrder(username, requestDto);
         return ResponseEntity.ok(response);
     }
 
@@ -45,8 +47,6 @@ public class OrderController {
 //            log.warn("❗ principal이 null입니다.");
 //            return List.of();
 //        }
-
-
         // OAuth 로그인된 사용자 정보에서 username 추출
         String username = principal.getUsername();
 //        log.info("로그인한 사용자 username: {}", username);
