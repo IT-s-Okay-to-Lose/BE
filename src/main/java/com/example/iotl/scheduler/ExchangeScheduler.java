@@ -14,8 +14,8 @@ public class ExchangeScheduler {
 
     private final ExchangeService exchangeService;
 
-    // 매일 아침 9시마다 저장
-    @Scheduled(cron = "0 0 9 * * ?")
+    // 매일 아침 8시마다 저장
+    @Scheduled(cron = "0 0 8 * * ?")
     public void saveDailyExchangeRate() {
         LocalDate today = LocalDate.now();
         System.out.println("🕘 [Scheduler] 환율 저장 시도: " + today);

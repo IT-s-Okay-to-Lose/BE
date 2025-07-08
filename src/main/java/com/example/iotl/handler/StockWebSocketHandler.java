@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @RequiredArgsConstructor
 public class StockWebSocketHandler extends TextWebSocketHandler {
 
-    private boolean marketOpen = false;
+    private boolean marketOpen = true;
 
     public void setMarketOpen(boolean open) {
         this.marketOpen = open;

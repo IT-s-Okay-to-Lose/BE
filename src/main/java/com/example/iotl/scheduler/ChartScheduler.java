@@ -59,6 +59,13 @@ public class ChartScheduler {
                             .close(new BigDecimal(output.get("stck_prpr")))
                             .build();
 
+                    // MarketStockPriceInfoDto 생성
+                    MarketStockPriceInfoDto marketInfo = MarketStockPriceInfoDto.builder()
+                            .currentPrice(new BigDecimal(output.get("stck_prpr")))
+                            .priceChange(new BigDecimal(output.get("prdy_vrss")))
+                            .fluctuationRate(new BigDecimal(output.get("prdy_ctrt")))
+                            .build();
+
                     String key = code + "_" + request.interval();
                     CandleDataDto prevCandle = lastSentCandleMap.get(key);
 
@@ -71,14 +78,11 @@ public class ChartScheduler {
                                 lastCandle.getLow(),
                                 lastCandle.getClose()
                         ));
-
+                        resultMap.put("marketInfo", marketInfo);
                         String json = objectMapper.writeValueAsString(resultMap);
                         chartWebSocketHandler.sendToSession(sessionId, json);
-
-                        //log.info("📡 실시간 전송 [{}] → {}", code, sessionId);
                         lastSentCandleMap.put(key, lastCandle);
                     }
-
                 } catch (Exception e) {
                     log.error("❌ [{}] 전송 실패 to session {}", code, sessionId, e);
                 }
