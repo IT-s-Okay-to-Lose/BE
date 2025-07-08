@@ -20,13 +20,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 2.5) 타임존 설정 (옵션)
-      - name: Set Timezone to Asia/Seoul
-        run: |
-          sudo ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
-          echo "Asia/Seoul" | sudo tee /etc/timezone
-          date
-
       # 3) 환경파일 디코딩
       - name: Decode env file
         run: echo "${{ secrets.ENV_PROPERTIES_DEV }}" | base64 --decode > .env
