@@ -98,32 +98,32 @@ public class StockScheduler {
         }
     }
 
-    @Scheduled(cron = "0 52 16 * * ?", zone = "Asia/Seoul")  // 15:31:00
+    @Scheduled(cron = "0 31 15 * * ?", zone = "Asia/Seoul")  // 15:31:00
     public void saveBatch1() {
         saveStockPriceBatch(0);
     }
 
-    @Scheduled(cron = "10 52 16 * * ?", zone = "Asia/Seoul") // 15:31:10
+    @Scheduled(cron = "10 31 15 * * ?", zone = "Asia/Seoul") // 15:31:10
     public void saveBatch2() {
         saveStockPriceBatch(1);
     }
 
-    @Scheduled(cron = "20 52 16 * * ?", zone = "Asia/Seoul") // 15:31:20
+    @Scheduled(cron = "20 31 15 * * ?", zone = "Asia/Seoul") // 15:31:20
     public void saveBatch3() {
         saveStockPriceBatch(2);
     }
 
-    @Scheduled(cron = "30 52 16 * * ?", zone = "Asia/Seoul") // 15:31:30
+    @Scheduled(cron = "30 31 15 * * ?", zone = "Asia/Seoul") // 15:31:30
     public void saveBatch4() {
         saveStockPriceBatch(3);
     }
 
-    @Scheduled(cron = "40 52 16 * * ?", zone = "Asia/Seoul") // 15:31:40
+    @Scheduled(cron = "40 31 15 * * ?", zone = "Asia/Seoul") // 15:31:40
     public void saveBatch5() {
         saveStockPriceBatch(4);
     }
 
-    @Scheduled(cron = "50 52 16 * * ?", zone = "Asia/Seoul") // 15:31:50
+    @Scheduled(cron = "50 31 15 * * ?", zone = "Asia/Seoul") // 15:31:50
     public void saveBatch6() {
         saveStockPriceBatch(5);
     }
