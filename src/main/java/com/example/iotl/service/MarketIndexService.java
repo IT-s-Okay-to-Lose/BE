@@ -4,11 +4,11 @@ import com.example.iotl.dto.marketindex.CurrentIndexResponseDto;
 import com.example.iotl.dto.marketindex.MarketIndexDto;
 import com.example.iotl.entity.MarketIndex;
 import com.example.iotl.repository.MarketIndexRepository;
+import com.example.iotl.service.stock.StockApiService;
+import com.example.iotl.service.stock.StockService;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Service
 @RequiredArgsConstructor
 public class MarketIndexService {
-    private final StockService stockService;
+    private final StockApiService stockApiService;
     private final WebClient.Builder webClientBuilder;
     private final MarketIndexRepository marketIndexRepository;
 
@@ -39,9 +39,9 @@ public class MarketIndexService {
                 throw new IllegalArgumentException("지원하지 않는 marketType: " + marketType);
         }
 
-        String accessToken = stockService.getAccessToken();
+        String accessToken = stockApiService.getAccessToken();
         WebClient webClient = webClientBuilder
-                .baseUrl(stockService.getBaseUrl())  // ✅ baseUrl 가져오기
+                .baseUrl(stockApiService.getBaseUrl())  // ✅ baseUrl 가져오기
                 .build();
 
         return webClient.get()
@@ -53,8 +53,8 @@ public class MarketIndexService {
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .header("tr_id", "FHPUP02100000")
                 .header("custtype", "P")
-                .header("appkey", stockService.getAppKey())       // ✅ 가져오기
-                .header("appsecret", stockService.getAppSecret()) // ✅ 가져오기
+                .header("appkey", stockApiService.getAppKey())       // ✅ 가져오기
+                .header("appsecret", stockApiService.getAppSecret()) // ✅ 가져오기
                 .header("authorization", "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(CurrentIndexResponseDto.class);

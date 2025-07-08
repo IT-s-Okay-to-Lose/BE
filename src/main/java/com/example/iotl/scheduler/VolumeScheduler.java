@@ -3,7 +3,9 @@ package com.example.iotl.scheduler;
 import com.example.iotl.dto.stocks.VolumeDataDto;
 import com.example.iotl.entity.StockDetail;
 import com.example.iotl.handler.VolumeWebSocketHandler;
-import com.example.iotl.service.StockService;
+import com.example.iotl.repository.StockRepository;
+import com.example.iotl.service.stock.StockApiService;
+import com.example.iotl.service.stock.StockService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -18,13 +20,15 @@ import java.util.*;
 @Slf4j
 public class VolumeScheduler {
 
+    private final StockApiService stockApiService;
     private final StockService stockService;
     private final VolumeWebSocketHandler volumeWebSocketHandler;
     private final ObjectMapper objectMapper;
 
     private final Map<String, VolumeDataDto> lastSentVolumeMap = new HashMap<>();
 
-    public VolumeScheduler(StockService stockService, VolumeWebSocketHandler volumeWebSocketHandler) {
+    public VolumeScheduler(StockApiService stockApiService, StockService stockService, VolumeWebSocketHandler volumeWebSocketHandler) {
+        this.stockApiService = stockApiService;
         this.stockService = stockService;
         this.volumeWebSocketHandler = volumeWebSocketHandler;
         this.objectMapper = new ObjectMapper();
@@ -42,33 +46,31 @@ public class VolumeScheduler {
 
             for (String code : request.getCodes()) {
                 try {
-                    Map<String, Object> result = stockService.getStockPrice(code);
-                    Map<String, String> output = (Map<String, String>) result.get("output");
-
+                    Map<String, String> output = fetchOutput(code);
                     if (output == null) continue;
 
-                    // StockDetail 객체 직접 생성
-                    StockDetail mockStock = StockDetail.builder()
-                            .stockCode(code)
-                            .volume(Long.parseLong(output.get("acml_vol")))
-                            .createdAt(LocalDateTime.now())
-                            .build();
-
-                    VolumeDataDto volumeData = new VolumeDataDto(mockStock);
-
-                    Map<String, Object> resultMap = new HashMap<>();
-                    resultMap.put("volume", List.of(
-                            volumeData.getTime(),
-                            volumeData.getVolume()
-                    ));
-
-                    String json = objectMapper.writeValueAsString(resultMap);
-                    volumeWebSocketHandler.sendToSession(sessionId, json);
+                    VolumeDataDto volumeData = VolumeDataDto.from(output);
+                    sendVolumeToSession(sessionId, code, volumeData);
                     lastSentVolumeMap.put(code, volumeData);
+
                 } catch (Exception e) {
                     log.error("❌ 거래량 전송 실패 for {} to {}", code, sessionId, e);
                 }
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, String> fetchOutput(String code) {
+        Map<String, Object> result = stockApiService.getStockPrice(code);
+        return (Map<String, String>) result.get("output");
+    }
+
+    private void sendVolumeToSession(String sessionId, String code, VolumeDataDto volumeData) throws Exception {
+        Map<String, Object> resultMap = Map.of(
+                "volume", List.of(volumeData.getTime(), volumeData.getVolume())
+        );
+        String json = objectMapper.writeValueAsString(resultMap);
+        volumeWebSocketHandler.sendToSession(sessionId, json);
     }
 }

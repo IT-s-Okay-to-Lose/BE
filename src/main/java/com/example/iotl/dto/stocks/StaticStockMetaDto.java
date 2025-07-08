@@ -2,31 +2,31 @@ package com.example.iotl.dto.stocks;
 
 import com.example.iotl.entity.Stocks;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-@AllArgsConstructor
+@Builder
 public class StaticStockMetaDto {
 
     @Schema(description = "종목 코드", example = "005930")
-    private String code;
+    private final String code;
 
     @Schema(description = "종목 이름", example = "삼성전자")
-    private String name;
+    private final String name;
 
     @Schema(description = "시장 구분", example = "KOSPI")
-    private String marketType;
+    private final String marketType;
 
     @Schema(description = "종목 로고 이미지 URL", example = "https://logo.clearbit.com/samsung.com")
-    private String imageUrl;
+    private final String imageUrl;
 
-    public StaticStockMetaDto(Stocks stocks) {
-        this.code = stocks.getStockCode();
-        this.name = stocks.getStockName();
-        this.marketType = stocks.getMarketType();
-        this.imageUrl = stocks.getLogoUrl();
+    public static StaticStockMetaDto from(Stocks stocks) {
+        return StaticStockMetaDto.builder()
+                .code(stocks.getStockCode())
+                .name(stocks.getStockName())
+                .marketType(stocks.getMarketType())
+                .imageUrl(stocks.getLogoUrl())
+                .build();
     }
 }

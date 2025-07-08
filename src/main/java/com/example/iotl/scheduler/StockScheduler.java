@@ -1,10 +1,10 @@
 package com.example.iotl.scheduler;
 
 import com.example.iotl.dto.stocks.DynamicStockDataDto;
-import com.example.iotl.entity.StockDetail;
 import com.example.iotl.handler.StockWebSocketHandler;
 import com.example.iotl.repository.StockInfoRepository;
-import com.example.iotl.service.StockService;
+import com.example.iotl.service.stock.StockApiService;
+import com.example.iotl.service.stock.StockService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -19,6 +19,7 @@ import java.util.*;
 @Slf4j
 public class StockScheduler {
 
+    private final StockApiService stockApiService;
     private final StockService stockService;
     private final StockInfoRepository stockInfoRepository;
     private final StockWebSocketHandler stockWebSocketHandler;
@@ -30,9 +31,10 @@ public class StockScheduler {
     // 종목 코드 기준으로 마지막 전송한 데이터 보관
     private final Map<String, DynamicStockDataDto> lastSentMap = new HashMap<>();
 
-    public StockScheduler(StockService stockService,
+    public StockScheduler(StockApiService stockApiService, StockService stockService,
                           StockInfoRepository stockInfoRepository,
                           StockWebSocketHandler stockWebSocketHandler) {
+        this.stockApiService = stockApiService;
         this.stockService = stockService;
         this.stockInfoRepository = stockInfoRepository;
         this.stockWebSocketHandler = stockWebSocketHandler;
@@ -47,57 +49,102 @@ public class StockScheduler {
         List<String> stockCodes = stockInfoRepository.findAllStockCodes();
         int totalStocks = stockCodes.size();
 
-        if (totalStocks == 0) {
-            //log.warn("⚠️ 종목 코드가 존재하지 않습니다.");
-            return;
+        if (totalStocks == 0) return;
+
+        List<String> batch = getCurrentBatch(stockCodes, totalStocks);
+        List<DynamicStockDataDto> updatedList = new ArrayList<>();
+
+        for (String code : batch) {
+            try {
+                Map<String, Object> result = stockApiService.getStockPrice(code);
+                Map<String, String> output = castOutput(result.get("output"));
+                if (output == null) continue;
+
+                updatedList.add(DynamicStockDataDto.from(output, code));
+            } catch (Exception e) {
+                log.error("❌ [{}] 실시간 데이터 조회 실패: {}", code, e.getMessage());
+            }
         }
 
+        sendToClients(updatedList);
+        currentIndex = (currentIndex + BATCH_SIZE) % totalStocks;
+    }
+
+    private List<String> getCurrentBatch(List<String> stockCodes, int totalStocks) {
         List<String> batch = new ArrayList<>();
         for (int i = 0; i < BATCH_SIZE; i++) {
             int idx = (currentIndex + i) % totalStocks;
             batch.add(stockCodes.get(idx));
         }
-        List<DynamicStockDataDto> updatedList = new ArrayList<>();
-
-        for (String code : batch) {
-            try {
-                Map<String, Object> result = stockService.getStockPrice(code);
-                Map<String, String> output = (Map<String, String>) result.get("output");
-
-                if (output == null) continue;
-
-                DynamicStockDataDto dto = DynamicStockDataDto.builder()
-                        .code(code)
-                        .currentPrice(new BigDecimal(output.get("stck_prpr")))
-                        .fluctuationRate(new BigDecimal(output.get("prdy_ctrt")))
-                        .accumulatedVolume(Long.parseLong(output.get("acml_vol")))
-                        .build();
-
-                updatedList.add(dto);
-            } catch (Exception e) {
-                 log.error("❌ 실시간 주식 데이터 조회 실패: {}", e.getMessage());
-            }
-        }
-        if (!updatedList.isEmpty()) {
-            try {
-                String json = objectMapper.writeValueAsString(updatedList);
-                stockWebSocketHandler.broadcast(json);
-//                log.info("📡 실시간 데이터 {}건 전송", updatedList.size());
-            } catch (Exception e) {
-                    log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
-            }
-        }
-        currentIndex = (currentIndex + BATCH_SIZE) % totalStocks;
+        return batch;
     }
 
-    @Scheduled(cron = "0 31 15 * * MON-FRI") // 매주 월~금 15:31
-    public void saveStockPriceAtMarketClose() {
-        List<String> stockCodes = stockInfoRepository.findAllStockCodes();
+    @SuppressWarnings("unchecked")
+    private Map<String, String> castOutput(Object output) {
+        if (output instanceof Map) {
+            return (Map<String, String>) output;
+        }
+        return null;
+    }
 
-        for (String code : stockCodes) {
+    private void sendToClients(List<DynamicStockDataDto> dataList) {
+        if (dataList.isEmpty()) return;
+
+        try {
+            String json = objectMapper.writeValueAsString(dataList);
+            stockWebSocketHandler.broadcast(json);
+        } catch (Exception e) {
+            log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
+        }
+    }
+
+    @Scheduled(cron = "0 31 15 * * ?", zone = "Asia/Seoul")  // 15:31:00
+    public void saveBatch1() {
+        saveStockPriceBatch(0);
+    }
+
+    @Scheduled(cron = "10 31 15 * * ?", zone = "Asia/Seoul") // 15:31:10
+    public void saveBatch2() {
+        saveStockPriceBatch(1);
+    }
+
+    @Scheduled(cron = "20 31 15 * * ?", zone = "Asia/Seoul") // 15:31:20
+    public void saveBatch3() {
+        saveStockPriceBatch(2);
+    }
+
+    @Scheduled(cron = "30 31 15 * * ?", zone = "Asia/Seoul") // 15:31:30
+    public void saveBatch4() {
+        saveStockPriceBatch(3);
+    }
+
+    @Scheduled(cron = "40 31 15 * * ?", zone = "Asia/Seoul") // 15:31:40
+    public void saveBatch5() {
+        saveStockPriceBatch(4);
+    }
+
+    @Scheduled(cron = "50 31 15 * * ?", zone = "Asia/Seoul") // 15:31:50
+    public void saveBatch6() {
+        saveStockPriceBatch(5);
+    }
+
+    // ✅ 공통 메서드
+    private void saveStockPriceBatch(int batchIndex) {
+        List<String> stockCodes = stockInfoRepository.findAllStockCodes();
+        int batchSize = 5;
+        int start = batchIndex * batchSize;
+        int end = Math.min(start + batchSize, stockCodes.size());
+
+        if (start >= stockCodes.size()) {
+            log.warn("⛔ 배치 인덱스 초과: {}", batchIndex);
+            return;
+        }
+
+        List<String> subList = stockCodes.subList(start, end);
+        for (String code : subList) {
             try {
-                stockService.saveStockPrice(code); // 이 시점에만 DB 저장
-                log.info("✅ [{}] 종가 저장 완료", code);
+                stockService.saveStockPrice(code);
+                log.info("✅ [{}] 종가 저장 완료 (Batch {})", code, batchIndex + 1);
             } catch (Exception e) {
                 log.error("❌ [{}] 종가 저장 실패: {}", code, e.getMessage());
             }
