@@ -27,9 +27,18 @@ public class VolumeDataDto {
     }
 
     public static VolumeDataDto from(Map<String, String> output) {
+        String volStr = output.getOrDefault("acml_vol", "0");
+        long volume = 0L;
+        try {
+            volume = Long.parseLong(volStr.replaceAll(",", "").trim());
+        } catch (NumberFormatException e) {
+            // 로깅 또는 기본값 유지
+            System.err.println("⚠️ 거래량 변환 실패: " + volStr);
+        }
+
         return VolumeDataDto.builder()
                 .time(LocalDateTime.now().toString())
-                .volume(Long.parseLong(output.get("acml_vol")))
+                .volume(volume)
                 .build();
     }
 }

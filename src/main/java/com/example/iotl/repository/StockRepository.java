@@ -1,6 +1,7 @@
 package com.example.iotl.repository;
 
 import com.example.iotl.entity.StockDetail;
+import com.example.iotl.entity.Stocks;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,6 @@ public interface StockRepository extends JpaRepository<StockDetail, Long> {
 
     // ✅ 가장 최신 데이터 1건만 반환
     StockDetail findTop1ByStockCodeOrderByCreatedAtDesc(String stockCode);
+
+    boolean existsByStocksAndCreatedAtBetween(Stocks stocks, LocalDateTime start, LocalDateTime end);
 }

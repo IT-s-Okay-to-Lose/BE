@@ -98,14 +98,53 @@ public class StockScheduler {
         }
     }
 
-    @Scheduled(cron = "0 31 15 * * MON-FRI") // 매주 월~금 15:31
-    public void saveStockPriceAtMarketClose() {
-        List<String> stockCodes = stockInfoRepository.findAllStockCodes();
+    @Scheduled(cron = "0 52 16 * * ?", zone = "Asia/Seoul")  // 15:31:00
+    public void saveBatch1() {
+        saveStockPriceBatch(0);
+    }
 
-        for (String code : stockCodes) {
+    @Scheduled(cron = "10 52 16 * * ?", zone = "Asia/Seoul") // 15:31:10
+    public void saveBatch2() {
+        saveStockPriceBatch(1);
+    }
+
+    @Scheduled(cron = "20 52 16 * * ?", zone = "Asia/Seoul") // 15:31:20
+    public void saveBatch3() {
+        saveStockPriceBatch(2);
+    }
+
+    @Scheduled(cron = "30 52 16 * * ?", zone = "Asia/Seoul") // 15:31:30
+    public void saveBatch4() {
+        saveStockPriceBatch(3);
+    }
+
+    @Scheduled(cron = "40 52 16 * * ?", zone = "Asia/Seoul") // 15:31:40
+    public void saveBatch5() {
+        saveStockPriceBatch(4);
+    }
+
+    @Scheduled(cron = "50 52 16 * * ?", zone = "Asia/Seoul") // 15:31:50
+    public void saveBatch6() {
+        saveStockPriceBatch(5);
+    }
+
+    // ✅ 공통 메서드
+    private void saveStockPriceBatch(int batchIndex) {
+        List<String> stockCodes = stockInfoRepository.findAllStockCodes();
+        int batchSize = 5;
+        int start = batchIndex * batchSize;
+        int end = Math.min(start + batchSize, stockCodes.size());
+
+        if (start >= stockCodes.size()) {
+            log.warn("⛔ 배치 인덱스 초과: {}", batchIndex);
+            return;
+        }
+
+        List<String> subList = stockCodes.subList(start, end);
+        for (String code : subList) {
             try {
-                stockService.saveStockPrice(code); // 이 시점에만 DB 저장
-                log.info("✅ [{}] 종가 저장 완료", code);
+                stockService.saveStockPrice(code);
+                log.info("✅ [{}] 종가 저장 완료 (Batch {})", code, batchIndex + 1);
             } catch (Exception e) {
                 log.error("❌ [{}] 종가 저장 실패: {}", code, e.getMessage());
             }

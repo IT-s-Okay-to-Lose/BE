@@ -18,9 +18,12 @@ public class StockDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // 성능 최적화를 위해 LAZY 설정 추천
-    @JoinColumn(name = "stock_code", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "stock_code")
     private Stocks stocks;
+
+    @Column(name = "stock_code", length = 10, insertable = false, updatable = false)
+    private String stockCode;
 
     @Column(name = "open_price")
     private BigDecimal openPrice;

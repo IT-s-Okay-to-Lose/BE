@@ -75,7 +75,7 @@ class OrderServiceTest {
     void tearDown() {
         orderRepository.deleteAll();
         holdingsRepository.deleteAll();
-        stockInfoRepository.deleteAll();
+        //stockInfoRepository.deleteAll();
         accountsRepository.deleteAll();
         userRepository.deleteAll();
     }
