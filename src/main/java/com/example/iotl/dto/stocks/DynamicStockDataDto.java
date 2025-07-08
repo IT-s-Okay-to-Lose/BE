@@ -5,33 +5,31 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
-import java.util.Objects;
 
-@Builder
 @Getter
-@Setter
+@Builder
 @AllArgsConstructor
 public class DynamicStockDataDto {
 
     @Schema(description = "종목 코드", example = "005930")
-    private String code;
+    private final String code;
 
     @Schema(description = "현재가", example = "59300")
-    private BigDecimal currentPrice;
+    private final BigDecimal currentPrice;
 
     @Schema(description = "등락률 (%)", example = "-1.25")
-    private BigDecimal fluctuationRate;
+    private final BigDecimal fluctuationRate;
 
     @Schema(description = "누적 거래량", example = "2034590")
-    private Long accumulatedVolume;
+    private final Long accumulatedVolume;
 
-    public DynamicStockDataDto(StockDetail stockDetail) {
-        this.code = stockDetail.getStockCode();
-        this.currentPrice = stockDetail.getClosePrice();
-        this.fluctuationRate = stockDetail.getPriceRate();
-        this.accumulatedVolume = stockDetail.getVolume();
+    public static DynamicStockDataDto from(StockDetail stockDetail) {
+        return DynamicStockDataDto.builder()
+                .code(stockDetail.getStocks().getStockCode())
+                .currentPrice(stockDetail.getClosePrice())
+                .fluctuationRate(stockDetail.getPriceRate())
+                .accumulatedVolume(stockDetail.getVolume())
+                .build();
     }
 }

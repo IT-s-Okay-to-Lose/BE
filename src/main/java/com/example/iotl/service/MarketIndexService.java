@@ -4,11 +4,10 @@ import com.example.iotl.dto.marketindex.CurrentIndexResponseDto;
 import com.example.iotl.dto.marketindex.MarketIndexDto;
 import com.example.iotl.entity.MarketIndex;
 import com.example.iotl.repository.MarketIndexRepository;
+import com.example.iotl.service.stock.StockService;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;

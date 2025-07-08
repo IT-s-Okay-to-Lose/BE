@@ -3,27 +3,29 @@ package com.example.iotl.dto.stocks;
 import com.example.iotl.entity.StockDetail;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 // 디테일 페이지 종목 기본 정보 DTO
 @Getter
-@Setter
+@Builder
 @AllArgsConstructor
 public class MarketStockInfoDto {
 
     @Schema(description = "종목 로고 이미지 URL", example = "https://logo.clearbit.com/samsung.com")
-    private String imageUrl;
+    private final String imageUrl;
 
     @Schema(description = "종목 이름", example = "삼성전자")
-    private String name;
+    private final String name;
 
     @Schema(description = "종목 코드", example = "005930")
-    private String code;
+    private final String code;
 
-    public MarketStockInfoDto(StockDetail stockDetail) {
-        this.imageUrl = stockDetail.getStocks().getLogoUrl();
-        this.name = stockDetail.getStocks().getStockName();
-        this.code = stockDetail.getStockCode();
+    public static MarketStockInfoDto from(StockDetail stockDetail) {
+        return MarketStockInfoDto.builder()
+            .imageUrl(stockDetail.getStocks().getLogoUrl())
+            .name(stockDetail.getStocks().getStockName())
+            .code(stockDetail.getStocks().getStockCode())
+            .build();
     }
 }

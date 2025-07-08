@@ -2,9 +2,8 @@ package com.example.iotl.scheduler;
 
 import com.example.iotl.dto.stocks.CandleDataDto;
 import com.example.iotl.dto.stocks.MarketStockPriceInfoDto;
-import com.example.iotl.entity.StockDetail;
 import com.example.iotl.handler.ChartWebSocketHandler;
-import com.example.iotl.service.StockService;
+import com.example.iotl.service.stock.StockService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+
 @Component
 @Slf4j
 public class ChartScheduler {

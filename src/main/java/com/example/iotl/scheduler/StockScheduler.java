@@ -1,10 +1,9 @@
 package com.example.iotl.scheduler;
 
 import com.example.iotl.dto.stocks.DynamicStockDataDto;
-import com.example.iotl.entity.StockDetail;
 import com.example.iotl.handler.StockWebSocketHandler;
 import com.example.iotl.repository.StockInfoRepository;
-import com.example.iotl.service.StockService;
+import com.example.iotl.service.stock.StockService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

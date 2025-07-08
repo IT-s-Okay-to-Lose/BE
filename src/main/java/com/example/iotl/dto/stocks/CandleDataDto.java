@@ -27,19 +27,13 @@ public class CandleDataDto {
     @Schema(description = "종가", example = "60500")
     private final BigDecimal close;
 
-    public CandleDataDto(StockDetail stock) {
-        this.time = stock.getCreatedAt().toString(); // 필요시 포맷 변경 가능
-        this.open = stock.getOpenPrice();
-        this.high = stock.getHighPrice();
-        this.low = stock.getLowPrice();
-        this.close = stock.getClosePrice();
-    }
-
-    public CandleDataDto(String time, BigDecimal open, BigDecimal high, BigDecimal low, BigDecimal close) {
-        this.time = time;
-        this.open = open;
-        this.high = high;
-        this.low = low;
-        this.close = close;
+    public static CandleDataDto from(StockDetail stock) {
+        return CandleDataDto.builder()
+                .time(stock.getCreatedAt().toString()) // 필요시 포맷터 적용
+                .open(stock.getOpenPrice())
+                .high(stock.getHighPrice())
+                .low(stock.getLowPrice())
+                .close(stock.getClosePrice())
+                .build();
     }
 }

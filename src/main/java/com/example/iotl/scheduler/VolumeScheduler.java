@@ -3,7 +3,7 @@ package com.example.iotl.scheduler;
 import com.example.iotl.dto.stocks.VolumeDataDto;
 import com.example.iotl.entity.StockDetail;
 import com.example.iotl.handler.VolumeWebSocketHandler;
-import com.example.iotl.service.StockService;
+import com.example.iotl.service.stock.StockService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

@@ -2,7 +2,7 @@ package com.example.iotl.controller;
 
 import com.example.iotl.dto.stocks.*;
 import com.example.iotl.entity.StockDetail;
-import com.example.iotl.service.StockService;
+import com.example.iotl.service.stock.StockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
