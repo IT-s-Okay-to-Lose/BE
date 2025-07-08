@@ -17,9 +17,9 @@ public interface TradeRepository extends JpaRepository<Trade,Long> {
 
 
     @Query("SELECT t FROM Trade t " +
-        "WHERE t.order.user.userId = :userId " +
+        "WHERE t.order.user.username = :username " +
         "AND t.executedAt BETWEEN :start AND :end")
-    List<Trade> findTradesByUserAndDateRange(@Param("userId") Long userId,
+    List<Trade> findTradesByUserAndDateRange(@Param("username") String username,
         @Param("start") LocalDateTime start,
         @Param("end") LocalDateTime end);
 

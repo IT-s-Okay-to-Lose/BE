@@ -2,6 +2,7 @@ package com.example.iotl.service;
 
 import com.example.iotl.dto.security.OAuth2Response;
 import com.example.iotl.dto.UserDto;
+import com.example.iotl.entity.Accounts;
 import com.example.iotl.entity.User;
 import com.example.iotl.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -27,6 +28,13 @@ public class UserService {
             user.setName(oAuth2Response.getName());
             user.setEmail(oAuth2Response.getEmail());
             user.setRole("ROLE_USER");
+
+            //계좌 생성
+                Accounts account = new Accounts();
+            account.setUser(user); // 양방향 설정
+            account.setBalance(new java.math.BigDecimal("1000000")); // 100만원
+            user.setAccount(account); // 양방향 설정
+
         } else {
             user.setName(oAuth2Response.getName());
             user.setEmail(oAuth2Response.getEmail());

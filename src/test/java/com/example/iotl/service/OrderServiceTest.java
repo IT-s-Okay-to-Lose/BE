@@ -84,14 +84,15 @@ class OrderServiceTest {
     @DisplayName("보유수량 초과 매도주문 등록 시 예외 발생")
     void cannotPlaceSellOrderWithInsufficientHoldings() {
         OrderRequestDto requestDto = new OrderRequestDto();
-        requestDto.setUserId(seller.getUserId());
         requestDto.setStockCode(stock.getStockCode());
         requestDto.setOrderType(OrderType.SELL);
         requestDto.setPrice(new BigDecimal("1000"));
-        requestDto.setQuantity(2); // seller는 1주만 보유, 2주 매도주문
+        requestDto.setQuantity(2); // seller는 1주만 보유
+
+        String username = seller.getUsername(); // ✅ username 기반 호출
 
         assertThrows(IllegalStateException.class, () ->
-            orderService.placeOrder(requestDto)
+            orderService.placeOrder(username, requestDto)
         );
     }
 }

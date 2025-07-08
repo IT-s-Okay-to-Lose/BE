@@ -9,10 +9,10 @@ import java.util.List;
 
 
 public interface DashboardService {
-    UserInvestmentSummaryDto getInvestmentSummary(Long userId);
-    List<HoldingRatioDto> getHoldingRatio(Long userId);
-    RealizedProfitSummaryDto getRealizedProfitSummary(Long userId, int year, int month);
+    UserInvestmentSummaryDto getInvestmentSummary(String username);
+    List<HoldingRatioDto> getHoldingRatio(String username);
+    RealizedProfitSummaryDto getRealizedProfitSummary(String username, int year, int month);
 
-    List<RealizedProfitDetailDateDto> getRealizedProfitDetail(Long userId, Integer year, Integer month);
+    List<RealizedProfitDetailDateDto> getRealizedProfitDetail(String username, Integer year, Integer month);
 }
 

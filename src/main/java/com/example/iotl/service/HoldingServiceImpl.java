@@ -5,12 +5,12 @@ import com.example.iotl.entity.Holdings;
 import com.example.iotl.entity.StockDetail;
 import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.repository.StockDetailRepository;
-import com.example.iotl.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -18,12 +18,13 @@ public class HoldingServiceImpl implements HoldingService {
 
     private final HoldingsRepository holdingsRepository;
     private final StockDetailRepository stockDetailRepository;
-    private final UserRepository userRepository;
+
+
 
     @Override
-    public MyStockSummaryDto getMyStockSummary(Long userId, String stockCode) {
+    public MyStockSummaryDto getMyStockSummary(String userName, String stockCode) {
         Holdings h = holdingsRepository
-            .findByUser_UserIdAndStock_StockCode(userId, stockCode)
+            .findByUser_UsernameAndStock_StockCode(userName, stockCode)
             .orElseThrow(() -> new RuntimeException("보유 종목이 없습니다."));
 
         BigDecimal averagePrice = h.getAverageBuyPrice();
@@ -51,14 +52,5 @@ public class HoldingServiceImpl implements HoldingService {
             .expectedFee(fee)
             .totalProfit(profit)
             .build();
-    }
-
-    @Override
-    public MyStockSummaryDto getMyStockSummary(String userName, String stockCode) {
-        Long userId = Optional.ofNullable(userRepository.findByUsername(userName))
-            .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."))
-            .getUserId();
-
-        return getMyStockSummary(userId, stockCode);
     }
 }

@@ -31,17 +31,17 @@ public class DashboardServiceImpl implements DashboardService {
     private final TradeRepository tradeRepository;
 
     @Override
-    public UserInvestmentSummaryDto getInvestmentSummary(Long userId) {
+    public UserInvestmentSummaryDto getInvestmentSummary(String username) {
         // 1. 총 원금 계산
-        BigDecimal totalCash = orderRepository.findTotalBuyAmountByUserId(
-                userId,
+        BigDecimal totalCash = orderRepository.findTotalBuyAmountByUsername(
+                username,
                 Order.OrderType.BUY,
                 Order.OrderStatus.COMPLETED
         );
         if (totalCash == null) totalCash = BigDecimal.ZERO;
 
         // 2. 현재 평가 금액 계산
-        List<Holdings> holdings = holdingsRepository.findByUser_UserId(userId);
+        List<Holdings> holdings = holdingsRepository.findByUserName(username);
         BigDecimal evaluation = BigDecimal.ZERO;
 
         for (Holdings h : holdings) {
@@ -66,8 +66,8 @@ public class DashboardServiceImpl implements DashboardService {
                 Math.round(roi * 100.0) / 100.0  // 소수점 둘째 자리
         );
     }
-    public List<HoldingRatioDto> getHoldingRatio(Long userId) {
-        List<Holdings> holdings = holdingsRepository.findByUser_UserId(userId);
+    public List<HoldingRatioDto> getHoldingRatio(String username) {
+        List<Holdings> holdings = holdingsRepository.findByUserName(username);
 
         // 평가 금액 계산
         BigDecimal totalValue = BigDecimal.ZERO;
@@ -114,12 +114,12 @@ public class DashboardServiceImpl implements DashboardService {
         };
     }
 
-    public RealizedProfitSummaryDto getRealizedProfitSummary(Long userId, int year, int month) {
+    public RealizedProfitSummaryDto getRealizedProfitSummary(String username, int year, int month) {
         LocalDateTime start = LocalDateTime.of(year, month, 1, 0, 0);
         LocalDateTime end = start.withDayOfMonth(start.toLocalDate().lengthOfMonth())
                 .withHour(23).withMinute(59).withSecond(59);
 
-        List<Trade> trades = tradeRepository.findTradesByUserAndDateRange(userId, start, end);
+        List<Trade> trades = tradeRepository.findTradesByUserAndDateRange(username, start, end);
         BigDecimal totalProfit = BigDecimal.ZERO;
 
         for (Trade trade : trades) {
@@ -133,7 +133,7 @@ public class DashboardServiceImpl implements DashboardService {
             String stockCode = order.getStock().getStockCode(); // 이 줄 추가
             // ⭐ 핵심: 유저의 해당 종목 평균 매입가 조회
             Holdings h = holdingsRepository
-                    .findByUser_UserIdAndStock_StockCode(userId, stockCode)
+                    .findByUser_UsernameAndStock_StockCode(username, stockCode)
                     .orElse(null);
             BigDecimal avgBuyPrice = (h != null) ? h.getAverageBuyPrice() : BigDecimal.ZERO;
 
@@ -158,12 +158,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<RealizedProfitDetailDateDto> getRealizedProfitDetail(Long userId, Integer year, Integer month) {
+    public List<RealizedProfitDetailDateDto> getRealizedProfitDetail(String username, Integer year, Integer month) {
         LocalDateTime start = LocalDateTime.of(year, month, 1, 0, 0);
         LocalDateTime end = start.withDayOfMonth(start.toLocalDate().lengthOfMonth())
                 .withHour(23).withMinute(59).withSecond(59);
 
-        List<Trade> trades = tradeRepository.findTradesByUserAndDateRange(userId, start, end);
+        List<Trade> trades = tradeRepository.findTradesByUserAndDateRange(username, start, end);
 
         Map<String, List<RealizedProfitDetailDto>> groupedByDate = new TreeMap<>();
 
@@ -179,7 +179,7 @@ public class DashboardServiceImpl implements DashboardService {
             // ✅ 사용자 ID + 종목코드로 holdings 직접 조회
             String stockCode = order.getStock().getStockCode();
             Holdings h = holdingsRepository
-                    .findByUser_UserIdAndStock_StockCode(userId, stockCode)
+                    .findByUser_UsernameAndStock_StockCode(username, stockCode)
                     .orElse(null);
 
             BigDecimal avgBuyPrice = (h != null) ? h.getAverageBuyPrice() : BigDecimal.ZERO;

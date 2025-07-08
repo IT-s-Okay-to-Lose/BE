@@ -44,5 +44,13 @@ public class Accounts {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void setUser(User user) {
+        this.user = user;
+        if (user.getAccount() != this) {
+            user.setAccount(this);
+        }
+    }
+
+
 
 }
