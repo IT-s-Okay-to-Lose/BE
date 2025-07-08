@@ -19,4 +19,9 @@ public class TestController {
         repository.save(t);
         return "saved";
     }
+
+    @GetMapping
+    public String save() {
+        return "save_test";
+    }
 }
