@@ -62,6 +62,14 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Order> orders = new ArrayList<>();
 
+    public void setAccount(Accounts account) {
+        this.account = account;
+        if (account.getUser() != this) {
+            account.setUser(this);
+        }
+    }
+
+
 
 
 }
