@@ -24,7 +24,7 @@ public class HoldingServiceImpl implements HoldingService {
     @Override
     public MyStockSummaryDto getMyStockSummary(String userName, String stockCode) {
         Holdings h = holdingsRepository
-            .findByUser_UserNameAndStock_StockCode(userName, stockCode)
+            .findByUser_UsernameAndStock_StockCode(userName, stockCode)
             .orElseThrow(() -> new RuntimeException("보유 종목이 없습니다."));
 
         BigDecimal averagePrice = h.getAverageBuyPrice();
