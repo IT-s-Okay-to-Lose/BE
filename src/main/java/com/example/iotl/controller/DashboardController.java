@@ -36,9 +36,9 @@ public class DashboardController {
 
     @GetMapping("/summary")
     public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(
-            @Parameter(description = "사용자 ID", example = "1")
-            @RequestParam Long userId) {
-        return ResponseEntity.ok(dashboardService.getInvestmentSummary(userId));
+            @Parameter(description = "사용자 이름", example = "이혜원")
+            @RequestParam String username) {
+        return ResponseEntity.ok(dashboardService.getInvestmentSummary(username));
     }
     @Operation(
             summary = "도넛차트용 보유 종목 도넛 차트로 조회",
@@ -50,9 +50,9 @@ public class DashboardController {
     })
     @GetMapping("/holding-ratio")
     public List<HoldingRatioDto> getHoldingRatio(
-            @Parameter(description = "사용자 ID", example = "1")
-            @RequestParam Long userId) {
-        return dashboardService.getHoldingRatio(userId);
+            @Parameter(description = "사용자 이름", example = "username")
+            @RequestParam String username) {
+        return dashboardService.getHoldingRatio(username);
     }
 
     @Operation(
@@ -67,8 +67,8 @@ public class DashboardController {
     })
     @GetMapping("/realized-summary")
     public ResponseEntity<RealizedProfitSummaryDto> getRealizedProfitSummary(
-            @Parameter(description = "사용자 ID", example = "1")
-            @RequestParam Long userId,
+            @Parameter(description = "사용자 이름", example = "이혜원")
+            @RequestParam String username,
 
             @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
@@ -81,7 +81,7 @@ public class DashboardController {
             year = now.getYear();
             month = now.getMonthValue();
         }
-        return ResponseEntity.ok(dashboardService.getRealizedProfitSummary(userId, year, month));
+        return ResponseEntity.ok(dashboardService.getRealizedProfitSummary(username, year, month));
     }
 
     @Operation(
@@ -94,8 +94,8 @@ public class DashboardController {
     })
     @GetMapping("/realized-detail")
     public ResponseEntity<List<RealizedProfitDetailDateDto>> getRealizedProfitDetail(
-            @Parameter(description = "사용자 ID", example = "1")
-            @RequestParam Long userId,
+            @Parameter(description = "사용자 이름", example = "이혜원")
+            @RequestParam String username,
 
             @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
@@ -108,6 +108,6 @@ public class DashboardController {
             year = now.getYear();
             month = now.getMonthValue();
         }
-        return ResponseEntity.ok(dashboardService.getRealizedProfitDetail(userId, year, month));
+        return ResponseEntity.ok(dashboardService.getRealizedProfitDetail(username, year, month));
     }
 }

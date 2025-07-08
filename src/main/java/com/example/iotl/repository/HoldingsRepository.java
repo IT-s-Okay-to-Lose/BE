@@ -15,8 +15,8 @@ import org.springframework.data.repository.query.Param;
 
 
 public interface HoldingsRepository extends JpaRepository<Holdings,Long> {
-    List<Holdings> findByUser_UserId(Long userId);
-    Optional<Holdings> findByUser_UserIdAndStock_StockCode(Long userId, String stockCode);
+    List<Holdings> findByUserName(String username);
+    Optional<Holdings> findByUser_UserIdAndStock_StockCode(String username, String stockCode);
     Optional<Holdings> findByUserAndStock(User user, Stocks stock);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

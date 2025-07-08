@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class OrderRequestDto {
 
-    private Long userId;
+    private String username;
     private String stockCode;
     private int quantity;
     private OrderType orderType;
