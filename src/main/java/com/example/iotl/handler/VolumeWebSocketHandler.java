@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class VolumeWebSocketHandler extends TextWebSocketHandler {
 
-    private boolean marketOpen = false;
+    private boolean marketOpen = true;
 
     public void setMarketOpen(boolean open) {
         this.marketOpen = open;

@@ -19,7 +19,7 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
     private final Map<String, ChartRequest> sessionRequestMap = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private boolean marketOpen = false;
+    private boolean marketOpen = true;
 
     public void setMarketOpen(boolean open) {
         this.marketOpen = open;
@@ -66,7 +66,6 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
     public Map<String, ChartRequest> getSessionRequestMap() {
         return sessionRequestMap;
     }
-    // ✅ 내부 DTO 형태 정의
     public record ChartRequest(List<String> codes, String interval) {}
 
     // 세션 종료 하기

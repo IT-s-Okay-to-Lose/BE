@@ -75,7 +75,7 @@ public class StockScheduler {
 
                 updatedList.add(dto);
             } catch (Exception e) {
-//                log.error("❌ 실시간 주식 데이터 조회 실패: {}", e.getMessage());
+                 log.error("❌ 실시간 주식 데이터 조회 실패: {}", e.getMessage());
             }
         }
         if (!updatedList.isEmpty()) {
@@ -84,7 +84,7 @@ public class StockScheduler {
                 stockWebSocketHandler.broadcast(json);
 //                log.info("📡 실시간 데이터 {}건 전송", updatedList.size());
             } catch (Exception e) {
-//                log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
+                    log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
             }
         }
         currentIndex = (currentIndex + BATCH_SIZE) % totalStocks;
