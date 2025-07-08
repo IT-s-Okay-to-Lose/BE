@@ -133,7 +133,7 @@ public class DashboardServiceImpl implements DashboardService {
             String stockCode = order.getStock().getStockCode(); // 이 줄 추가
             // ⭐ 핵심: 유저의 해당 종목 평균 매입가 조회
             Holdings h = holdingsRepository
-                    .findByUser_UserIdAndStock_StockCode(username, stockCode)
+                    .findByUser_UsernameAndStock_StockCode(username, stockCode)
                     .orElse(null);
             BigDecimal avgBuyPrice = (h != null) ? h.getAverageBuyPrice() : BigDecimal.ZERO;
 
@@ -179,7 +179,7 @@ public class DashboardServiceImpl implements DashboardService {
             // ✅ 사용자 ID + 종목코드로 holdings 직접 조회
             String stockCode = order.getStock().getStockCode();
             Holdings h = holdingsRepository
-                    .findByUser_UserIdAndStock_StockCode(username, stockCode)
+                    .findByUser_UsernameAndStock_StockCode(username, stockCode)
                     .orElse(null);
 
             BigDecimal avgBuyPrice = (h != null) ? h.getAverageBuyPrice() : BigDecimal.ZERO;

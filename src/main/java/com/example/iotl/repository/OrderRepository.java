@@ -49,7 +49,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         );
 
 
-        List<Order> findByUser_UserIdAndOrderTypeAndStatus(String username, Order.OrderType orderType,
+        List<Order> findByUser_UsernameAndOrderTypeAndStatus(String username, Order.OrderType orderType,
             Order.OrderStatus status);
 
 
