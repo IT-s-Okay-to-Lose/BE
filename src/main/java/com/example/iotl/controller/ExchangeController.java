@@ -1,12 +1,12 @@
 package com.example.iotl.controller;
 
 import com.example.iotl.dto.exchange.ExchangeSummaryDto;
-import com.example.iotl.service.ExchangeService;
+import com.example.iotl.service.exchange.ExchangeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/exchange")
@@ -17,20 +17,15 @@ public class ExchangeController {
 
     @GetMapping
     public ResponseEntity<ExchangeSummaryDto> getExchangeSummary() {
-        try {
-            ExchangeSummaryDto dto = exchangeService.getTodayExchangeSummary();
-            return ResponseEntity.ok(dto);
-        } catch (RuntimeException e) {
-            // 오늘 데이터가 없으면 → 저장 시도
-            exchangeService.saveTodayExchangeIfAbsent();
+        LocalDate today = LocalDate.now();
 
-            try {
-                // 다시 조회
-                ExchangeSummaryDto dto = exchangeService.getTodayExchangeSummary();
-                return ResponseEntity.ok(dto);
-            } catch (RuntimeException ex) {
-                return ResponseEntity.status(404).body(null);
-            }
-        }
+        return exchangeService.getExchangeSummary(today)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> {
+                    boolean saved = exchangeService.saveTodayExchangeIfAbsent();
+                    return exchangeService.getExchangeSummary(today)
+                            .map(ResponseEntity::ok)
+                            .orElse(ResponseEntity.notFound().build());
+                });
     }
 }

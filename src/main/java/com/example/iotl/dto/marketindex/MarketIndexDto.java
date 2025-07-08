@@ -5,11 +5,23 @@ import lombok.*;
 
 
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MarketIndexDto {
-    private String indexName;      // ex: 코스피
-    private Double currentValue;   // bstp_nmix_prpr
-    private Double changeAmount;   // bstp_nmix_prdy_vrss
-    private Double changeRate;     // bstp_nmix_prdy_ctrt
-    private String changeDirection;// prdy_vrss_sign → "▲", "▼"
+    private String indexName;
+    private Double currentValue;
+    private Double changeAmount;
+    private Double changeRate;
+    private String changeDirection;
+
+    public static MarketIndexDto fromEntity(MarketIndex entity) {
+        return MarketIndexDto.builder()
+                .indexName(entity.getIndexName())
+                .currentValue(entity.getCurrentValue())
+                .changeAmount(entity.getChangeAmount())
+                .changeRate(entity.getChangeRate())
+                .changeDirection(entity.getChangeDirection())
+                .build();
+    }
 }
