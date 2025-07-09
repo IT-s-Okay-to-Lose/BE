@@ -31,17 +31,23 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
 
         String uri = request.getRequestURI();
         log.info("Requested URI: {}", uri);
         log.info("Permit all paths: {}", permitAllPaths);
 
-        // ✅ WebSocket 요청은 무조건 허용
+        //  WebSocket 요청은 무조건 허용
         if (uri.startsWith("/ws/")) {
             filterChain.doFilter(request, response);
             return;
         }
+
+        // //모든 요청 허용 -> 실무에서 삭제
+        // if(uri.startsWith("/")) {
+        //     filterChain.doFilter(request, response);
+        //     return;
+        // }
 
         if (isPermitAllPath(uri)) {
             filterChain.doFilter(request, response);
@@ -92,7 +98,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         CustomOAuth2User customUserDetails = new CustomOAuth2User(userDto);
         Authentication authToken = new UsernamePasswordAuthenticationToken(
-                customUserDetails, null, customUserDetails.getAuthorities()
+            customUserDetails, null, customUserDetails.getAuthorities()
         );
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
@@ -103,12 +109,12 @@ public class JWTFilter extends OncePerRequestFilter {
     // 설정한 api 경로 허용
     private boolean isPermitAllPath(String uri) {
         return permitAllPaths.stream()
-                .anyMatch(path -> {
-                    if (path.endsWith("/")) {
-                        return uri.startsWith(path); // 경로 접두사 매칭
-                    } else {
-                        return uri.equals(path); // 정확히 일치
-                    }
-                });
+            .anyMatch(path -> {
+                if (path.endsWith("/")) {
+                    return uri.startsWith(path); // 경로 접두사 매칭
+                } else {
+                    return uri.equals(path); // 정확히 일치
+                }
+            });
     }
 }
