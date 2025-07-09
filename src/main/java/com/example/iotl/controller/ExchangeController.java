@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/exchange")
+@RequestMapping("/auth/api/exchange")
 @RequiredArgsConstructor
 public class ExchangeController {
 
