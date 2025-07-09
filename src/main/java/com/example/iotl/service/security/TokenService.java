@@ -69,50 +69,50 @@ public class TokenService {
         return tokenMap;
     }
 
-    //배포용
-    //    public ResponseCookie createAccessCookie(String value) {
-    //        return ResponseCookie.from("access", value)
-    //                .maxAge(7 * 24 * 60 * 60) // 7일
-    //                .httpOnly(false) // ✅ JS에서 접근 가능
-    //                .secure(true)   // 로컬 개발 시 false
-    //                .sameSite("None")
-    //                .path("/")
-    // //                .domain("iotl.store")
-    //                .build();
-    //    }
+        //배포용
+       public ResponseCookie createAccessCookie(String value) {
+           return ResponseCookie.from("access", value)
+                   .maxAge(7 * 24 * 60 * 60) // 7일
+                   .httpOnly(false) // ✅ JS에서 접근 가능
+                   .secure(true)   // 로컬 개발 시 false
+                   .sameSite("None")
+                   .path("/")
+    //                .domain("iotl.store")
+                   .build();
+       }
+
+       public ResponseCookie createRefreshCookie(String value) {
+           return ResponseCookie.from("refresh", value)
+                   .maxAge(7 * 24 * 60 * 60) // 7일
+                   .httpOnly(true)          // ✅ JS에서 접근 불가
+                   .secure(true)           // 로컬 개발 시 false
+                   .sameSite("None")
+                   .path("/")
+    //                .domain("iotl.store")
+                   .build();
+       }
+
+    // //로컬 테스트용
+    // public ResponseCookie createAccessCookie(String value) {
+    //     return ResponseCookie.from("access", value)
+    //         .maxAge(7 * 24 * 60 * 60) // 7일
+    //         .httpOnly(false) // ✅ JS에서 접근 가능
+    //         .secure(false)   // 로컬 개발 시 false
+    //         .sameSite("Lax")
+    //         .path("/")
+    //         //                .domain("iotl.store")
+    //         .build();
+    // }
     //
-    //    public ResponseCookie createRefreshCookie(String value) {
-    //        return ResponseCookie.from("refresh", value)
-    //                .maxAge(7 * 24 * 60 * 60) // 7일
-    //                .httpOnly(true)          // ✅ JS에서 접근 불가
-    //                .secure(true)           // 로컬 개발 시 false
-    //                .sameSite("None")
-    //                .path("/")
-    // //                .domain("iotl.store")
-    //                .build();
-    //    }
-
-    //로컬 테스트용
-    public ResponseCookie createAccessCookie(String value) {
-        return ResponseCookie.from("access", value)
-            .maxAge(7 * 24 * 60 * 60) // 7일
-            .httpOnly(false) // ✅ JS에서 접근 가능
-            .secure(false)   // 로컬 개발 시 false
-            .sameSite("Lax")
-            .path("/")
-            //                .domain("iotl.store")
-            .build();
-    }
-
-    public ResponseCookie createRefreshCookie(String value) {
-        return ResponseCookie.from("refresh", value)
-            .maxAge(7 * 24 * 60 * 60) // 7일
-            .httpOnly(false)          // ✅ JS에서 접근 불가
-            .secure(false)           // 로컬 개발 시 false
-            .sameSite("Lax")
-            .path("/")
-            //                .domain("iotl.store")
-            .build();
-    }
+    // public ResponseCookie createRefreshCookie(String value) {
+    //     return ResponseCookie.from("refresh", value)
+    //         .maxAge(7 * 24 * 60 * 60) // 7일
+    //         .httpOnly(false)          // ✅ JS에서 접근 불가
+    //         .secure(false)           // 로컬 개발 시 false
+    //         .sameSite("Lax")
+    //         .path("/")
+    //         //                .domain("iotl.store")
+    //         .build();
+    // }
 }
 
