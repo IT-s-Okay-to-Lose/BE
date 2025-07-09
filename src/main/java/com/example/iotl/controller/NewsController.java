@@ -14,8 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @CrossOrigin(origins = "*") // 또는 허용할 도메인만 지정
 @Tag(name = "News API", description = "뉴스 관련 API (Naver News OpenAPI 기반)")
 @RestController
-// @RequestMapping("/auth/api/v1/news")
-@RequestMapping("/api/v1/news")
+@RequestMapping("/auth/api/v1/news")
 @RequiredArgsConstructor
 public class NewsController {
 
