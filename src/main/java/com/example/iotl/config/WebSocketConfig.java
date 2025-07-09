@@ -27,14 +27,14 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         // 메인 페이지용 WebSocket
-        registry.addHandler(stockWebSocketHandler, "/ws/stock")
+        registry.addHandler(stockWebSocketHandler, "/auth/ws/stock")
                 .setAllowedOrigins("*");
 
         // 차트 페이지용 WebSocket
-        registry.addHandler(chartWebSocketHandler, "/ws/chart")
+        registry.addHandler(chartWebSocketHandler, "/auth/ws/chart")
                 .setAllowedOrigins("*");
 
-        registry.addHandler(volumeWebSocketHandler, "/ws/volume")
+        registry.addHandler(volumeWebSocketHandler, "/auth/ws/volume")
                 .setAllowedOrigins("*");
     }
 }

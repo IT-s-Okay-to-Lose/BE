@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/stocks")
+@RequestMapping("/auth/api/stocks")
 @Tag(name = "Stocks", description = "주식 관련 API")
 public class StockController {
 
