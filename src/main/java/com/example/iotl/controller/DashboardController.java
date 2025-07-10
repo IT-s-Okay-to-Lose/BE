@@ -39,7 +39,19 @@ public class DashboardController {
     public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(
             Authentication authentication
     ) {
-        String username = authentication.getName();
+        if (authentication == null || !authentication.isAuthenticated()) {  // 인증이 안 된 경우 예외 처리
+            throw new RuntimeException("인증 실패");
+        }
+
+        Object principal = authentication.getPrincipal();  // username 추출
+        String username;
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+            username = userDetails.getUsername();
+        } else {
+            username = principal.toString(); // ex: kakao 4312309153
+        }
+        username = username.trim(); // ✅ 여기서 공백 제거 확실히 하기!
         return ResponseEntity.ok(dashboardService.getInvestmentSummary(username));
     }
     @Operation(

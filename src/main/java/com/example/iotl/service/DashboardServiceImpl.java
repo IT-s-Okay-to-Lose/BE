@@ -5,14 +5,9 @@ import com.example.iotl.dto.holding.HoldingRatioDto;
 import com.example.iotl.dto.realized.RealizedProfitDetailDateDto;
 import com.example.iotl.dto.realized.RealizedProfitDetailDto;
 import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
-import com.example.iotl.entity.Holdings;
-import com.example.iotl.entity.Order;
-import com.example.iotl.entity.StockDetail;
-import com.example.iotl.entity.Trade;
-import com.example.iotl.repository.HoldingsRepository;
-import com.example.iotl.repository.OrderRepository;
-import com.example.iotl.repository.StockDetailRepository;
-import com.example.iotl.repository.TradeRepository;
+import com.example.iotl.entity.*;
+import com.example.iotl.jwt.AuthenticationUtils;
+import com.example.iotl.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,19 +24,27 @@ public class DashboardServiceImpl implements DashboardService {
     private final HoldingsRepository holdingsRepository;
     private final StockDetailRepository stockDetailRepository;
     private final TradeRepository tradeRepository;
-
+    private final UserRepository userRepository;
     @Override
-    public UserInvestmentSummaryDto getInvestmentSummary(String username) {
+    public UserInvestmentSummaryDto getInvestmentSummary(String ignored) {
+        String username = AuthenticationUtils.getCurrentUsername().trim();
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("해당 유저를 찾을 수 없음: " + username);
+        }
+
         // 1. 총 원금 계산
-        BigDecimal totalCash = orderRepository.findTotalBuyAmountByUsername(
-                username,
+        BigDecimal totalCash = orderRepository.findTotalBuyAmountByUser(
+                user,
                 Order.OrderType.BUY,
                 Order.OrderStatus.COMPLETED
         );
+
         if (totalCash == null) totalCash = BigDecimal.ZERO;
 
+
         // 2. 현재 평가 금액 계산
-        List<Holdings> holdings = holdingsRepository. findByUser_Username(username);
+        List<Holdings> holdings = holdingsRepository. findByUser_username(username);
         BigDecimal evaluation = BigDecimal.ZERO;
 
         for (Holdings h : holdings) {
@@ -67,7 +70,7 @@ public class DashboardServiceImpl implements DashboardService {
         );
     }
     public List<HoldingRatioDto> getHoldingRatio(String username) {
-        List<Holdings> holdings = holdingsRepository. findByUser_Username(username);
+        List<Holdings> holdings = holdingsRepository. findByUser_username(username);
 
         // 평가 금액 계산
         BigDecimal totalValue = BigDecimal.ZERO;
