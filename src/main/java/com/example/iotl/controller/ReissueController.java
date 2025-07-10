@@ -69,7 +69,7 @@ public class ReissueController {
 //    }
 //}
 
-    @PostMapping("/reissue")
+    @PostMapping("/auth/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         String refresh = null;
         Cookie[] cookies = request.getCookies();
@@ -89,7 +89,7 @@ public class ReissueController {
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
-            return ResponseEntity.badRequest().body("refresh token expired");
+            return ResponseEntity.badRequest().body("refresh token expired - 다시 로그인해주세요");
         }
 
         if (!"refresh".equals(jwtUtil.getCategory(refresh))) {
