@@ -4,6 +4,9 @@ import com.example.iotl.dto.dashboard.UserInvestmentSummaryDto;
 import com.example.iotl.dto.holding.HoldingRatioDto;
 import com.example.iotl.dto.realized.RealizedProfitDetailDateDto;
 import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
+import com.example.iotl.dto.security.CustomOAuth2User;
+import com.example.iotl.entity.Holdings;
+import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -25,6 +29,24 @@ import java.util.List;
 public class DashboardController {
 
     private final DashboardService dashboardService;
+    private final HoldingsRepository holdingsRepository;
+    private String extractUsername(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("인증 실패");
+        }
+
+        Object principal = authentication.getPrincipal();
+        String username;
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+            username = userDetails.getUsername();
+        } else if (principal instanceof CustomOAuth2User customUser) {
+            return customUser.getUsername(); // 커스텀 구현에 따라 다를 수 있음
+        } else {
+            throw new RuntimeException("알 수 없는 사용자 정보");
+        }
+        return username.trim();
+    }
     @Operation(
             summary = "총 투자 요약",
             description = "총 투자 요약과 ROI를 보여줍니다"
@@ -35,9 +57,8 @@ public class DashboardController {
     })
 
     @GetMapping("/summary")
-    public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(
-            @Parameter(description = "사용자 이름", example = "이혜원")
-            @RequestParam String username) {
+    public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(Authentication authentication){
+        String username = extractUsername(authentication);
         return ResponseEntity.ok(dashboardService.getInvestmentSummary(username));
     }
     @Operation(
@@ -49,9 +70,8 @@ public class DashboardController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
     @GetMapping("/holding-ratio")
-    public List<HoldingRatioDto> getHoldingRatio(
-            @Parameter(description = "사용자 이름", example = "username")
-            @RequestParam String username) {
+    public List<HoldingRatioDto> getHoldingRatio(Authentication authentication){
+        String username = extractUsername(authentication);
         return dashboardService.getHoldingRatio(username);
     }
 
@@ -67,15 +87,14 @@ public class DashboardController {
     })
     @GetMapping("/realized-summary")
     public ResponseEntity<RealizedProfitSummaryDto> getRealizedProfitSummary(
-            @Parameter(description = "사용자 이름", example = "이혜원")
-            @RequestParam String username,
-
+            Authentication authentication,
             @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
 
             @Parameter(description = "월", example = "6")
             @RequestParam(required = false) Integer month
     ) {
+        String username = extractUsername(authentication);
         if (year == null || month == null) {
             LocalDateTime now = LocalDateTime.now();
             year = now.getYear();
@@ -94,8 +113,7 @@ public class DashboardController {
     })
     @GetMapping("/realized-detail")
     public ResponseEntity<List<RealizedProfitDetailDateDto>> getRealizedProfitDetail(
-            @Parameter(description = "사용자 이름", example = "이혜원")
-            @RequestParam String username,
+            Authentication authentication,
 
             @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
@@ -103,11 +121,16 @@ public class DashboardController {
             @Parameter(description = "월", example = "6")
             @RequestParam(required = false) Integer month
     ) {
+        String username = extractUsername(authentication);
         if (year == null || month == null) {
             LocalDateTime now = LocalDateTime.now();
             year = now.getYear();
             month = now.getMonthValue();
         }
+        System.out.println("조회하려는 username: [" + username + "]");
+        List<Holdings> holdings = holdingsRepository.findByUser_username(username);
+        System.out.println("조회된 holdings 수: " + holdings.size());
+
         return ResponseEntity.ok(dashboardService.getRealizedProfitDetail(username, year, month));
     }
 }
