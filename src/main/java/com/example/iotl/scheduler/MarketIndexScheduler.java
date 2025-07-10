@@ -1,6 +1,6 @@
 package com.example.iotl.scheduler;
 
-import com.example.iotl.service.MarketIndexService;
+import com.example.iotl.service.marketIndex.MarketIndexService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,15 +13,23 @@ public class MarketIndexScheduler {
 
     private final MarketIndexService marketIndexService;
 
-    // 매일 아침 8시마다 저장
-    @Scheduled(cron = "0 0 8 * * ?")// 매일 08시 50분에 불러와서 하루 환율 저장해서 비교하기 위해서 넣음 시간은 정하면 될듯!
+    // 매일 아침 8시 저장
+    @Scheduled(cron = "0 0 8 * * ?") // 매일 08:00
     public void fetchMarketIndices() {
+        saveMarketIndexWithLog("KOSPI");
+        saveMarketIndexWithLog("KOSDAQ");
+    }
+
+    private void saveMarketIndexWithLog(String marketType) {
         try {
-            marketIndexService.saveMarketIndex("KOSPI");
-            marketIndexService.saveMarketIndex("KOSDAQ");
-            log.info("Market indices saved successfully.");
+            boolean saved = marketIndexService.saveIfAbsent(marketType);
+            if (saved) {
+                log.info("[✅] {} 지수 저장 완료", marketType);
+            } else {
+                log.info("[🔁] {} 지수는 이미 저장되어 있음", marketType);
+            }
         } catch (Exception e) {
-            log.error("Market indices save failed.", e);
+            log.error("[❌] {} 지수 저장 실패: {}", marketType, e.getMessage(), e);
         }
     }
 }

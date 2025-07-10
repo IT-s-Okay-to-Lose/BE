@@ -41,7 +41,7 @@ public class DashboardServiceImpl implements DashboardService {
         if (totalCash == null) totalCash = BigDecimal.ZERO;
 
         // 2. 현재 평가 금액 계산
-        List<Holdings> holdings = holdingsRepository.findByUserName(username);
+        List<Holdings> holdings = holdingsRepository. findByUser_Username(username);
         BigDecimal evaluation = BigDecimal.ZERO;
 
         for (Holdings h : holdings) {
@@ -67,7 +67,7 @@ public class DashboardServiceImpl implements DashboardService {
         );
     }
     public List<HoldingRatioDto> getHoldingRatio(String username) {
-        List<Holdings> holdings = holdingsRepository.findByUserName(username);
+        List<Holdings> holdings = holdingsRepository. findByUser_Username(username);
 
         // 평가 금액 계산
         BigDecimal totalValue = BigDecimal.ZERO;

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -36,8 +37,9 @@ public class DashboardController {
 
     @GetMapping("/summary")
     public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(
-            @Parameter(description = "사용자 이름", example = "이혜원")
-            @RequestParam String username) {
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
         return ResponseEntity.ok(dashboardService.getInvestmentSummary(username));
     }
     @Operation(

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -101,20 +102,19 @@ class TradeServiceConcurrencyTest {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
         holdingsRepository.deleteAll();
-        stockInfoRepository.deleteAll();
+        //stockInfoRepository.deleteAll();
         accountsRepository.deleteAll();
         userRepository.deleteAll();
     }
 
 
     @Test
-    @DisplayName("동시에 여러 번 매도/매수 매칭 해도 동시성 문제 발생하지 않는다.")
+    @DisplayName("동시에 여러 번 매도/매수 매칭 해도 동시성 문제 발생하지 않는다 - 성능 측정 포함")
     void concurrentBuySellMatchTest() throws InterruptedException {
         int threadCount = 50;
         ExecutorService executorService = Executors.newFixedThreadPool(10);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        // 매도/매수 주문 각각 50개 생성
         List<Order> sellOrders = new ArrayList<>();
         List<Order> buyOrders = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {
@@ -139,15 +139,20 @@ class TradeServiceConcurrencyTest {
             buyOrders.add(buyOrder);
         }
 
-        // 각 쌍별로 trade 수행 (동시성!)
+        // 성능 측정용
+        long startTime = System.currentTimeMillis();
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
         for (int i = 0; i < threadCount; i++) {
             Order sellOrder = sellOrders.get(i);
             Order buyOrder = buyOrders.get(i);
             executorService.submit(() -> {
                 try {
                     tradeService.trade(buyOrder, sellOrder);
+                    successCount.incrementAndGet();
                 } catch (Exception e) {
-                    // 무시(테스트 실패 시 로깅 가능)
+                    failCount.incrementAndGet();
                 } finally {
                     latch.countDown();
                 }
@@ -155,13 +160,20 @@ class TradeServiceConcurrencyTest {
         }
 
         latch.await();
-        Holdings holdings = holdingsRepository.findByUserAndStock(seller, stock).orElse(null);
+        long endTime = System.currentTimeMillis();
 
+        // 결과 출력
+        System.out.println("==========================================");
+        System.out.println("✅ 성공한 거래 수 = " + successCount.get());
+        System.out.println("❌ 실패한 거래 수 = " + failCount.get());
+        System.out.println("⏱️ 총 수행 시간(ms) = " + (endTime - startTime));
+        System.out.println("==========================================");
+
+        // 정합성 검증
+        Holdings holdings = holdingsRepository.findByUserAndStock(seller, stock).orElse(null);
         if (holdings == null) {
-            System.out.println("최종 SELLER 보유 수량 = 0 (row 없음)");
-            assertThat(0).isEqualTo(0); // 허용
+            assertThat(0).isEqualTo(0);
         } else {
-            System.out.println("최종 SELLER 보유 수량 = " + holdings.getQuantity());
             assertThat(holdings.getQuantity()).isGreaterThanOrEqualTo(0);
         }
     }
