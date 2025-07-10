@@ -34,18 +34,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserAndStock_StockCode(User user, String stockCode);
 
-    //의심 
 
         // 원금 (totalCash) = BUY + COMPLETED 주문의 quantity * price 총합
         @Query("SELECT SUM(o.price * o.quantity) " +
-            "FROM Order o " +
-            "WHERE o.user.username = :username " +
-            "AND o.orderType = :orderType " +
-            "AND o.status = :status")
-        BigDecimal findTotalBuyAmountByUsername(
-            @Param("username") String username,
-            @Param("orderType") Order.OrderType orderType,
-            @Param("status") Order.OrderStatus status
+                "FROM Order o " +
+                "WHERE o.user = :user " +
+                "AND o.orderType = :orderType " +
+                "AND o.status = :status")
+        BigDecimal findTotalBuyAmountByUser(
+                @Param("user") User user,
+                @Param("orderType") Order.OrderType orderType,
+                @Param("status") Order.OrderStatus status
         );
 
 
