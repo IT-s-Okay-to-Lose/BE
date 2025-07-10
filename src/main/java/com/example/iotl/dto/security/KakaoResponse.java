@@ -35,4 +35,11 @@ public class KakaoResponse implements OAuth2Response {
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
         return profile.get("nickname").toString();
     }
+
+    @Override
+    public String getProfileImage() {
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attribute.get("kakao_account");
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        return profile.get("profile_image_url").toString();
+    }
 }

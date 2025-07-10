@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -106,15 +107,20 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
 
-    // 설정한 api 경로 허용
+    // // 설정한 api 경로 허용
+    // private boolean isPermitAllPath(String uri) {
+    //     return permitAllPaths.stream()
+    //         .anyMatch(path -> {
+    //             if (path.endsWith("/")) {
+    //                 return uri.startsWith(path); // 경로 접두사 매칭
+    //             } else {
+    //                 return uri.equals(path); // 정확히 일치
+    //             }
+    //         });
+    // }
+
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private boolean isPermitAllPath(String uri) {
-        return permitAllPaths.stream()
-            .anyMatch(path -> {
-                if (path.endsWith("/")) {
-                    return uri.startsWith(path); // 경로 접두사 매칭
-                } else {
-                    return uri.equals(path); // 정확히 일치
-                }
-            });
+        return permitAllPaths.stream().anyMatch(path -> pathMatcher.match(path, uri));
     }
 }

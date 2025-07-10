@@ -27,7 +27,9 @@ public class UserService {
             user.setUsername(username);
             user.setName(oAuth2Response.getName());
             user.setEmail(oAuth2Response.getEmail());
+            user.setProfileImage(oAuth2Response.getProfileImage());
             user.setRole("ROLE_USER");
+
 
             //계좌 생성
                 Accounts account = new Accounts();
@@ -38,6 +40,7 @@ public class UserService {
         } else {
             user.setName(oAuth2Response.getName());
             user.setEmail(oAuth2Response.getEmail());
+            user.setProfileImage(oAuth2Response.getProfileImage());
         }
 
         userRepository.save(user);
@@ -47,6 +50,7 @@ public class UserService {
         dto.setUsername(user.getUsername());
         dto.setName(user.getName());
         dto.setRole(user.getRole());
+        dto.setProfileImageUrl(user.getProfileImage());
 
         return dto;
     }

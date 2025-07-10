@@ -30,6 +30,9 @@ public class User {
 
     private String name;
 
+    @Column(name = "profile_image")
+    private String profileImage;
+
     @Column(unique = true)
     private String email;
 

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.iotl.dto.UserInfoDto;
 import com.example.iotl.dto.security.CustomOAuth2User;
+import com.example.iotl.jwt.AuthenticationUtils;
 import com.example.iotl.service.security.CustomOAuth2UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,8 @@ public class UserController {
 	@GetMapping("/userinfo")
 	public ResponseEntity<?> getUserInfo() {
 		try {
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			CustomOAuth2User userDetails = (CustomOAuth2User) authentication.getPrincipal();
-
-			String username = userDetails.getUsername();
-			UserInfoDto userInfo = customOAuth2UserService.getNameAndCreatedAt(username);
+			String username = AuthenticationUtils.getCurrentUsername();
+			UserInfoDto userInfo = customOAuth2UserService.getBasicUserInfo(username);
 			return ResponseEntity.ok(userInfo);
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.status(404).body(e.getMessage());
