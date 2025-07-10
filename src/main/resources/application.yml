@@ -119,6 +119,9 @@ sentry:
 permit-all-paths:
   paths:
     - /auth/**
+    - /swagger-ui/**
+    - /swagger-ui.html
+    - /v3/api-docs/**
 #    - /**
 #    - /login
 #    - /login/oauth2
