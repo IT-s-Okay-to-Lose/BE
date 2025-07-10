@@ -100,10 +100,6 @@ public class DashboardController {
             year = now.getYear();
             month = now.getMonthValue();
         }
-        System.out.println("조회하려는 username: [" + username + "]");
-        List<Holdings> holdings = holdingsRepository.findByUser_username(username);
-        System.out.println("조회된 holdings 수: " + holdings.size());
-
         return ResponseEntity.ok(dashboardService.getRealizedProfitSummary(username, year, month));
     }
 
@@ -117,8 +113,7 @@ public class DashboardController {
     })
     @GetMapping("/realized-detail")
     public ResponseEntity<List<RealizedProfitDetailDateDto>> getRealizedProfitDetail(
-            @Parameter(description = "사용자 이름", example = "이혜원")
-            @RequestParam String username,
+            Authentication authentication,
 
             @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
@@ -126,11 +121,16 @@ public class DashboardController {
             @Parameter(description = "월", example = "6")
             @RequestParam(required = false) Integer month
     ) {
+        String username = extractUsername(authentication);
         if (year == null || month == null) {
             LocalDateTime now = LocalDateTime.now();
             year = now.getYear();
             month = now.getMonthValue();
         }
+        System.out.println("조회하려는 username: [" + username + "]");
+        List<Holdings> holdings = holdingsRepository.findByUser_username(username);
+        System.out.println("조회된 holdings 수: " + holdings.size());
+
         return ResponseEntity.ok(dashboardService.getRealizedProfitDetail(username, year, month));
     }
 }
