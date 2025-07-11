@@ -46,21 +46,24 @@ class OrderServiceTest {
     void setUp() {
         // SELLER 생성
         seller = userRepository.save(User.builder()
-            .username("SELLER" + System.nanoTime())
+            .username("SELLER" + System.nanoTime()) // OAuth2 기준 username
             .name("seller")
             .role("USER")
             .email("seller" + System.currentTimeMillis() + "@test.com")
             .build());
+
         Accounts sellerAcc = Accounts.builder()
             .user(seller)
             .balance(new BigDecimal("10000"))
             .build();
         accountsRepository.save(sellerAcc);
         seller.setAccount(sellerAcc);
-        userRepository.save(seller);
+        userRepository.save(seller); // seller에 계좌 연동 저장
 
         // 주식 생성
-        stock = stockInfoRepository.save(Stocks.builder().stockCode("A001").build());
+        stock = stockInfoRepository.save(Stocks.builder()
+            .stockCode("A001")
+            .build());
 
         // SELLER 보유 주식 1주
         holdingsRepository.save(Holdings.builder()
@@ -75,7 +78,7 @@ class OrderServiceTest {
     void tearDown() {
         orderRepository.deleteAll();
         holdingsRepository.deleteAll();
-        //stockInfoRepository.deleteAll();
+        stockInfoRepository.deleteAll();
         accountsRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -89,10 +92,10 @@ class OrderServiceTest {
         requestDto.setPrice(new BigDecimal("1000"));
         requestDto.setQuantity(2); // seller는 1주만 보유
 
-        String username = seller.getUsername(); // ✅ username 기반 호출
+        String username = seller.getUsername(); // OAuth2 인증 사용자 기준
 
         assertThrows(IllegalStateException.class, () ->
-            orderService.placeOrder(username, requestDto)
+            orderService.placeOrder(username, requestDto) // username 기반 호출로 변경됨
         );
     }
 }

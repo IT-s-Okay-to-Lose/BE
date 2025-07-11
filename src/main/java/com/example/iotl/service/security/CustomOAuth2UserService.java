@@ -42,11 +42,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return new CustomOAuth2User(userDto);
     }
 
-    public UserInfoDto getNameAndCreatedAt(String username) {
+    public UserInfoDto getBasicUserInfo(String username) {
         User user = userService.findByUsername(username);
         UserInfoDto dto = new UserInfoDto();
         dto.setName(user.getName());
         dto.setCreatedAt(user.getCreatedAt());
+        dto.setProfileImage(user.getProfileImage());
         return dto;
     }
 }
