@@ -11,7 +11,7 @@ import com.example.iotl.entity.User;
 import com.example.iotl.repository.AccountsRepository;
 import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.repository.OrderRepository;
-import com.example.iotl.repository.StockInfoRepository;
+import com.example.iotl.repository.StocksRepository;
 import com.example.iotl.repository.UserRepository;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.AfterEach;
@@ -31,7 +31,7 @@ class OrderServiceTest {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    StockInfoRepository stockInfoRepository;
+    StocksRepository stocksRepository;
     @Autowired
     HoldingsRepository holdingsRepository;
     @Autowired
@@ -61,7 +61,7 @@ class OrderServiceTest {
         userRepository.save(seller); // seller에 계좌 연동 저장
 
         // 주식 생성
-        stock = stockInfoRepository.save(Stocks.builder()
+        stock = stocksRepository.save(Stocks.builder()
             .stockCode("A001")
             .build());
 
@@ -78,7 +78,7 @@ class OrderServiceTest {
     void tearDown() {
         orderRepository.deleteAll();
         holdingsRepository.deleteAll();
-        stockInfoRepository.deleteAll();
+        stocksRepository.deleteAll();
         accountsRepository.deleteAll();
         userRepository.deleteAll();
     }

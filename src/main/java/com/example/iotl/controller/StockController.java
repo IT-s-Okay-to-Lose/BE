@@ -1,6 +1,7 @@
 package com.example.iotl.controller;
 
 import com.example.iotl.dto.stocks.*;
+import com.example.iotl.entity.Stocks;
 import com.example.iotl.service.stock.StockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,6 +53,13 @@ public class StockController {
                         c.getOpen(), c.getHigh(), c.getLow(), c.getClose()
                 )
         );
+    }
+
+    @GetMapping("/{code}/meta")
+    @Operation(summary = "종목 메타 정보 조회")
+    public StaticStockMetaDto getStockMeta(@PathVariable String code) {
+        Stocks stock = stockService.findStockByStockCode(code);
+        return StaticStockMetaDto.from(stock); // 예: 정적 팩토리 메서드
     }
 
     @GetMapping
