@@ -37,6 +37,11 @@ class UserServiceIntegrationTest {
             @Override public String getProviderId() { return "123456"; }
             @Override public String getEmail() { return "testuser@exㄷample.com"; }
             @Override public String getName() { return "테스트유저"; }
+
+            @Override
+            public String getProfileImage() {
+                return "";
+            }
         };
 
         // when
