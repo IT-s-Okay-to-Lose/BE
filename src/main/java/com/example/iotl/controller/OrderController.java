@@ -9,6 +9,7 @@ import com.example.iotl.dto.OrderHistoryDto;
 import com.example.iotl.dto.order.OrderRequestDto;
 import com.example.iotl.dto.order.OrderResponseDto;
 
+import com.example.iotl.jwt.AuthenticationUtils;
 import com.example.iotl.service.OrderService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,31 +27,23 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponseDto> placeOrder(
-        @RequestBody OrderRequestDto requestDto,
-        @AuthenticationPrincipal CustomOAuth2User principal
-    ) {
-        String username = principal.getUsername();
+    public ResponseEntity<OrderResponseDto> placeOrder(@RequestBody OrderRequestDto requestDto) {
+        String username = AuthenticationUtils.getCurrentUsername();
+        if (username == null) {
+            throw new IllegalStateException("인증된 사용자가 아닙니다.");
+        }
+
         OrderResponseDto response = orderService.placeOrder(username, requestDto);
         return ResponseEntity.ok(response);
     }
 
+
     @GetMapping("/history")
-    public List<OrderHistoryDto> getOrderHistory(
-        @AuthenticationPrincipal CustomOAuth2User principal,
-        @RequestParam("stockCode") String stockCode) {
-
-//        log.info("💡 /history 호출됨");
-//        log.info("컨트롤러 진입 확인 ✅");
-
-//        if (principal == null) {
-//            log.warn("❗ principal이 null입니다.");
-//            return List.of();
-//        }
-        // OAuth 로그인된 사용자 정보에서 username 추출
-        String username = principal.getUsername();
-//        log.info("로그인한 사용자 username: {}", username);
-
+    public List<OrderHistoryDto> getOrderHistory(@RequestParam("stockCode") String stockCode) {
+        String username = AuthenticationUtils.getCurrentUsername();
+        if (username == null) {
+            throw new IllegalStateException("인증된 사용자가 아닙니다.");
+        }
 
         return orderService.getOrderHistoryByUsernameAndStock(username, stockCode);
     }
