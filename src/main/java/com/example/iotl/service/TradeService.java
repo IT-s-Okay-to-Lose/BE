@@ -1,5 +1,6 @@
 package com.example.iotl.service;
 
+import com.example.iotl.domain.hoga.HogaType;
 import com.example.iotl.dto.TradeDto;
 import com.example.iotl.entity.*;
 import com.example.iotl.entity.Order.OrderStatus;
@@ -24,6 +25,7 @@ public class TradeService {
     private final OrderRepository orderRepository;
     private final TradeRepository tradeRepository;
     private final AccountsRepository accountsRepository;
+    private final HogaRedisService hogaRedisService;
 
     @Transactional
     public void trade(Order newOrder, Order matchedOrder) {
@@ -99,6 +101,15 @@ public class TradeService {
 
         orderRepository.save(buyOrder);
         orderRepository.save(sellOrder);
+
+        // 📌 Redis 호가 수량 차감 반영
+        HogaType hogaType = (newOrder.getOrderType() == OrderType.BUY) ? HogaType.BUY : HogaType.SELL;
+        hogaRedisService.decreaseQuantityOnMatch(
+            newOrder.getStock().getStockCode(),
+            price.intValue(),
+            hogaType,
+            tradeQuantity
+        );
 
         // 12. 체결 기록 저장
         OrderType executedType = (buyOrder.equals(newOrder)) ? OrderType.BUY : OrderType.SELL;
