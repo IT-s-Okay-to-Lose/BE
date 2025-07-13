@@ -1,8 +1,6 @@
 package com.example.iotl.domain.hoga;
 
 import com.example.iotl.dto.hoga.HogaDto;
-import com.example.iotl.domain.hoga.HogaType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,31 +14,40 @@ public class HogaGenerator {
         List<HogaDto> hogas = new ArrayList<>();
         Random rand = new Random();
 
-        // BUY (매수 호가)
+        // BUY
         for (int i = HOGA_DEPTH; i > 0; i--) {
             int price = currentPrice - i * tickUnit;
             int quantity = rand.nextInt(10) + 1;
-
-            hogas.add(HogaDto.builder()
-                .price(price)
-                .quantity(quantity)
-                .type(HogaType.BUY)
-                .build());
+            hogas.add(new HogaDto(price, quantity, HogaType.BUY));
         }
 
-        // SELL (매도 호가)
+        // 현재가를 가운데로 삽입
+        hogas.add(new HogaDto(currentPrice, rand.nextInt(10) + 1, HogaType.CURRENT));
+
+        // SELL
         for (int i = 1; i <= HOGA_DEPTH; i++) {
             int price = currentPrice + i * tickUnit;
             int quantity = rand.nextInt(10) + 1;
-
-            hogas.add(HogaDto.builder()
-                .price(price)
-                .quantity(quantity)
-                .type(HogaType.SELL)
-                .build());
+            hogas.add(new HogaDto(price, quantity, HogaType.SELL));
         }
 
         return hogas;
+    }
+
+    public static List<HogaDto> update(List<HogaDto> existing) {
+        Random rand = new Random();
+        List<HogaDto> updated = new ArrayList<>();
+
+        for (HogaDto dto : existing) {
+            int change = rand.nextInt(3) - 1; // -1, 0, 1
+            int newQty = Math.max(0, dto.getQuantity() + change);
+            // 수량이 0이 아니면 추가
+            if (newQty > 0) {
+                updated.add(new HogaDto(dto.getPrice(), newQty, dto.getType()));
+            }
+        }
+
+        return updated;
     }
 
     public static int getTickUnit(int price) {

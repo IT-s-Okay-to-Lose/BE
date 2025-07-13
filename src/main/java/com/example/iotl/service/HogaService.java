@@ -27,4 +27,11 @@ public class HogaService {
 
         return HogaGenerator.generate(currentPrice);
     }
+    public BigDecimal getLatestClosePrice(String stockCode) {
+        return stockDetailRepository
+            .findTopByStocks_StockCodeOrderByCreatedAtDesc(stockCode)
+            .map(detail -> detail.getClosePrice())
+            .orElseThrow(() -> new IllegalArgumentException("해당 종목의 현재가 데이터가 없습니다: " + stockCode));
+    }
+
 }
