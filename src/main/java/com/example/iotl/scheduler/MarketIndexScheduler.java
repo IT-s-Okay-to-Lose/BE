@@ -14,7 +14,7 @@ public class MarketIndexScheduler {
     private final MarketIndexService marketIndexService;
 
     // 매일 아침 8시 저장
-    @Scheduled(cron = "0 0 8 * * ?") // 매일 08:00
+    @Scheduled(cron = "0 0 8 * * ?", zone = "Asia/Seoul") // 매일 08:00
     public void fetchMarketIndices() {
         saveMarketIndexWithLog("KOSPI");
         saveMarketIndexWithLog("KOSDAQ");

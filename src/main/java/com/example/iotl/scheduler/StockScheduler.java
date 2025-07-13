@@ -2,7 +2,7 @@ package com.example.iotl.scheduler;
 
 import com.example.iotl.dto.stocks.DynamicStockDataDto;
 import com.example.iotl.handler.StockWebSocketHandler;
-import com.example.iotl.repository.StockInfoRepository;
+import com.example.iotl.repository.StocksRepository;
 import com.example.iotl.service.stock.StockApiService;
 import com.example.iotl.service.stock.StockService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 @Component
@@ -21,7 +20,7 @@ public class StockScheduler {
 
     private final StockApiService stockApiService;
     private final StockService stockService;
-    private final StockInfoRepository stockInfoRepository;
+    private final StocksRepository stocksRepository;
     private final StockWebSocketHandler stockWebSocketHandler;
     private final ObjectMapper objectMapper;
 
@@ -32,11 +31,11 @@ public class StockScheduler {
     private final Map<String, DynamicStockDataDto> lastSentMap = new HashMap<>();
 
     public StockScheduler(StockApiService stockApiService, StockService stockService,
-                          StockInfoRepository stockInfoRepository,
+                          StocksRepository stocksRepository,
                           StockWebSocketHandler stockWebSocketHandler) {
         this.stockApiService = stockApiService;
         this.stockService = stockService;
-        this.stockInfoRepository = stockInfoRepository;
+        this.stocksRepository = stocksRepository;
         this.stockWebSocketHandler = stockWebSocketHandler;
 
         this.objectMapper = new ObjectMapper();
@@ -46,7 +45,7 @@ public class StockScheduler {
 
     @Scheduled(fixedRate = 5000)
     public void fetchStockDataBatch() {
-        List<String> stockCodes = stockInfoRepository.findAllStockCodes();
+        List<String> stockCodes = stocksRepository.findAllStockCodes();
         int totalStocks = stockCodes.size();
 
         if (totalStocks == 0) return;
@@ -130,7 +129,7 @@ public class StockScheduler {
 
     // ✅ 공통 메서드
     private void saveStockPriceBatch(int batchIndex) {
-        List<String> stockCodes = stockInfoRepository.findAllStockCodes();
+        List<String> stockCodes = stocksRepository.findAllStockCodes();
         int batchSize = 5;
         int start = batchIndex * batchSize;
         int end = Math.min(start + batchSize, stockCodes.size());

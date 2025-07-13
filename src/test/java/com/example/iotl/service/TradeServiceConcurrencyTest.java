@@ -12,7 +12,7 @@ import com.example.iotl.entity.User;
 import com.example.iotl.repository.AccountsRepository;
 import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.repository.OrderRepository;
-import com.example.iotl.repository.StockInfoRepository;
+import com.example.iotl.repository.StocksRepository;
 import com.example.iotl.repository.TradeRepository;
 import com.example.iotl.repository.UserRepository;
 import java.math.BigDecimal;
@@ -45,7 +45,7 @@ class TradeServiceConcurrencyTest {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    StockInfoRepository stockInfoRepository;
+    StocksRepository stocksRepository;
     @Autowired
     AccountsRepository accountsRepository;
 
@@ -86,7 +86,7 @@ class TradeServiceConcurrencyTest {
         userRepository.save(buyer);
 
         // 주식 생성
-        stock = stockInfoRepository.save(Stocks.builder().stockCode("A001").build());
+        stock = stocksRepository.save(Stocks.builder().stockCode("A001").build());
 
         // SELLER 보유 주식 100주
         holdingsRepository.save(Holdings.builder()
