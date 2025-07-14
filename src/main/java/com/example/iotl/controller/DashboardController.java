@@ -117,7 +117,7 @@ public class DashboardController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     @GetMapping("/realized-detail")
-    public ResponseEntity<List<RealizedProfitDetailDateDto>> getRealizedProfitDetail(
+    public ResponseEntity<BaseResponse<List<RealizedProfitDetailDateDto>>> getRealizedProfitDetail(
             Authentication authentication,
 
             @Parameter(description = "연도", example = "2025")
@@ -132,10 +132,8 @@ public class DashboardController {
             year = now.getYear();
             month = now.getMonthValue();
         }
-        System.out.println("조회하려는 username: [" + username + "]");
-        List<Holdings> holdings = holdingsRepository.findByUser_username(username);
-        System.out.println("조회된 holdings 수: " + holdings.size());
 
-        return ResponseEntity.ok(dashboardService.getRealizedProfitDetail(username, year, month));
+        var result = dashboardService.getRealizedProfitDetail(username, year, month);
+        return ResponseEntity.ok(baseResponseService.getSuccessResponse(result));
     }
 }
