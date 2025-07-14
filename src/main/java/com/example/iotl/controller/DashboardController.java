@@ -6,6 +6,8 @@ import com.example.iotl.dto.realized.RealizedProfitDetailDateDto;
 import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
 import com.example.iotl.dto.security.CustomOAuth2User;
 import com.example.iotl.entity.Holdings;
+import com.example.iotl.global.response.BaseResponse;
+import com.example.iotl.global.response.BaseResponseService;
 import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +32,7 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
     private final HoldingsRepository holdingsRepository;
+    private final BaseResponseService baseResponseService;
     private String extractUsername(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("인증 실패");
@@ -57,9 +60,10 @@ public class DashboardController {
     })
 
     @GetMapping("/summary")
-    public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(Authentication authentication){
+    public ResponseEntity<BaseResponse<UserInvestmentSummaryDto>> getInvestmentSummary(Authentication authentication){
         String username = extractUsername(authentication);
-        return ResponseEntity.ok(dashboardService.getInvestmentSummary(username));
+        var result = dashboardService.getInvestmentSummary(username);
+        return ResponseEntity.ok(baseResponseService.getSuccessResponse(result));
     }
     @Operation(
             summary = "도넛차트용 보유 종목 도넛 차트로 조회",
