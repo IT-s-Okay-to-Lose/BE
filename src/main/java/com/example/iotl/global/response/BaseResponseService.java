@@ -26,4 +26,6 @@ public interface BaseResponseService {
      * @return BaseResponse - 응답 객체
      */
     <T> BaseResponse<T> getFailureResponse(BaseResponseStatus status);
+    <T> BaseResponse<T> getFailureResponse(String message, int code);
+    <T> BaseResponse<T> getFailureResponse(String message, int code, T data);
 }

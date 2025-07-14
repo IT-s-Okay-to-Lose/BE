@@ -91,7 +91,7 @@ public class DashboardController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     @GetMapping("/realized-summary")
-    public ResponseEntity<RealizedProfitSummaryDto> getRealizedProfitSummary(
+    public ResponseEntity<BaseResponse<RealizedProfitSummaryDto>> getRealizedProfitSummary(
             Authentication authentication,
             @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
@@ -105,9 +105,9 @@ public class DashboardController {
             year = now.getYear();
             month = now.getMonthValue();
         }
-        return ResponseEntity.ok(dashboardService.getRealizedProfitSummary(username, year, month));
+        var result = dashboardService.getRealizedProfitSummary(username, year, month);
+        return ResponseEntity.ok(baseResponseService.getSuccessResponse(result));
     }
-
     @Operation(
             summary = "실현 수익 상세 내역 조회", description = "월별 판매수익 상세 리스트를 날짜별로 반환합니다."
     )

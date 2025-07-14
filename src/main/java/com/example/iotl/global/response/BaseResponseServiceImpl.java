@@ -53,4 +53,21 @@ public class BaseResponseServiceImpl implements BaseResponseService {
                 .message(status.getMessage())
                 .build();
     }
+    @Override
+    public <T> BaseResponse<T> getFailureResponse(String message, int code) {
+        return BaseResponse.<T>builder()
+                .isSuccess(false)
+                .code(code)
+                .message(message)
+                .build();
+    }
+    @Override
+    public <T> BaseResponse<T> getFailureResponse(String message, int code, T data) {
+        return BaseResponse.<T>builder()
+                .isSuccess(false)
+                .code(code)
+                .message(message)
+                .data(data)
+                .build();
+    }
 }
