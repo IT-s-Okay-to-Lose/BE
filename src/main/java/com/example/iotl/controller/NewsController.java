@@ -2,6 +2,8 @@ package com.example.iotl.controller;
 
 import java.util.List;
 import com.example.iotl.dto.news.NewsDto;
+import com.example.iotl.global.response.BaseResponse;
+import com.example.iotl.global.response.BaseResponseService;
 import com.example.iotl.service.NewsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class NewsController {
 
     private final NewsService newsService;
-
+    private final BaseResponseService baseResponseService;
     @Operation(
             summary = "랜덤 뉴스 3개 조회",
             description = "네이버 뉴스에서 최근 뉴스 중 랜덤으로 3개를 반환합니다."
@@ -29,7 +31,9 @@ public class NewsController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
     @GetMapping("/top3")
-    public ResponseEntity<List<NewsDto>> getTop3() {
-        return ResponseEntity.ok(newsService.getTop3RandomNews().getArticles());
+    public ResponseEntity<BaseResponse<List<NewsDto>>> getTop3() {
+        List<NewsDto> articles = newsService.getTop3RandomNews().getArticles();
+        BaseResponse<List<NewsDto>> response = baseResponseService.getSuccessResponse(articles);
+        return ResponseEntity.ok(response);
     }
 }
