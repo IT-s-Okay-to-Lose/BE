@@ -74,9 +74,10 @@ public class DashboardController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
     @GetMapping("/holding-ratio")
-    public List<HoldingRatioDto> getHoldingRatio(Authentication authentication){
+    public ResponseEntity<BaseResponse<List<HoldingRatioDto>>> getHoldingRatio(Authentication authentication){
         String username = extractUsername(authentication);
-        return dashboardService.getHoldingRatio(username);
+        var result = dashboardService.getHoldingRatio(username);
+        return ResponseEntity.ok(baseResponseService.getSuccessResponse(result));
     }
 
     @Operation(
