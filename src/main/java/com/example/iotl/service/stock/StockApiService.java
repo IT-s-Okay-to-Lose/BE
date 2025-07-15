@@ -71,6 +71,25 @@ public class StockApiService {
         return response.getBody();
     }
 
+    public void refreshAccessToken() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> body = Map.of(
+                "grant_type", "client_credentials",
+                "appkey", appKey,
+                "appsecret", appSecret
+        );
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<Map> response = restTemplate.postForEntity(baseUrl + "/oauth2/tokenP", request, Map.class);
+
+        Map responseBody = response.getBody();
+        accessToken = (String) responseBody.get("access_token");
+
+        log.info("🔄 토큰 갱신 완료: {}", accessToken != null ? "성공" : "실패");
+    }
+
     public String getBaseUrl() {
         return baseUrl;
     }
