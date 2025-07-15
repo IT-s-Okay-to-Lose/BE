@@ -6,6 +6,8 @@ import com.example.iotl.dto.realized.RealizedProfitDetailDateDto;
 import com.example.iotl.dto.realized.RealizedProfitSummaryDto;
 import com.example.iotl.dto.security.CustomOAuth2User;
 import com.example.iotl.entity.Holdings;
+import com.example.iotl.global.response.BaseResponse;
+import com.example.iotl.global.response.BaseResponseService;
 import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +32,7 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
     private final HoldingsRepository holdingsRepository;
+    private final BaseResponseService baseResponseService;
     private String extractUsername(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("인증 실패");
@@ -57,9 +60,10 @@ public class DashboardController {
     })
 
     @GetMapping("/summary")
-    public ResponseEntity<UserInvestmentSummaryDto> getInvestmentSummary(Authentication authentication){
+    public ResponseEntity<BaseResponse<UserInvestmentSummaryDto>> getInvestmentSummary(Authentication authentication){
         String username = extractUsername(authentication);
-        return ResponseEntity.ok(dashboardService.getInvestmentSummary(username));
+        var result = dashboardService.getInvestmentSummary(username);
+        return ResponseEntity.ok(baseResponseService.getSuccessResponse(result));
     }
     @Operation(
             summary = "도넛차트용 보유 종목 도넛 차트로 조회",
@@ -70,9 +74,10 @@ public class DashboardController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 발생")
     })
     @GetMapping("/holding-ratio")
-    public List<HoldingRatioDto> getHoldingRatio(Authentication authentication){
+    public ResponseEntity<BaseResponse<List<HoldingRatioDto>>> getHoldingRatio(Authentication authentication){
         String username = extractUsername(authentication);
-        return dashboardService.getHoldingRatio(username);
+        var result = dashboardService.getHoldingRatio(username);
+        return ResponseEntity.ok(baseResponseService.getSuccessResponse(result));
     }
 
     @Operation(
@@ -86,7 +91,7 @@ public class DashboardController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     @GetMapping("/realized-summary")
-    public ResponseEntity<RealizedProfitSummaryDto> getRealizedProfitSummary(
+    public ResponseEntity<BaseResponse<RealizedProfitSummaryDto>> getRealizedProfitSummary(
             Authentication authentication,
             @Parameter(description = "연도", example = "2025")
             @RequestParam(required = false) Integer year,
@@ -100,9 +105,9 @@ public class DashboardController {
             year = now.getYear();
             month = now.getMonthValue();
         }
-        return ResponseEntity.ok(dashboardService.getRealizedProfitSummary(username, year, month));
+        var result = dashboardService.getRealizedProfitSummary(username, year, month);
+        return ResponseEntity.ok(baseResponseService.getSuccessResponse(result));
     }
-
     @Operation(
             summary = "실현 수익 상세 내역 조회", description = "월별 판매수익 상세 리스트를 날짜별로 반환합니다."
     )
@@ -112,7 +117,7 @@ public class DashboardController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     @GetMapping("/realized-detail")
-    public ResponseEntity<List<RealizedProfitDetailDateDto>> getRealizedProfitDetail(
+    public ResponseEntity<BaseResponse<List<RealizedProfitDetailDateDto>>> getRealizedProfitDetail(
             Authentication authentication,
 
             @Parameter(description = "연도", example = "2025")
@@ -127,10 +132,8 @@ public class DashboardController {
             year = now.getYear();
             month = now.getMonthValue();
         }
-        System.out.println("조회하려는 username: [" + username + "]");
-        List<Holdings> holdings = holdingsRepository.findByUser_username(username);
-        System.out.println("조회된 holdings 수: " + holdings.size());
 
-        return ResponseEntity.ok(dashboardService.getRealizedProfitDetail(username, year, month));
+        var result = dashboardService.getRealizedProfitDetail(username, year, month);
+        return ResponseEntity.ok(baseResponseService.getSuccessResponse(result));
     }
 }
