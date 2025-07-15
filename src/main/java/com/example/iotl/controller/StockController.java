@@ -78,8 +78,8 @@ public class StockController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{code}/price")
-    @Operation(summary = "상세 페이지 가격 정보 조회")
+    @GetMapping("/{code}/marketinfo")
+    @Operation(summary = "한 종목에 대한 현재가, 어제 대비 가격차이, 어제 대비 등락률 조회")
     public ResponseEntity<MarketStockPriceInfoDto> getPriceInfo(@PathVariable String code) {
         return toResponse(
                 Optional.ofNullable(stockService.findLatestStockByCode(code))
