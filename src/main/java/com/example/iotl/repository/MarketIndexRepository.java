@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface MarketIndexRepository extends JpaRepository<MarketIndex, Long> {
     Optional<MarketIndex> findByIndexNameAndDate(String indexName, LocalDate date);
     boolean existsByIndexNameAndDate(String indexName, LocalDate date);
+    Optional<MarketIndex> findTopByIndexNameAndDateBeforeOrderByDateDesc(String indexName, LocalDate date);
 }
