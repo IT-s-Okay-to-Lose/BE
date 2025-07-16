@@ -1,0 +1,1 @@
+DELETE from market_index where id >= 29;
