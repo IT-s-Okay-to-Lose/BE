@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(baseResponseService.getFailureResponse(
-                        "요청 파라미터 형식이 잘못되었습니다.", 4000, errorDetail));
+                        "요청 파라미터 형식이 잘못되었습니다.", 400, errorDetail));
     }
 
     // 그 외 모든 에러
@@ -41,6 +41,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<BaseResponse<Object>> handleException(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(baseResponseService.getFailureResponse("서버 오류가 발생했습니다.", 5000));
+                .body(baseResponseService.getFailureResponse("서버 오류가 발생했습니다.", 500));
     }
 }

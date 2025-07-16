@@ -1,9 +1,12 @@
 package com.example.iotl.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.iotl.dto.UserDto;
+import com.example.iotl.global.response.BaseResponse;
 import com.example.iotl.repository.TestEntityRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,9 +24,25 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestControllerAuth {
 
 	@GetMapping
-	public String test() {
-		return "인증이 필요없는 테스트";
+	public ResponseEntity<BaseResponse<?>> test() {
+
+		UserDto userDto = new UserDto();
+		userDto.setUsername("Naver 132123r4234234234");
+		userDto.setRole("admin");
+		userDto.setName("admin-greentea");
+		userDto.setProfileImageUrl("admin-greentea.jpg");
+
+		BaseResponse<Object> response = BaseResponse.builder()
+			.isSuccess(true)
+			.message("성공")
+			.code(200)
+			.data(userDto)
+			.build();
+
+		return ResponseEntity.ok(response);
 	}
+
+
 
 	@GetMapping("/getUsername")
 	public String authTest1() {
