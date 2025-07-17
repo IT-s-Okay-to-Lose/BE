@@ -1,5 +1,6 @@
 package com.example.iotl.controller;
 
+import com.example.iotl.dto.holding.HoldingSummaryDto;
 import com.example.iotl.dto.security.CustomOAuth2User;
 import com.example.iotl.dto.holding.MyStockSummaryDto;
 import com.example.iotl.service.HoldingService;
@@ -8,6 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/holdings")
@@ -26,5 +29,11 @@ public class HoldingController {
         String userName = principal.getUsername();
 
         return holdingService.getMyStockSummary(userName, stockCode);
+    }
+
+    @GetMapping("/summary")
+    public List<HoldingSummaryDto> getMyHoldings(@AuthenticationPrincipal CustomOAuth2User principal) {
+        String username = principal.getUsername();
+        return holdingService.getMyHoldings(username);
     }
 }
