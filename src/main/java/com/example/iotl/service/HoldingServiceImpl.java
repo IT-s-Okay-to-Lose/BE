@@ -23,8 +23,7 @@ public class HoldingServiceImpl implements HoldingService {
 
     private final HoldingsRepository holdingsRepository;
     private final StockDetailRepository stockDetailRepository;
-
-
+    private final UserRepository userRepository;      // ✅ 꼭 포함!
 
     @Override
     public MyStockSummaryDto getMyStockSummary(String userName, String stockCode) {
@@ -94,11 +93,18 @@ public class HoldingServiceImpl implements HoldingService {
                 })
                 .toList();
     }
-    UserRepository userRepository;
+
+
     @Override
     @Transactional(readOnly = true)
-    public List<HoldingSummaryDto> getHoldingsByUserName(String name) {
-        List<Holdings> holdings = holdingsRepository.findByUser_Name(name);
+    public List<HoldingSummaryDto> getHoldingsByUserName(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new IllegalArgumentException("해당 username을 가진 유저가 없습니다: " + username);
+        }
+
+        // ✔ 해당 유저의 보유 종목 조회
+        List<Holdings> holdings = holdingsRepository.findByUser(user);
 
         return holdings.stream().map(h -> {
             String stockCode = h.getStock().getStockCode();

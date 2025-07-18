@@ -21,7 +21,7 @@ public interface HoldingsRepository extends JpaRepository<Holdings,Long> {
     Optional<Holdings> findByUserAndStock(User user, Stocks stock);
     Optional<StockDetail> findTopByStock_StockCodeOrderByCreatedAtDesc(String stockCode);
     List<Holdings> findByUser_Name(String name);
-
+    List<Holdings> findByUser(User user);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select h from Holdings h where h.user = :user and h.stock = :stock")
     Optional<Holdings> findByUserAndStockWithPessimisticLock(@Param("user") User user, @Param("stock") Stocks stock);
