@@ -2,7 +2,7 @@ package com.example.iotl.consumer;
 
 import com.example.iotl.entity.Order;
 import com.example.iotl.repository.OrderRepository;
-import com.example.iotl.repository.StockInfoRepository;
+import com.example.iotl.repository.StocksRepository;
 import com.example.iotl.service.OrderMatchingService;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
@@ -20,7 +20,7 @@ public class OrderQueueConsumer {
     private final RedisTemplate<String, Object> redisTemplate;
     private final OrderRepository orderRepository;
     private final OrderMatchingService orderMatchingService;
-    private final StockInfoRepository stockInfoRepository;
+    private final StocksRepository stockInfoRepository;
 
     // 매 1초마다 Redis 큐에서 주문 ID 꺼내서 처리
     @Scheduled(fixedDelay = 1000)
