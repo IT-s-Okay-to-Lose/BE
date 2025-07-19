@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/trades")
+@RequestMapping("/api/trades")
 @RequiredArgsConstructor
 public class TradeController {
     private final UserRepository userRepository;
