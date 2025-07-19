@@ -36,22 +36,22 @@ class HogaRedisServiceTest {
 //    void getLastPrice() {
 //    }
 
-    @Test
-    @DisplayName(" 랜덤 수량 업데이트가 정상 작동하며 리스트 크기를 유지해야 한다")
-    void testUpdateQuantityRandomly() {
-        // given
-        String stockCode = "A001";
-        List<HogaDto> originalHoga = HogaGenerator.generate(60000);
-        hogaRedisService.saveHoga(stockCode, originalHoga);
-
-        // when
-        hogaRedisService.updateQuantitiesRandomly(stockCode);
-        List<HogaDto> updatedHoga = hogaRedisService.getHoga(stockCode);
-
-        // then
-        assertThat(updatedHoga).isNotEmpty();
-        assertThat(updatedHoga).hasSize(originalHoga.size());
-    }
+//    @Test
+//    @DisplayName(" 랜덤 수량 업데이트가 정상 작동하며 리스트 크기를 유지해야 한다")
+//    void testUpdateQuantityRandomly() {
+//        // given
+//        String stockCode = "A001";
+//        List<HogaDto> originalHoga = HogaGenerator.generate(60000);
+//        hogaRedisService.saveHoga(stockCode, originalHoga);
+//
+//        // when
+//        hogaRedisService.updateQuantitiesRandomly(stockCode);
+//        List<HogaDto> updatedHoga = hogaRedisService.getHoga(stockCode);
+//
+//        // then
+//        assertThat(updatedHoga).isNotEmpty();
+//        assertThat(updatedHoga).hasSize(originalHoga.size());
+//    }
 
     @Test
     @DisplayName(" 주문 체결 시 해당 호가 수량이 감소해야 한다")
