@@ -80,6 +80,11 @@ public class TradeService {
             sellerAccount.getBalance().add(totalCost).setScale(2, RoundingMode.HALF_UP)
         );
 
+        BigDecimal realizedProfit = totalCost.setScale(2, RoundingMode.HALF_UP);
+        sellerAccount.setRealizedProfit(
+            sellerAccount.getRealizedProfit().add(realizedProfit)
+        );
+
         // 9. 주식 이동
         sellerHoldings.setQuantity(sellerHoldings.getQuantity() - tradeQuantity);
         buyerHoldings.setQuantity(buyerHoldings.getQuantity() + tradeQuantity);

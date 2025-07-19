@@ -45,10 +45,12 @@ spring:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
             redirect-uri: https://iotl.store/login/oauth2/code/naver
+#            redirect-uri: http://localhost:8080/login/oauth2/code/naver
             authorization-grant-type: authorization_code
             scope:
               - name
               - email
+              - profile_image
           google:
             client-name: google
             client-id: ${GOOGLE_CLIENT_ID}
@@ -63,11 +65,13 @@ spring:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
             redirect-uri: https://iotl.store/login/oauth2/code/kakao
+#            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             scope:
               - profile_nickname
               - account_email
+              - profile_image
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
@@ -116,18 +120,22 @@ sentry:
 
 permit-all-paths:
   paths:
-    - /
-    - /login
-    - /login/oauth2
-    - /oauth2
-    - /reissue
-    - /auth/ws/**
-    - /auth/api/stocks/**
-    - /auth/api/exchange
-    - /auth/api/market-index/**
-    - /auth/api/v1/news/top3
-    - /v3/api-docs/
-    - /swagger-ui/
+    - /auth/**
+    - /swagger-ui/**
     - /swagger-ui.html
-    - /test
-    - /api/**
+    - /v3/api-docs/**
+#    - /**
+#    - /login
+#    - /login/oauth2
+#    - /oauth2
+#    - /reissue
+#    - /ws/**
+#    - /api/stocks/**
+#    - /api/exchange
+#    - /api/market-index/**
+#    - /api/v1/news/top3
+#    - /v3/api-docs/
+#    - /swagger-ui/
+#    - /swagger-ui.html
+#    - /test
+#    - /api/**

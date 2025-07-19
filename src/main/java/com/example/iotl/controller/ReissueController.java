@@ -1,5 +1,6 @@
 package com.example.iotl.controller;
 
+import com.example.iotl.jwt.AuthenticationUtils;
 import com.example.iotl.jwt.JWTUtil;
 import com.example.iotl.service.security.TokenService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -69,7 +70,7 @@ public class ReissueController {
 //    }
 //}
 
-    @PostMapping("/reissue")
+    @PostMapping("/auth/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         String refresh = null;
         Cookie[] cookies = request.getCookies();
@@ -89,7 +90,7 @@ public class ReissueController {
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
-            return ResponseEntity.badRequest().body("refresh token expired");
+            return ResponseEntity.badRequest().body("refresh token expired - 다시 로그인해주세요");
         }
 
         if (!"refresh".equals(jwtUtil.getCategory(refresh))) {
@@ -110,6 +111,32 @@ public class ReissueController {
 
         // ✅ refresh → HttpOnly 쿠키
         ResponseCookie refreshCookie = tokenService.createRefreshCookie(newRefresh);
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        String refresh = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refresh".equals(cookie.getName())) {
+                    refresh = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        tokenService.deleteRefreshEntity(refresh);
+
+        // ✅ access → JS 접근 가능 쿠키
+        ResponseCookie accessCookie = tokenService.deleteAccessCookie();
+        response.addHeader("Set-Cookie", accessCookie.toString());
+
+        // ✅ refresh → HttpOnly 쿠키
+        ResponseCookie refreshCookie = tokenService.deleteRefreshCookie();
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
         return ResponseEntity.ok().build();

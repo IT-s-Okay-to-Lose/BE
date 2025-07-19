@@ -13,11 +13,10 @@ import com.example.iotl.entity.User;
 import com.example.iotl.producer.OrderQueueProducer;
 import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.repository.OrderRepository;
-import com.example.iotl.repository.StockInfoRepository;
+import com.example.iotl.repository.StocksRepository;
 import com.example.iotl.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final StockInfoRepository stockInfoRepository;
+    private final StocksRepository stocksRepository;
     private final HoldingsRepository holdingsRepository;
     private final TradeService tradeService;
     private final OrderMatchingService orderMatchingService;
@@ -51,7 +50,7 @@ public class OrderService {
             .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
         // (2) 종목 찾기
-        Stocks stocks = stockInfoRepository.findById(requestDto.getStockCode())
+        Stocks stocks = stocksRepository.findById(requestDto.getStockCode())
             .orElseThrow(() -> new IllegalArgumentException("해당 주식이 존재하지 않습니다."));
 
 

@@ -48,26 +48,32 @@ public class SecurityConfig {
 
         //csrf disable
         http
-                .csrf((auth) -> auth.disable());
+            .csrf((auth) -> auth.disable());
 
         //From 로그인 방식 disable
         http
-                .formLogin((auth) -> auth.disable());
+            .formLogin((auth) -> auth.disable());
 
         //HTTP Basic 인증 방식 disable
         http
-                .httpBasic((auth) -> auth.disable());
+            .httpBasic((auth) -> auth.disable());
 
         //JWTFilter 추가
         http
-                .addFilterAfter(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterAfter(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
         //oauth2
         http
-                .oauth2Login((oauth2) -> oauth2
-                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService))
-                        .successHandler(customSuccessHandler));
+            .oauth2Login((oauth2) -> oauth2
+                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                    .userService(customOAuth2UserService))
+                .successHandler(customSuccessHandler));
+
+        // //배포전 모든 경로 허용
+        // http
+        //     .authorizeHttpRequests((auth) -> auth
+        //         .anyRequest().permitAll()
+        //     );
 
         //경로별 인가 작업
         http
@@ -79,33 +85,33 @@ public class SecurityConfig {
 
         //세션 설정 : STATELESS
         http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .sessionManagement((session) -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http
-                .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration configuration = new CorsConfiguration();
+            .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+                @Override
+                public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                    CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(List.of(
-                                "http://127.0.0.1:5500",
-                                "http://localhost:8080",
-                                "https://iotl-fe.vercel.app",
-                                "https://localhost:5173",
-                                "http://localhost:5173",
-                                "https://localhost:5137",
-                                "http://localhost:5137"
-                        ));
-                        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                        configuration.setAllowedHeaders(List.of("*"));
-                        configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setMaxAge(3600L);
+                    configuration.setAllowedOrigins(List.of(
+                        "http://127.0.0.1:5500",
+                        "http://localhost:8080",
+                        "https://iotl-fe.vercel.app",
+                        "https://localhost:5173",
+                        "http://localhost:5173",
+                        "https://localhost:5137",
+                        "http://localhost:5137"
+                    ));
+                    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    configuration.setAllowedHeaders(List.of("*"));
+                    configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
+                    configuration.setAllowCredentials(true);
+                    configuration.setMaxAge(3600L);
 
-                        return configuration;
-                    }
-                }));
+                    return configuration;
+                }
+            }));
 
         return http.build();
     }

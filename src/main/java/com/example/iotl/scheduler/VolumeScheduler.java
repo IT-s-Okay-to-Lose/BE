@@ -1,9 +1,7 @@
 package com.example.iotl.scheduler;
 
 import com.example.iotl.dto.stocks.VolumeDataDto;
-import com.example.iotl.entity.StockDetail;
 import com.example.iotl.handler.VolumeWebSocketHandler;
-import com.example.iotl.repository.StockRepository;
 import com.example.iotl.service.stock.StockApiService;
 import com.example.iotl.service.stock.StockService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Component

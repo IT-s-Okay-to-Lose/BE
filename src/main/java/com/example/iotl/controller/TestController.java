@@ -1,8 +1,12 @@
 package com.example.iotl.controller;
 
 import com.example.iotl.domain.TestEntity;
+import com.example.iotl.jwt.AuthenticationUtils;
 import com.example.iotl.repository.TestEntityRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,5 +27,16 @@ public class TestController {
     @GetMapping
     public String save() {
         return "save_test";
+    }
+
+    @GetMapping("/2")
+    public String test2() {
+        return "test2";
+    }
+
+    @GetMapping("/getUsername")
+    public String usernameTest() {
+        String username = AuthenticationUtils.getCurrentUsername();
+        return "Current username: " + username;
     }
 }

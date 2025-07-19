@@ -9,4 +9,5 @@ public class UserDto {
     private String role;
     private String username;
     private String name;
+    private String profileImageUrl;
 }

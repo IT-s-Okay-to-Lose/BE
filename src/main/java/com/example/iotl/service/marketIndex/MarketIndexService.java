@@ -30,21 +30,40 @@ public class MarketIndexService {
 
     public boolean saveIfAbsent(String marketType) {
         String name = marketType.equalsIgnoreCase("KOSPI") ? "코스피" : "코스닥";
+        LocalDate today = LocalDate.now();
 
-        if (marketIndexRepository.existsByIndexNameAndDate(name, LocalDate.now()))
+        if (marketIndexRepository.existsByIndexNameAndDate(name, today))
             return false;
 
         try {
             CurrentIndexResponseDto response = marketIndexApiService.fetchIndex(marketType);
             var data = response.getOutput();
 
+            double todayValue = Double.parseDouble(String.valueOf(data.getBstp_nmix_prpr()));
+
+            // 전날 값 가져오기
+            MarketIndex yesterday = marketIndexRepository
+                    .findTopByIndexNameAndDateBeforeOrderByDateDesc(name, today)
+                    .orElse(null);
+
+            double prevValue = yesterday != null ? yesterday.getCurrentValue() : todayValue;
+
+            double changeAmountRaw = todayValue - prevValue;
+            double changeRateRaw = (prevValue != 0) ? (changeAmountRaw / prevValue * 100) : 0.0;
+
+            // ✅ 소수 둘째 자리까지 반올림
+            double changeAmount = Math.round(changeAmountRaw * 100.0) / 100.0;
+            double changeRate = Math.round(changeRateRaw * 100.0) / 100.0;
+
+            String changeDirection = changeAmount > 0 ? "▲" : (changeAmount < 0 ? "▼" : "-");
+
             MarketIndex entity = MarketIndex.builder()
                     .indexName(name)
-                    .currentValue(data.getBstp_nmix_prpr())
-                    .changeAmount(data.getBstp_nmix_prdy_vrss())
-                    .changeRate(data.getBstp_nmix_prdy_ctrt())
-                    .changeDirection("1".equals(data.getPrdy_vrss_sign()) ? "▲" : "▼")
-                    .date(LocalDate.now())
+                    .currentValue(todayValue)
+                    .changeAmount(changeAmount)
+                    .changeRate(changeRate)
+                    .changeDirection(changeDirection)
+                    .date(today)
                     .build();
 
             marketIndexRepository.save(entity);
