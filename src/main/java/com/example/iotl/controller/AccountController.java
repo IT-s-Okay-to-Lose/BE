@@ -1,11 +1,13 @@
 package com.example.iotl.controller;
 
+import com.example.iotl.dto.AccountSummaryDto;
 import com.example.iotl.dto.deposit.DepositRequest;
 import com.example.iotl.jwt.AuthenticationUtils;
 import com.example.iotl.service.AccountService;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,4 +35,17 @@ public class AccountController {
         accountService.deposit(username, amount);
         return "💰 입금이 완료되었습니다.";
     }
+
+
+
+        @GetMapping("/summary")
+        public AccountSummaryDto getSummary() {
+            String username = AuthenticationUtils.getCurrentUsername();
+            if (username == null) {
+                throw new IllegalStateException("인증된 사용자 아님");
+            }
+            return accountService.getAccountSummary(username);
+        }
+
+
 }
