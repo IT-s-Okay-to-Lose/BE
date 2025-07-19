@@ -22,7 +22,7 @@ public class HogaScheduler {
     private final HogaService hogaService;
     private final HogaRedisService hogaRedisService;
 
-    @Scheduled(fixedRate = 5000) // 5초마다 실행
+    @Scheduled(fixedRate = 100000) // 초마다 실행
     public void updateHogaIfPriceChanged() {
         List<String> stockCodes = stockInfoRepository.findAllStockCodes();
 
