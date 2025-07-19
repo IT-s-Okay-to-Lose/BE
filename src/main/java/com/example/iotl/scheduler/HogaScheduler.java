@@ -1,7 +1,8 @@
 package com.example.iotl.scheduler;
 
 import com.example.iotl.dto.hoga.HogaDto;
-import com.example.iotl.repository.StockInfoRepository;
+import com.example.iotl.repository.StocksRepository;
+import com.example.iotl.service.HogaAutoFillService;
 import com.example.iotl.service.HogaRedisService;
 import com.example.iotl.service.HogaService;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HogaScheduler {
 
-    private final StockInfoRepository stockInfoRepository;
+    private final StocksRepository stockInfoRepository;
     private final HogaService hogaService;
     private final HogaRedisService hogaRedisService;
+    private final HogaAutoFillService hogaAutoFillService;
 
-    @Scheduled(fixedRate = 100000) // 초마다 실행
+    @Scheduled(fixedRate = 1000000) // 100초마다 실행
     public void updateHogaIfPriceChanged() {
         List<String> stockCodes = stockInfoRepository.findAllStockCodes();
 
@@ -40,8 +42,13 @@ public class HogaScheduler {
                     hogaRedisService.saveHoga(stockCode, newHogas);          // Redis에 저장
                     hogaRedisService.saveCurrentPrice(stockCode, latestPrice); // 현재가도 저장
 
+                    // ⏬ 호가 부족 여부 확인 → 부족하면 주문 추가
+                    hogaAutoFillService.ensureMinHogaDepth(stockCode, "sys user");
+
                     log.info("✅ {} 호가 업데이트 완료. 현재가 변경 감지됨: {}", stockCode, latestPrice);
-                } else {
+
+
+            } else {
                     log.info("⏳ {} 호가 변경 없음. 현재가 동일: {}", stockCode, latestPrice);
                 }
             } catch (Exception e) {
