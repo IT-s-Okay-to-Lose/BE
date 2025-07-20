@@ -2,6 +2,8 @@ package com.example.iotl.handler;
 
 import com.example.iotl.dto.stocks.VolumeDataDto;
 import com.example.iotl.entity.StockDetail;
+import com.example.iotl.global.response.BaseResponse;
+import com.example.iotl.global.response.BaseResponseService;
 import com.example.iotl.service.stock.StockService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -16,14 +18,27 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 @Slf4j
+@Component
 public class VolumeWebSocketHandler extends TextWebSocketHandler {
+
 
     private boolean marketOpen = true;
 
     public void setMarketOpen(boolean open) {
         this.marketOpen = open;
+    }
+
+    private final StockService stockService;
+    private final BaseResponseService baseResponseService;
+    private final ObjectMapper objectMapper;
+
+    public VolumeWebSocketHandler(StockService stockService, BaseResponseService baseResponseService) {
+        this.stockService = stockService;
+        this.baseResponseService = baseResponseService;
+        this.objectMapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     @Getter
@@ -48,20 +63,10 @@ public class VolumeWebSocketHandler extends TextWebSocketHandler {
         sessions.put(session.getId(), session);
     }
 
-    private final StockService stockService;
-    private final ObjectMapper objectMapper;
-
-    public VolumeWebSocketHandler(StockService stockService) {
-        this.stockService = stockService;
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-        this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    }
-
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
-            String payload = message.getPayload(); // 예: "005930,000660"
+            String payload = message.getPayload();
             List<String> codes = Arrays.asList(payload.split(","));
             sessionRequestMap.put(session.getId(), new VolumeRequest(codes));
 
@@ -73,33 +78,23 @@ public class VolumeWebSocketHandler extends TextWebSocketHandler {
                 StockDetail latest = stockService.findLatestStockByCode(code);
                 if (latest != null) {
                     VolumeDataDto volumeData = VolumeDataDto.from(latest);
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("volume", List.of(volumeData.getTime(), volumeData.getVolume()));
-                    results.add(result);
+                    results.add(Map.of("volume", List.of(volumeData.getTime(), volumeData.getVolume())));
                 }
             }
 
             if (!results.isEmpty()) {
-                Map<String, Object> response = Map.of(
-                        "isSuccess", true,
-                        "code", 200,
-                        "message", "실시간 거래량 정보입니다.",
-                        "data", results
-                );
-
+                BaseResponse<Object> response = baseResponseService.getSuccessResponse(results);
                 String json = objectMapper.writeValueAsString(response);
                 session.sendMessage(new TextMessage(json));
             }
+
         } catch (Exception e) {
             log.error("❌ Volume 요청 파싱 또는 전송 실패", e);
         }
     }
 
     public void sendToSession(String sessionId, String message) {
-        if (!marketOpen) {
-            //log.info("⏸️ 장외 시간 - 차트 메시지 전송 생략");
-            return;
-        }
+        if (!marketOpen) return;
 
         WebSocketSession session = sessions.get(sessionId);
         if (session != null && session.isOpen()) {
@@ -111,23 +106,21 @@ public class VolumeWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    // 연결 종료 시 세션 아이디 없애기
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessionRequestMap.remove(session.getId());
         sessions.remove(session.getId());
     }
 
-    // 세션 닫기
     public void closeAllSessions() {
         for (WebSocketSession session : sessions.values()) {
             try {
                 if (session.isOpen()) session.close();
             } catch (IOException e) {
-                log.error("❌ 세션 닫기 실패: {}", e.getMessage());
+                log.error("❌ 세션 닫기 실패", e.getMessage());
             }
         }
         sessions.clear();
-        sessionRequestMap.clear(); // chart에서는 필요
+        sessionRequestMap.clear();
     }
 }

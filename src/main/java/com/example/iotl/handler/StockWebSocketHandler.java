@@ -1,7 +1,7 @@
 package com.example.iotl.handler;
 
 import com.example.iotl.global.response.BaseResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.iotl.global.response.BaseResponseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +20,8 @@ public class StockWebSocketHandler extends TextWebSocketHandler {
 
     private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final BaseResponseService baseResponseService;
+
     private boolean marketOpen = true;
 
     public void setMarketOpen(boolean open) {
@@ -36,23 +38,13 @@ public class StockWebSocketHandler extends TextWebSocketHandler {
         sessions.remove(session);
     }
 
-    /**
-     * 실시간 주식 정보를 모든 클라이언트에게 전송 (BaseResponse 형식으로 감쌈)
-     * @param rawData List, Map, DTO 등 직렬화 가능한 객체
-     */
     public void broadcast(Object rawData) {
         if (!marketOpen) return;
 
-        // BaseResponse 객체 생성
-        BaseResponse<Object> response = BaseResponse.<Object>builder()
-                .isSuccess(true)
-                .code(200)
-                .message("실시간 주식 정보입니다.")
-                .data(rawData) // ⚠️ 객체 그대로 넣기 (String으로 넣지 마시오!)
-                .build();
+        BaseResponse<Object> response = baseResponseService.getSuccessResponse(rawData);
 
         try {
-            String json = objectMapper.writeValueAsString(response); // 직렬화
+            String json = objectMapper.writeValueAsString(response);
             TextMessage message = new TextMessage(json);
 
             for (WebSocketSession session : sessions) {
