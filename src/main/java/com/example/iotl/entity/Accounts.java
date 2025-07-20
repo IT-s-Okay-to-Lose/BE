@@ -39,6 +39,9 @@ public class Accounts {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "realized_profit", nullable = false, precision = 20, scale = 2)
+    private BigDecimal realizedProfit = BigDecimal.ZERO;
+
     @PrePersist
     protected void onCreate(){
         this.createdAt = LocalDateTime.now();

@@ -56,8 +56,8 @@ public class ChartScheduler {
                         ));
                         resultMap.put("marketInfo", marketInfo);
 
-                        String json = objectMapper.writeValueAsString(resultMap);
-                        chartWebSocketHandler.sendToSession(sessionId, json);
+                        // ✅ json 문자열 대신 raw Map 전달
+                        chartWebSocketHandler.sendToSession(sessionId, resultMap);
                         lastSentCandleMap.put(key, newCandle);
                     }
 

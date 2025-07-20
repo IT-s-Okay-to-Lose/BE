@@ -47,16 +47,21 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
         sessionRequestMap.remove(session.getId());
     }
 
-    public void sendToSession(String sessionId, String message) {
-        if (!marketOpen) {
-            //log.info("⏸️ 장외 시간 - 차트 메시지 전송 생략");
-            return;
-        }
+    public void sendToSession(String sessionId, Map<String, Object> data) {
+        if (!marketOpen) return;
 
         WebSocketSession session = sessions.get(sessionId);
         if (session != null && session.isOpen()) {
             try {
-                session.sendMessage(new TextMessage(message));
+                Map<String, Object> response = Map.of(
+                        "isSuccess", true,
+                        "code", 200,
+                        "message", "실시간 차트 데이터입니다.",
+                        "data", data
+                );
+
+                String json = objectMapper.writeValueAsString(response);
+                session.sendMessage(new TextMessage(json));
             } catch (IOException e) {
                 log.error("❌ 세션 {} 메시지 전송 실패: {}", sessionId, e.getMessage());
             }

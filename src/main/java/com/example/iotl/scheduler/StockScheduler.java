@@ -90,8 +90,7 @@ public class StockScheduler {
         if (dataList.isEmpty()) return;
 
         try {
-            String json = objectMapper.writeValueAsString(dataList);
-            stockWebSocketHandler.broadcast(json);
+            stockWebSocketHandler.broadcast(dataList);
         } catch (Exception e) {
             log.error("❌ WebSocket 전송 실패: {}", e.getMessage());
         }
