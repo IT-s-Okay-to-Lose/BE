@@ -1,6 +1,8 @@
 package com.example.iotl.scheduler;
 
 import com.example.iotl.dto.stocks.VolumeDataDto;
+import com.example.iotl.global.response.BaseResponse;
+import com.example.iotl.global.response.BaseResponseService;
 import com.example.iotl.handler.VolumeWebSocketHandler;
 import com.example.iotl.service.stock.StockApiService;
 import com.example.iotl.service.stock.StockService;
@@ -21,16 +23,24 @@ public class VolumeScheduler {
     private final StockService stockService;
     private final VolumeWebSocketHandler volumeWebSocketHandler;
     private final ObjectMapper objectMapper;
+    private final BaseResponseService baseResponseService;
 
     private final Map<String, VolumeDataDto> lastSentVolumeMap = new HashMap<>();
 
-    public VolumeScheduler(StockApiService stockApiService, StockService stockService, VolumeWebSocketHandler volumeWebSocketHandler) {
+    public VolumeScheduler(
+            StockApiService stockApiService,
+            StockService stockService,
+            VolumeWebSocketHandler volumeWebSocketHandler,
+            BaseResponseService baseResponseService
+    ) {
         this.stockApiService = stockApiService;
         this.stockService = stockService;
         this.volumeWebSocketHandler = volumeWebSocketHandler;
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-        this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        this.baseResponseService = baseResponseService;
+
+        this.objectMapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     @Scheduled(fixedRate = 30000)
@@ -67,7 +77,9 @@ public class VolumeScheduler {
         Map<String, Object> resultMap = Map.of(
                 "volume", List.of(volumeData.getTime(), volumeData.getVolume())
         );
-        String json = objectMapper.writeValueAsString(resultMap);
+
+        BaseResponse<Object> response = baseResponseService.getSuccessResponse(resultMap);
+        String json = objectMapper.writeValueAsString(response);
         volumeWebSocketHandler.sendToSession(sessionId, json);
     }
 }
