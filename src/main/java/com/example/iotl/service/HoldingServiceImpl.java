@@ -25,12 +25,22 @@ public class HoldingServiceImpl implements HoldingService {
     private final StockDetailRepository stockDetailRepository;
     private final UserRepository userRepository;
 
-    @Override
     public MyStockSummaryDto getMyStockSummary(String userName, String stockCode) {
-        Holdings h = holdingsRepository
-            .findByUser_UsernameAndStock_StockCode(userName, stockCode)
-            .orElseThrow(() -> new RuntimeException("보유 종목이 없습니다."));
+        Optional<Holdings> hOpt = holdingsRepository
+            .findByUser_UsernameAndStock_StockCode(userName, stockCode);
 
+        if (hOpt.isEmpty()) {
+            // 보유 종목이 없을 경우 0으로 응답
+            return MyStockSummaryDto.builder()
+                .averagePrice(BigDecimal.ZERO)
+                .quantity(0)
+                .expectedFee(BigDecimal.ZERO)
+                .totalProfit(BigDecimal.ZERO)
+                .totalAmount(BigDecimal.ZERO)
+                .build();
+        }
+
+        Holdings h = hOpt.get();
         BigDecimal averagePrice = h.getAverageBuyPrice();
         int quantity = h.getQuantity();
 
@@ -42,7 +52,7 @@ public class HoldingServiceImpl implements HoldingService {
         }
 
         BigDecimal currentPrice = stockDetailOpt.get().getClosePrice();
-        BigDecimal totalNowAmount = currentPrice.multiply(BigDecimal.valueOf(quantity));  // ✅ 총 금액 계산
+        BigDecimal totalNowAmount = currentPrice.multiply(BigDecimal.valueOf(quantity));
         BigDecimal fee = totalNowAmount.multiply(new BigDecimal("0.0003"))
             .setScale(0, RoundingMode.HALF_UP);
 
@@ -58,6 +68,7 @@ public class HoldingServiceImpl implements HoldingService {
             .totalAmount(totalNowAmount)
             .build();
     }
+
 
 
     @Override
