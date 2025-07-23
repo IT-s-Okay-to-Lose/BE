@@ -23,7 +23,7 @@ public class HoldingServiceImpl implements HoldingService {
 
     private final HoldingsRepository holdingsRepository;
     private final StockDetailRepository stockDetailRepository;
-    private final UserRepository userRepository;      // ✅ 꼭 포함!
+    private final UserRepository userRepository;
 
     @Override
     public MyStockSummaryDto getMyStockSummary(String userName, String stockCode) {
@@ -42,7 +42,7 @@ public class HoldingServiceImpl implements HoldingService {
         }
 
         BigDecimal currentPrice = stockDetailOpt.get().getClosePrice();
-        BigDecimal totalNowAmount = currentPrice.multiply(BigDecimal.valueOf(quantity));
+        BigDecimal totalNowAmount = currentPrice.multiply(BigDecimal.valueOf(quantity));  // ✅ 총 금액 계산
         BigDecimal fee = totalNowAmount.multiply(new BigDecimal("0.0003"))
             .setScale(0, RoundingMode.HALF_UP);
 
@@ -55,8 +55,10 @@ public class HoldingServiceImpl implements HoldingService {
             .quantity(quantity)
             .expectedFee(fee)
             .totalProfit(profit)
+            .totalAmount(totalNowAmount)
             .build();
     }
+
 
     @Override
     public List<HoldingSummaryDto> getMyHoldings(String username) {
