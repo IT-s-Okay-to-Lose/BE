@@ -62,6 +62,10 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok'
 	//mac0s 전용
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.107.Final:osx-aarch_64'
+
+	//Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }
 
 tasks.named('test') {

@@ -5,12 +5,6 @@ spring:
   jackson:
     time-zone: Asia/Seoul
 
-  jmx:
-    enabled: false
-
-  application:
-    name: IOTL
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -32,6 +26,12 @@ spring:
     baseline-on-migrate: true
     baseline-version: 1
     locations: classpath:db/migration
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # password: ${REDIS_PASSWORD}  # 필요시 추가
 
   jwt:
     secret: ${JWT_SECRET}

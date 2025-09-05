@@ -10,6 +10,7 @@ import com.example.iotl.entity.Order;
 import com.example.iotl.entity.Order.OrderStatus;
 import com.example.iotl.entity.Stocks;
 import com.example.iotl.entity.User;
+import com.example.iotl.producer.OrderQueueProducer;
 import com.example.iotl.repository.HoldingsRepository;
 import com.example.iotl.repository.OrderRepository;
 import com.example.iotl.repository.StocksRepository;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,6 +34,10 @@ public class OrderService {
     private final HoldingsRepository holdingsRepository;
     private final TradeService tradeService;
     private final OrderMatchingService orderMatchingService;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final OrderQueueProducer orderQueueProducer;
+    private final HogaCacheRefresher hogaCacheRefresher;
+
 
     @Transactional
     public OrderResponseDto placeOrder(String username, OrderRequestDto requestDto) {
@@ -75,7 +81,16 @@ public class OrderService {
         orderRepository.save(order);
 
         //  (5) 체결 시도
-        orderMatchingService.match(order);
+//        orderMatchingService.match(order);
+
+        // Redis 큐에 주문 ID 추가 비동기 체결
+        String stockCode = stocks.getStockCode();
+// ✅ 주문 저장 직후: 실주문 집계 → Redis 캐시 전체 교체 저장
+        hogaCacheRefresher.refreshFromDb(stockCode);
+
+//        redisTemplate.opsForList().leftPush("order:queue:" + stockCode, order.getId());
+        orderQueueProducer.pushOrder(stocks.getStockCode(), order.getId());
+
 
         return OrderResponseDto.from(order);
     }

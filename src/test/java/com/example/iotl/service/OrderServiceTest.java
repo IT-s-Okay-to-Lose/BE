@@ -83,6 +83,45 @@ class OrderServiceTest {
         userRepository.deleteAll();
     }
 
+
+
+    @Test
+    @DisplayName("주문 처리 성능 측정")
+    void measureOrderPerformance() {
+        // 1. 매수자 준비
+        User buyer = userRepository.save(User.builder()
+            .username("BUYER" + System.nanoTime())
+            .name("buyer")
+            .email("buyer" + System.currentTimeMillis() + "@test.com")
+            .role("USER")
+            .build());
+        Accounts buyerAcc = Accounts.builder()
+            .user(buyer)
+            .balance(new BigDecimal("1000000"))
+            .build();
+        accountsRepository.save(buyerAcc);
+        buyer.setAccount(buyerAcc);
+        userRepository.save(buyer);
+
+        // 2. 매수 주문 생성
+        OrderRequestDto dto = new OrderRequestDto();
+        dto.setStockCode(stock.getStockCode());
+        dto.setOrderType(OrderType.BUY);
+        dto.setPrice(new BigDecimal("1000"));
+        dto.setQuantity(1);
+
+        // 3. 시간 측정 시작
+        long start = System.nanoTime();
+
+        orderService.placeOrder(buyer.getUsername(), dto);
+
+        long end = System.nanoTime();
+        long elapsedMs = (end - start) / 1_000_000;
+
+        System.out.println("🚀 주문 처리 시간: " + elapsedMs + " ms");
+    }
+
+
     @Test
     @DisplayName("보유수량 초과 매도주문 등록 시 예외 발생")
     void cannotPlaceSellOrderWithInsufficientHoldings() {
