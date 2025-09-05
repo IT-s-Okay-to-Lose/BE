@@ -1,5 +1,6 @@
 package com.example.iotl.controller;
 
+
 import com.example.iotl.dto.holding.HoldingSummaryDto;
 import com.example.iotl.dto.holding.MyStockSummaryDto;
 import com.example.iotl.dto.security.CustomOAuth2User;
@@ -10,7 +11,6 @@ import com.example.iotl.service.HoldingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,5 +52,6 @@ public class HoldingController {
         List<HoldingSummaryDto> result = holdingService.getHoldingsByUserName(username);
 
         return baseResponseService.getSuccessResponse(result);
+
     }
 }

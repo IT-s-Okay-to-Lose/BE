@@ -25,4 +25,8 @@ public interface HoldingsRepository extends JpaRepository<Holdings,Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select h from Holdings h where h.user = :user and h.stock = :stock")
     Optional<Holdings> findByUserAndStockWithPessimisticLock(@Param("user") User user, @Param("stock") Stocks stock);
+
+
+    List<Holdings> findByUser_Username(String username);
+
 }
