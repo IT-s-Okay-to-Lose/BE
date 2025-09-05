@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsername(String username);
     Optional<User> findByName(String name);
+    Optional<User> findOptionalByUsername(String username);
 
     @Query("SELECT u.createdAt FROM User u WHERE u.username = :username")
     Date getGeneratedAtByUsername(@Param("username") String username);

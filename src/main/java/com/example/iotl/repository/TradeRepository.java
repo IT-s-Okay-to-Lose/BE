@@ -23,4 +23,14 @@ public interface TradeRepository extends JpaRepository<Trade,Long> {
         @Param("start") LocalDateTime start,
         @Param("end") LocalDateTime end);
 
+
+    @Query("SELECT t FROM Trade t " +
+            "WHERE t.order.user = :user " +
+            "AND t.order.orderType = com.example.iotl.entity.Order.OrderType.SELL " +
+            "AND t.executedAt BETWEEN :start AND :end")
+    List<Trade> findSellTradesByUserAndPeriod(
+            @Param("user") User user,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
 }
