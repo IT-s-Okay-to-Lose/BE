@@ -3,10 +3,9 @@ package com.example.iotl.controller;
 import com.example.iotl.domain.hoga.HogaGenerator;
 import com.example.iotl.dto.hoga.HogaDto;
 import com.example.iotl.repository.StocksRepository;
-import com.example.iotl.service.HogaAutoFillService;
 import com.example.iotl.service.HogaRedisService;
 import com.example.iotl.service.HogaService;
-import com.example.iotl.service.OrderGeneratorService;
+import com.example.iotl.service.HogaCacheRefresher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,58 +19,32 @@ public class HogaController {
 
     private final HogaService hogaService;
     private final HogaRedisService hogaRedisService;
-    private final HogaAutoFillService hogaAutoFillService;
-    private final StocksRepository stocksRepository;
-    private final OrderGeneratorService orderGeneratorService;
+    private final HogaCacheRefresher hogaCacheRefresher; // 추가
 
-
-//    @GetMapping
-//    public ResponseEntity<List<HogaDto>> getHogas(@RequestParam("code") String stockCode) {
-//        List<HogaDto> hogas = hogaService.getHogas(stockCode);
-//        return ResponseEntity.ok(hogas);
-//    }
-
-
-    @PostMapping("/{stockCode}")
-    public void saveHoga(@PathVariable String stockCode) {
-        List<HogaDto> hogas = hogaService.getHogas(stockCode); // 현재가 기반
-        hogaRedisService.saveHoga(stockCode, hogas);
+    /**
+     * 캐시 강제 리프레시(운영편의용) — DB 집계 -> Redis 저장
+     */
+    @PostMapping("/refresh/{stockCode}")
+    public String refresh(@PathVariable String stockCode) {
+        hogaCacheRefresher.refreshFromDb(stockCode);
+        return "OK";
     }
 
+    /**
+     * 조회: Redis 우선, 없으면 DB 집계 -> 캐시 저장 -> 응답
+     */
     @GetMapping("/{stockCode}")
     public List<HogaDto> getHoga(@PathVariable String stockCode) {
-        return hogaRedisService.getHoga(stockCode);
-    }
-
-    @GetMapping("/fill")
-    public String testHogaFill(@RequestParam String stockCode) {
-        hogaAutoFillService.ensureMinHogaDepth(stockCode, "system_user@iotl.com");
-        return "호가 확인 및 부족 시 자동 주문 완료";
-    }
-
-    @PostMapping("/bulk-init")
-    public String initAllHogas() {
-        List<String> stockCodes = stocksRepository.findAllStockCodes();
-
-        for (String stockCode : stockCodes) {
-            int currentPrice = hogaService.getLatestClosePrice(stockCode).intValue();
-
-            // 주문 생성 + HogaDto 리스트 반환
-            List<HogaDto> generatedHogas =
-                orderGeneratorService.generateOrdersAroundPrice(stockCode, currentPrice, "sys user");
-
-            // 바로 Redis 저장
-            hogaRedisService.saveHoga(stockCode, generatedHogas);
+        List<HogaDto> cached = hogaRedisService.getHoga(stockCode);
+        if (cached != null && !cached.isEmpty()) {
+            return cached;
         }
-
-        return "✅ 모든 종목 호가 초기화 완료 (주문 + Redis)!";
+        List<HogaDto> fromDb = hogaService.getHogas(stockCode); // 실주문 집계
+        hogaRedisService.saveHoga(stockCode, fromDb);
+        return fromDb;
     }
 
-
-
-
-
-
-
-
+    // 🔥 삭제(또는 주석처리): 자동 생성/오토필/벌크 초기화
+    // @GetMapping("/fill") ...
+    // @PostMapping("/bulk-init") ...
 }
