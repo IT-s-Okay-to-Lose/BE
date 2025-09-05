@@ -1,6 +1,9 @@
 package com.example.iotl.handler;
 
+import com.example.iotl.global.response.BaseResponse;
+import com.example.iotl.global.response.BaseResponseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
@@ -10,14 +13,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ChartWebSocketHandler extends TextWebSocketHandler {
 
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final Map<String, ChartRequest> sessionRequestMap = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final BaseResponseService baseResponseService;
 
     private boolean marketOpen = true;
 
@@ -37,7 +42,7 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
             ChartRequest request = objectMapper.readValue(message.getPayload(), ChartRequest.class);
             sessionRequestMap.put(session.getId(), request);
         } catch (Exception e) {
-
+            log.warn("❌ Chart 요청 파싱 실패: {}", e.getMessage());
         }
     }
 
@@ -47,16 +52,15 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
         sessionRequestMap.remove(session.getId());
     }
 
-    public void sendToSession(String sessionId, String message) {
-        if (!marketOpen) {
-            //log.info("⏸️ 장외 시간 - 차트 메시지 전송 생략");
-            return;
-        }
+    public void sendToSession(String sessionId, Map<String, Object> data) {
+        if (!marketOpen) return;
 
         WebSocketSession session = sessions.get(sessionId);
         if (session != null && session.isOpen()) {
             try {
-                session.sendMessage(new TextMessage(message));
+                BaseResponse<Map<String, Object>> response = baseResponseService.getSuccessResponse(data);
+                String json = objectMapper.writeValueAsString(response);
+                session.sendMessage(new TextMessage(json));
             } catch (IOException e) {
                 log.error("❌ 세션 {} 메시지 전송 실패: {}", sessionId, e.getMessage());
             }
@@ -66,9 +70,9 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
     public Map<String, ChartRequest> getSessionRequestMap() {
         return sessionRequestMap;
     }
+
     public record ChartRequest(List<String> codes, String interval) {}
 
-    // 세션 종료 하기
     public void closeAllSessions() {
         for (WebSocketSession session : sessions.values()) {
             try {
@@ -78,6 +82,6 @@ public class ChartWebSocketHandler extends TextWebSocketHandler {
             }
         }
         sessions.clear();
-        sessionRequestMap.clear(); // chart에서는 필요
+        sessionRequestMap.clear();
     }
 }
