@@ -36,6 +36,7 @@ public class OrderService {
     private final OrderMatchingService orderMatchingService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final OrderQueueProducer orderQueueProducer;
+    private final HogaCacheRefresher hogaCacheRefresher;
 
 
     @Transactional
@@ -84,6 +85,9 @@ public class OrderService {
 
         // Redis 큐에 주문 ID 추가 비동기 체결
         String stockCode = stocks.getStockCode();
+// ✅ 주문 저장 직후: 실주문 집계 → Redis 캐시 전체 교체 저장
+        hogaCacheRefresher.refreshFromDb(stockCode);
+
 //        redisTemplate.opsForList().leftPush("order:queue:" + stockCode, order.getId());
         orderQueueProducer.pushOrder(stocks.getStockCode(), order.getId());
 
