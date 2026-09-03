@@ -66,4 +66,18 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// 재현 테스트의 진단 출력(표)을 콘솔에서 보기 위해 stdout 을 노출한다.
+	testLogging {
+		showStandardStreams = true
+		exceptionFormat = 'full'
+		events 'passed', 'failed', 'skipped'
+	}
+	// 벤치마크 결과가 어느 실험 후보의 수치인지 표에 남기기 위해
+	// -Dbench.variant 를 테스트 JVM 으로 전달한다.
+	systemProperty 'bench.variant', System.getProperty('bench.variant', 'BASE(대책없음)')
+	// 재현 컨텍스트와 실험 규모 파라미터를 테스트 JVM 으로 전달한다.
+	['bench.branch', 'bench.commit', 'bench.pool', 'bench.isolation', 'bench.seed',
+	 'c4.iterations', 'c7.seeds', 'c7.ops', 'c7.workers'].each { k ->
+		if (System.getProperty(k) != null) { systemProperty k, System.getProperty(k) }
+	}
 }
