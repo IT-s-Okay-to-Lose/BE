@@ -1,0 +1,76 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<title>거래 정합성 검증 결과</title><style>
+/* 캡처 전용 공통 스타일. 외부 의존성 없음. */
+:root{
+  --ink:#1a1d21; --muted:#6b7280; --line:#e3e6ea; --bg:#fff;
+  --bad:#b4232c; --good:#12664f; --accent:#1f3a5f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; padding:36px 44px; background:var(--bg); color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1{font-size:23px; margin:0 0 4px; letter-spacing:-.3px}
+.sub{color:var(--muted); font-size:13px; margin:0 0 22px}
+table{border-collapse:collapse; width:100%; margin:0 0 16px}
+th,td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left}
+th{font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.02em;
+   text-transform:uppercase; border-bottom:1.5px solid #c9cdd3}
+td.num{font-variant-numeric:tabular-nums; text-align:right}
+.big{font-weight:700; font-size:16px}
+.zero{color:var(--good); font-weight:700}
+.bad{color:var(--bad); font-weight:700}
+.foot{margin-top:20px; padding-top:14px; border-top:1px solid var(--line);
+      font-size:12px; color:var(--muted)}
+.foot b{color:var(--ink); font-weight:600}
+.caveat{margin-top:14px; padding:11px 14px; background:#f7f8fa;
+        border-left:3px solid #c9cdd3; font-size:12.5px; color:#3f4650; line-height:1.5}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px}
+.panel{border:1px solid var(--line); border-radius:6px; padding:16px 18px}
+.panel h2{font-size:13px; margin:0 0 12px; color:var(--muted);
+          text-transform:uppercase; letter-spacing:.04em}
+.panel.before{border-color:#e8c4c7}
+.panel.after{border-color:#bcd8cf}
+.kv{display:flex; justify-content:space-between; padding:6px 0;
+    border-bottom:1px solid #f0f2f4; font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv .v{font-variant-numeric:tabular-nums; font-weight:600}
+.note{font-size:13px; color:#3f4650; margin:16px 0 0; line-height:1.6}
+.tiny{font-size:11.5px; color:var(--muted); margin-top:10px}
+</style></head><body>
+
+<h1>거래 정합성 검증 결과</h1>
+<p class="sub">동시 실행 순서가 달라져도 거래 불변식이 깨지는가 &nbsp;·&nbsp; commit <code>14e67f0</code></p>
+
+<table>
+<thead><tr><th style="width:26%">시나리오</th><th style="width:48%">조건</th><th style="width:26%; text-align:right">관측된 violation</th></tr></thead>
+<tbody>
+<tr><td>중복 체결 race</td><td>SELL 1주 &larr; BUY 1주 &times; 2 동시</td><td class="num"><span class="zero big">0</span></td></tr>
+<tr><td>Overfill</td><td>SELL 10주 / 보유 100주 &larr; BUY 1주 &times; 100 동시</td><td class="num"><span class="zero big">0</span></td></tr>
+<tr><td>PARTIAL chain</td><td>BUY 100 &larr; SELL 30 &rarr; 20 &rarr; 10 &rarr; 40</td><td class="num"><span class="zero big">0</span></td></tr>
+<tr><td>race 반복</td><td>동일 중복 체결 race 1,000회</td><td class="num"><span class="zero big">0 / 1000</span></td></tr>
+<tr><td>randomized 1차</td><td>20 seeds &times; 500 ops &times; 8 workers = 10,000 ops</td><td class="num"><span class="zero big">0</span></td></tr>
+<tr><td>randomized 확장</td><td>20 seeds &times; 1,000 ops &times; 16 workers = 20,000 ops</td><td class="num"><span class="zero big">0</span></td></tr>
+</tbody></table>
+
+<p class="note"><b>검증한 불변식</b> &nbsp;
+총 체결량 &le; 최초 주문량 &nbsp;·&nbsp; remaining = original &minus; executed &nbsp;·&nbsp;
+remaining=0 &rarr; COMPLETED &nbsp;·&nbsp; 잔량 있으면 PARTIAL &nbsp;·&nbsp;
+Holdings 총량 보존 &nbsp;·&nbsp; 잔액 총합 보존<br>
+<span class="tiny">금액은 BigDecimal, 수량은 정수형으로만 비교</span></p>
+
+<div class="foot">
+<b>deadlock 0</b> &nbsp;·&nbsp; <b>lock timeout 0</b>
+<span class="tiny">(결정론적 시나리오 기준. randomized 는 개별 요청 errno 를 집계하지 않아 N/A)</span><br>
+MySQL 8.0.46 &nbsp;·&nbsp; placeOrder isolation <b>READ COMMITTED</b> &nbsp;·&nbsp;
+HikariCP pool 120 &nbsp;·&nbsp; commit <b>14e67f0</b>
+</div>
+
+<div class="caveat">
+테스트한 범위에서 정의한 불변식 위반이 관측되지 않았으며,
+버그가 완전히 제거되었음을 의미하지 않는다.<br>
+randomized 는 20개의 고정 seed를 두 concurrency 조건에서 실행하여 총 30,000 operations 를 검증한 것이다.
+</div>
+
+</body></html>

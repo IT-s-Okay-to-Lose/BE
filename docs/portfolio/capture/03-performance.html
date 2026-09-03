@@ -1,0 +1,100 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<title>API 부하 실험 — 100 req/s</title><style>
+/* 캡처 전용 공통 스타일. 외부 의존성 없음. */
+:root{
+  --ink:#1a1d21; --muted:#6b7280; --line:#e3e6ea; --bg:#fff;
+  --bad:#b4232c; --good:#12664f; --accent:#1f3a5f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; padding:36px 44px; background:var(--bg); color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1{font-size:23px; margin:0 0 4px; letter-spacing:-.3px}
+.sub{color:var(--muted); font-size:13px; margin:0 0 22px}
+table{border-collapse:collapse; width:100%; margin:0 0 16px}
+th,td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left}
+th{font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.02em;
+   text-transform:uppercase; border-bottom:1.5px solid #c9cdd3}
+td.num{font-variant-numeric:tabular-nums; text-align:right}
+.big{font-weight:700; font-size:16px}
+.zero{color:var(--good); font-weight:700}
+.bad{color:var(--bad); font-weight:700}
+.foot{margin-top:20px; padding-top:14px; border-top:1px solid var(--line);
+      font-size:12px; color:var(--muted)}
+.foot b{color:var(--ink); font-weight:600}
+.caveat{margin-top:14px; padding:11px 14px; background:#f7f8fa;
+        border-left:3px solid #c9cdd3; font-size:12.5px; color:#3f4650; line-height:1.5}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px}
+.panel{border:1px solid var(--line); border-radius:6px; padding:16px 18px}
+.panel h2{font-size:13px; margin:0 0 12px; color:var(--muted);
+          text-transform:uppercase; letter-spacing:.04em}
+.panel.before{border-color:#e8c4c7}
+.panel.after{border-color:#bcd8cf}
+.kv{display:flex; justify-content:space-between; padding:6px 0;
+    border-bottom:1px solid #f0f2f4; font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv .v{font-variant-numeric:tabular-nums; font-weight:600}
+.note{font-size:13px; color:#3f4650; margin:16px 0 0; line-height:1.6}
+.tiny{font-size:11.5px; color:var(--muted); margin-top:10px}
+svg text{font:11px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+.svglabel{fill:#6b7280}
+.svgval{fill:#1a1d21; font-weight:600; font-variant-numeric:tabular-nums}
+</style></head><body>
+
+<h1>API 부하 실험 &mdash; 100 req/s</h1>
+<p class="sub">target 100 req/s &nbsp;·&nbsp; duration 120s &nbsp;·&nbsp; 5 runs / variant &nbsp;·&nbsp;
+동일 MySQL 인스턴스 &nbsp;·&nbsp; 동일 seed &nbsp;·&nbsp; HikariCP 100</p>
+
+<table>
+<thead><tr><th style="width:34%">지표 (5회 중앙값)</th>
+<th style="width:33%; text-align:right">BASE</th>
+<th style="width:33%; text-align:right">FIX-E</th></tr></thead>
+<tbody>
+<tr><td>achieved rate (req/s)</td><td class="num big">87.03</td><td class="num big">99.57</td></tr>
+<tr><td>dropped iterations</td><td class="num big bad">729</td><td class="num big zero">0</td></tr>
+<tr><td>p50 (ms)</td><td class="num">40.76</td><td class="num">21.80</td></tr>
+<tr><td>p95 (ms)</td><td class="num big">9,435</td><td class="num big">381</td></tr>
+<tr><td>p99 (ms)</td><td class="num">13,461</td><td class="num">712</td></tr>
+</tbody></table>
+
+<svg width="760" height="150" viewBox="0 0 760 150" role="img" aria-label="Before/After 비교">
+  <text x="0" y="12" class="svglabel">achieved rate (req/s)</text>
+  <rect x="150" y="2" width="262" height="13" fill="#c9a0a3"/><text x="420" y="13" class="svgval">87.03</text>
+  <text x="0" y="30" class="svglabel" font-size="10">BASE</text>
+  <rect x="150" y="20" width="300" height="13" fill="#7ba894"/><text x="458" y="31" class="svgval">99.57</text>
+  <text x="0" y="48" class="svglabel" font-size="10">FIX-E</text>
+
+  <text x="0" y="72" class="svglabel">dropped iterations</text>
+  <rect x="150" y="62" width="300" height="13" fill="#c9a0a3"/><text x="458" y="73" class="svgval">729</text>
+  <text x="0" y="90" class="svglabel" font-size="10">BASE</text>
+  <rect x="150" y="80" width="2" height="13" fill="#7ba894"/><text x="158" y="91" class="svgval">0</text>
+  <text x="0" y="108" class="svglabel" font-size="10">FIX-E</text>
+
+  <text x="0" y="132" class="svglabel">p95 (ms)</text>
+  <rect x="150" y="122" width="300" height="13" fill="#c9a0a3"/><text x="458" y="133" class="svgval">9,435</text>
+  <rect x="150" y="140" width="12" height="8" fill="#7ba894"/><text x="168" y="148" class="svgval">381</text>
+</svg>
+
+<p class="note">
+FIX-E 의 결과는 Conditional UPDATE 단독 성능이 아니라
+<b>Conditional UPDATE + candidate reread + READ COMMITTED + 최종 정합성 수정</b>이
+모두 포함된 최종 개선안의 end-to-end 결과다.
+</p>
+
+<div class="foot">
+iteration 1회 = <code>POST /api/orders</code> 1회이므로 <b>req/s</b> 로 표기한다.<br>
+<b>http_req_failed 0</b> (양쪽) &nbsp;·&nbsp; HTTP 성공과 거래 정합성은 별도의 검증 대상이다.<br>
+<span class="tiny">dropped iterations = arrival-rate executor 에서 VU 부족 등으로 시작하지 못한 iteration 수</span><br>
+BASE <b>69137f0</b> &nbsp;·&nbsp; FIX-E <b>b17af60</b> &nbsp;·&nbsp; MySQL 8.0.46
+</div>
+
+<div class="caveat">
+BASE 는 correctness defect 가 있는 버전이므로 성능 우위·개선율로 해석하지 않는다.
+production SLO 를 알 수 없어 절대 기준을 두지 않으며, 동일 로컬 환경의 상대 비교로만 사용한다.<br>
+placeOrder isolation 은 BASE = REPEATABLE READ, FIX-E = READ COMMITTED 로 다르며,
+이는 측정 오염이 아니라 최종 개선안의 구성 요소다.
+</div>
+
+</body></html>

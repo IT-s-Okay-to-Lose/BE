@@ -1,0 +1,88 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<title>동일 Order 중복 체결 — Before / After</title><style>
+/* 캡처 전용 공통 스타일. 외부 의존성 없음. */
+:root{
+  --ink:#1a1d21; --muted:#6b7280; --line:#e3e6ea; --bg:#fff;
+  --bad:#b4232c; --good:#12664f; --accent:#1f3a5f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; padding:36px 44px; background:var(--bg); color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1{font-size:23px; margin:0 0 4px; letter-spacing:-.3px}
+.sub{color:var(--muted); font-size:13px; margin:0 0 22px}
+table{border-collapse:collapse; width:100%; margin:0 0 16px}
+th,td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left}
+th{font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.02em;
+   text-transform:uppercase; border-bottom:1.5px solid #c9cdd3}
+td.num{font-variant-numeric:tabular-nums; text-align:right}
+.big{font-weight:700; font-size:16px}
+.zero{color:var(--good); font-weight:700}
+.bad{color:var(--bad); font-weight:700}
+.foot{margin-top:20px; padding-top:14px; border-top:1px solid var(--line);
+      font-size:12px; color:var(--muted)}
+.foot b{color:var(--ink); font-weight:600}
+.caveat{margin-top:14px; padding:11px 14px; background:#f7f8fa;
+        border-left:3px solid #c9cdd3; font-size:12.5px; color:#3f4650; line-height:1.5}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px}
+.panel{border:1px solid var(--line); border-radius:6px; padding:16px 18px}
+.panel h2{font-size:13px; margin:0 0 12px; color:var(--muted);
+          text-transform:uppercase; letter-spacing:.04em}
+.panel.before{border-color:#e8c4c7}
+.panel.after{border-color:#bcd8cf}
+.kv{display:flex; justify-content:space-between; padding:6px 0;
+    border-bottom:1px solid #f0f2f4; font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv .v{font-variant-numeric:tabular-nums; font-weight:600}
+.note{font-size:13px; color:#3f4650; margin:16px 0 0; line-height:1.6}
+.tiny{font-size:11.5px; color:var(--muted); margin-top:10px}
+</style></head><body>
+
+<h1>동일 Order 중복 체결 &mdash; Before / After</h1>
+<p class="sub">1주짜리 매도 주문에 매수 2건이 동시에 진입했을 때</p>
+
+<div class="grid2">
+
+<div class="panel before">
+  <h2>Before &nbsp;<span style="text-transform:none;color:#b4232c">개선 전 (69137f0)</span></h2>
+  <div class="kv"><span>SELL order</span><span class="v">1주</span></div>
+  <div class="kv"><span>Trade</span><span class="v bad">2건</span></div>
+  <div class="kv"><span>executed quantity</span><span class="v bad">2주</span></div>
+  <div class="kv"><span>seller holdings</span><span class="v bad">10 &rarr; 8</span></div>
+</div>
+
+<div class="panel after">
+  <h2>After &nbsp;<span style="text-transform:none;color:#12664f">최종 개선안</span></h2>
+  <div class="kv"><span>SELL order</span><span class="v">1주</span></div>
+  <div class="kv"><span>Trade</span><span class="v zero">1건</span></div>
+  <div class="kv"><span>executed quantity</span><span class="v zero">1주</span></div>
+  <div class="kv"><span>seller holdings</span><span class="v zero">10 &rarr; 9</span></div>
+</div>
+
+</div>
+
+<p class="note">
+기존에는 Order 자체의 체결 가능 상태가 원자적으로 보호되지 않아
+동일 주문이 두 번 체결될 수 있었다.
+</p>
+
+<table style="margin-top:22px">
+<thead><tr><th style="width:22%">PARTIAL 주문 재매칭</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>Before</td><td>BUY 7주(PARTIAL) + SELL 7주(PENDING) 나란히 남아 <span class="bad">미체결</span></td></tr>
+<tr><td>After</td><td>추가 매칭 &rarr; <span class="zero">COMPLETED</span> (잔량 70 &rarr; 50 &rarr; 40 &rarr; 0)</td></tr>
+</tbody></table>
+
+<div class="foot">
+Before 재현: <b>5/5 회</b> 동일 결과 &nbsp;·&nbsp; After: 동일 race <b>1,000회 위반 0</b><br>
+MySQL 8.0.46 &nbsp;·&nbsp; 동일 테스트 코드 &nbsp;·&nbsp; BASE <b>69137f0</b>
+</div>
+
+<div class="caveat">
+PARTIAL 재매칭은 동시성 제어(Conditional UPDATE)의 효과가 아니라
+매칭 쿼리·루프 수정의 효과다.
+</div>
+
+</body></html>

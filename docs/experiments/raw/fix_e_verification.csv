@@ -1,0 +1,5 @@
+run_id,timestamp,variant,branch,commit,scenario,concurrency,pool_size,isolation,seed,repetition,1_isLoaded_account,2_account_ref_class,3_em_contains_account,4_hibernate_initialized,5_db_after_other_commit,6_locking_read,7_raw_jdbc,verdict
+e87c7209,2026-09-02T11:37:34.946973995Z,FIX-E,N/A,N/A,LAZY_FETCH_PROBE,2,N/A,N/A,N/A,1,true,Accounts,true,true,995000.00,1000000.00,995000.00,LAZY 무효
+d6a49e6f,2026-09-02T11:38:14.949288057Z,FIX-E,N/A,N/A,USER_REF_PROBE,2,N/A,N/A,N/A,1,43622,false,995000.00,995000.00,995000.00,전제 성립
+446df1ce,2026-09-02T11:38:59.293113708Z,FIX-E,N/A,N/A,LAZY_FETCH_PROBE,2,N/A,N/A,N/A,1,true,Accounts,true,true,995000.00,1000000.00,995000.00,LAZY 무효
+446df1ce,2026-09-02T11:38:59.512463939Z,FIX-E,N/A,N/A,USER_REF_PROBE,2,N/A,N/A,N/A,1,43626,false,995000.00,995000.00,995000.00,전제 성립

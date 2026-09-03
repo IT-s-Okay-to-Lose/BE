@@ -1,0 +1,5 @@
+run_id,timestamp,variant,branch,commit,scenario,concurrency,pool_size,isolation,seed,repetition,1_scalar_quantity,2_pc_contains_entity_after_scalar,3_db_after_other_commit,4_locking_entity_read,5_raw_jdbc,6_pc_contains_after_lock,verdict
+2634182c,2026-09-02T11:17:09.340715777Z,FIX-D,N/A,N/A,FIX_D_PROBE,2,N/A,N/A,N/A,1,100,false,93,93,93,true,원인 경로 제거됨
+9b871fcf,2026-09-02T11:20:00.684148727Z,FIX-D,N/A,N/A,ACCOUNTS_PATH_PROBE,2,N/A,N/A,N/A,1,ok,true,1000000.00,995000.00,1000000.00,995000.00
+446df1ce,2026-09-02T11:38:59.150315265Z,FIX-E,N/A,N/A,FIX_D_PROBE,2,N/A,N/A,N/A,1,100,false,93,93,93,true,원인 경로 제거됨
+446df1ce,2026-09-02T11:38:59.404953082Z,FIX-E,N/A,N/A,ACCOUNTS_PATH_PROBE,2,N/A,N/A,N/A,1,ok,true,1000000.00,995000.00,1000000.00,995000.00

@@ -1,0 +1,3 @@
+run_id,timestamp,variant,branch,commit,scenario,concurrency,pool_size,isolation,seed,repetition,server_default,placeOrder_annotation
+645daefc,2026-09-02T13:33:19.353211615Z,FIX-E,N/A,N/A,ISOLATION_PROBE,1,N/A,N/A,N/A,1,REPEATABLE-READ,Spring @Transactional(isolation=READ_COMMITTED)
+648c52ce,2026-09-02T13:33:42.396047218Z,FIX-E,N/A,N/A,ISOLATION_PROBE,1,N/A,N/A,N/A,1,READ-COMMITTED,REPEATABLE-READ,REPEATABLE-READ,Spring @Transactional(isolation=READ_COMMITTED)
