@@ -7,10 +7,7 @@
 > 100 req/s 를 120s x 5회로 측정한 결과다.
 > 10/25/50 단계 측정과 k6 실행 원본(raw JSON·HTML report)은 로컬에 보관한다.
 
-> **해석 주의**: 원시 측정값만 정리한다. 성능 개선/악화를 해석하지 않는다.
-> **BASE 는 correctness 결함이 있는 버전**이므로 성능 우위로 평가하지 않는다.
-
-
+> 동일한 로컬 환경에서 기존 구현(BASE)과 최종 개선안(FIX-E)을 비교했습니다.
 
 > **저장소에 포함된 범위**
 > 실험 원본(k6 raw JSON·HTML report·실행 로그, 조사 과정 문서)은 **로컬에 보관**하며
@@ -57,7 +54,7 @@ BASE 는 `jakarta.transaction.Transactional` 을 쓰며 isolation 속성이 없�
 `@Transactional(isolation = Isolation.READ_COMMITTED)` 를 명시한다.
 
 **이 차이는 측정 오염이 아니라 최종 정합성 개선안(B2-2)의 구성 요소다.**
-FIX-E 는 CAS 실패 후 최신 후보를 재조회해야 하는데 REPEATABLE-READ 에서는
+FIX-E 는 조건부 UPDATE 실패 후 최신 후보를 재조회해야 하는데 REPEATABLE-READ 에서는
 스냅샷에 갇혀 소비된 후보가 반복 반환된다(실측 확인). 따라서 READ_COMMITTED 를
 BASE 와 동일하게 되돌리면 FIX-E 의 정합성이 성립하지 않는다.
 

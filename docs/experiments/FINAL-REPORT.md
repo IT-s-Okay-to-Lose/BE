@@ -42,7 +42,7 @@
 | 후보 | 1차 결과 | 실패 원인 (실측) | 2차 변경 | 2차 결과 |
 |---|---|---|---|---|
 | **A** Order 비관적 락 | S3 N=100 체결률 1%, deadlock 99 | `FOR UPDATE+ORDER BY+LIMIT` 이 PRIMARY 인덱스로 48행 잠금. 자기 INSERT 행이 순환 대기 참여 (lock graph 채집) | `excludeOrderId` 제거(중복 조건임을 3건 테스트로 증명 후) | **개선 없음.** deadlock 99→97. 원인이 인덱스 선택이 아니라 "INSERT 한 테이블을 같은 트랜잭션에서 FOR UPDATE 스캔"하는 구조 자체 |
-| **B** 조건부 UPDATE(CAS) | S3 N=100 체결률 7% | ① RR 스냅샷에 갇혀 재조회가 소비된 후보 반복 반환 ② RuntimeException 이 rollback-only 유발 | ① placeOrder 에만 READ_COMMITTED ② `TradeResult` 값 반환 ③ CAS 를 자산 검증보다 앞으로 | **체결률 100%, deadlock 0** |
+| **B** 조건부 UPDATE | S3 N=100 체결률 7% | ① RR 스냅샷에 갇혀 재조회가 소비된 후보 반복 반환 ② RuntimeException 이 rollback-only 유발 | ① placeOrder 에만 READ_COMMITTED ② `TradeResult` 값 반환 ③ 조건부 UPDATE 를 자산 검증보다 앞으로 | **체결률 100%, deadlock 0** |
 
 두 차례 모두 **실패 원인을 lock graph / 프로브 테스트로 실측**한 뒤 재설계했다.
 1차 결과는 실험 기록(로컬 보관), 프로브 조사 기록(로컬 보관) 에 그대로 보존돼 있다.
@@ -191,7 +191,7 @@ C4~C6 범위에서 **관측된 위반이 없는** 불변식:
 | remainingQuantity = originalQuantity − Σ executedQuantity | C4, C5, C6 |
 | remaining=0 ↔ COMPLETED, 0<remaining<original ↔ PARTIAL | C4, C5, C6 |
 | 매도자 보유 감소량 = 실제 체결량 | C4, C5 |
-| 자산 검증 실패 시 CAS 변경까지 롤백 | C3 (2차 단계) |
+| 자산 검증 실패 시 조건부 UPDATE 변경까지 롤백 | C3 (2차 단계) |
 | PARTIAL 주문의 재매칭 | C6 (단, 공통 matching logic 의 효과) |
 
 **보장되지 않은 것**: 다자간 랜덤 동시 거래에서의 **자산 총량 보존**(C7 위반).

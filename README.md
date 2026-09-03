@@ -24,9 +24,9 @@ duplicate-fill race 를 재현했습니다. 주문의 체결 가능 상태가 �
 
 ### 개선
 
-- **조건부 UPDATE(CAS)** — 주문의 수량·상태 전이를 DB 가 원자적으로 판정하게 해,
-  두 트랜잭션이 같은 주문을 동시에 소비하지 못하도록 했습니다.
-- **CAS 실패 시 후보 재조회** — 영향 행 0 은 오류가 아니라 정상 경합이므로,
+- **조건부 UPDATE** — 주문 상태와 `quantity = expectedQty` 를 `WHERE` 조건에 포함한
+  SQL UPDATE 로 전이시키고, 영향 행 수 0/1 로 경쟁 결과를 판단합니다.
+- **조건부 UPDATE 실패 시 후보 재조회** — 영향 행 0 은 오류가 아니라 정상 경합이므로,
   거래를 실패시키지 않고 최신 매칭 후보를 다시 찾습니다.
 - **`READ_COMMITTED` 적용** — `REPEATABLE READ` 에서는 재조회가 스냅샷에 갇혀
   이미 소비된 후보를 반복 반환하기 때문에, 해당 트랜잭션에만 적용했습니다.
@@ -43,12 +43,9 @@ duplicate-fill race 를 재현했습니다. 주문의 체결 가능 상태가 �
 | PARTIAL chain | BUY 100 ← SELL 30→20→10→40 | **0** |
 | Randomized invariant | 20 fixed seeds × 2 조건 = 30,000 operations | **0** |
 
-deadlock **0**, lock timeout **0**.
+정의한 불변식 기준 위반 **0건**, deadlock **0**, lock timeout **0**.
 검증한 불변식은 총 체결량 ≤ 최초 주문량, `remaining = original − executed`,
 상태-잔량 일치, Holdings·잔액 총량 보존입니다.
-
-> 위 결과는 **테스트한 범위에서 정의한 불변식 위반이 관측되지 않았다**는 뜻이며,
-> 테스트하지 않은 실행 순서·부하에서의 동작을 보장하지 않습니다.
 
 **API 부하 (100/s 목표, 120초, variant 당 5회 측정의 중앙값)**
 
@@ -59,10 +56,7 @@ deadlock **0**, lock timeout **0**.
 | p95 | 9,435 ms | 381 ms |
 | p99 | 13,461 ms | 712 ms |
 
-> BASE 는 correctness 결함이 있는 기존 시스템이며, 위 수치는 동일 로컬 환경에서
-> 개선 전후를 비교한 값입니다. 운영 환경의 최대 처리량을 의미하지 않습니다.
-> FIX-E 는 조건부 UPDATE 단독이 아니라 후보 재조회·`READ_COMMITTED` 를 포함한
-> 최종 개선안의 end-to-end 결과입니다.
+> 동일한 로컬 환경에서 기존 구현(BASE)과 최종 개선안(FIX-E)을 비교했습니다.
 
 ### 상세 문서
 
